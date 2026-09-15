@@ -14,6 +14,7 @@ from typing import Literal
 
 import asyncpg
 from redis.asyncio import Redis
+from redis.exceptions import RedisError
 
 from northforge.core.config import Settings
 from northforge.core.queue import WORKER_HEALTH_KEY
@@ -64,7 +65,7 @@ async def check_redis(redis: Redis, timeout_seconds: float) -> CheckResult:
     started = time.perf_counter()
     try:
         await asyncio.wait_for(redis.ping(), timeout=timeout_seconds)
-    except (OSError, ConnectionError, TimeoutError) as exc:
+    except (OSError, RedisError, TimeoutError) as exc:
         logger.warning("redis readiness check failed", extra={"error": repr(exc)})
         return CheckResult("redis", "error", _elapsed_ms(started), "connection failed")
     return CheckResult("redis", "ok", _elapsed_ms(started))
@@ -75,7 +76,7 @@ async def check_worker(redis: Redis, timeout_seconds: float) -> CheckResult:
     started = time.perf_counter()
     try:
         raw = await asyncio.wait_for(redis.get(WORKER_HEALTH_KEY), timeout=timeout_seconds)
-    except (OSError, ConnectionError, TimeoutError) as exc:
+    except (OSError, RedisError, TimeoutError) as exc:
         logger.warning("worker readiness check failed", extra={"error": repr(exc)})
         return CheckResult("worker", "error", _elapsed_ms(started), "redis unreachable")
     if raw is None:
