@@ -26,14 +26,10 @@ def sqlalchemy_url(database_url: str) -> str:
 
 
 def create_engine(settings: Settings) -> AsyncEngine:
-    """Build the application's async engine from settings.
+    """Build the application's async engine from settings."""
 
-    ``database_pool_size`` and ``database_echo`` fall back to defaults when
-    not yet present on ``Settings``.
-    """
-
-    pool_size = getattr(settings, "database_pool_size", 5)
-    echo = getattr(settings, "database_echo", False)
+    pool_size = settings.database_pool_size
+    echo = settings.database_echo
     return _create_async_engine(
         sqlalchemy_url(settings.database_url),
         pool_size=pool_size,

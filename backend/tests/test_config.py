@@ -84,3 +84,21 @@ def test_dev_mode_in_development_passes(monkeypatch: pytest.MonkeyPatch) -> None
 
     assert loaded.auth_mode == "dev"
     assert loaded.app_env == "development"
+
+
+def test_authorized_parties_accepts_empty_csv_and_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("AUTH_MODE", "dev")
+
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "")
+    assert load_settings(env_file=None).clerk_authorized_parties == []
+
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "http://a.test, http://b.test")
+    assert load_settings(env_file=None).clerk_authorized_parties == [
+        "http://a.test",
+        "http://b.test",
+    ]
+
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", '["http://c.test"]')
+    assert load_settings(env_file=None).clerk_authorized_parties == ["http://c.test"]

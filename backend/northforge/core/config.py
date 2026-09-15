@@ -7,12 +7,14 @@ All secrets are ``SecretStr`` so they never appear in logs or error messages.
 
 from __future__ import annotations
 
+import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, Self
+from typing import Annotated, Literal, Self
 
-from pydantic import Field, SecretStr, ValidationError, model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, SecretStr, ValidationError, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+from pydantic_settings.exceptions import SettingsError
 
 from northforge.core.errors import ConfigurationError
 
@@ -50,7 +52,7 @@ class Settings(BaseSettings):
     clerk_secret_key: SecretStr | None = None
     clerk_jwks_url: str | None = None
     clerk_issuer: str | None = None
-    clerk_authorized_parties: list[str] = Field(default_factory=list)
+    clerk_authorized_parties: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
     # Database
     database_pool_size: int = 5
@@ -73,6 +75,19 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @field_validator("clerk_authorized_parties", mode="before")
+    @classmethod
+    def _split_authorized_parties(cls, value: object) -> object:
+        """Accept a comma-separated string (env files) or a JSON list."""
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return []
+            if text.startswith("["):
+                return json.loads(text)
+            return [part.strip() for part in text.split(",") if part.strip()]
+        return value
 
     @model_validator(mode="after")
     def _validate_auth_mode(self) -> Self:
@@ -99,6 +114,8 @@ def load_settings(*, env_file: Path | str | None = DEFAULT_ENV_FILE) -> Settings
     """
     try:
         return Settings(_env_file=env_file)  # type: ignore[call-arg]
+    except SettingsError as exc:
+        raise ConfigurationError(f"Invalid configuration: {exc}", problems=[str(exc)]) from exc
     except ValidationError as exc:
         problems = _format_problems(exc)
         raise ConfigurationError(
