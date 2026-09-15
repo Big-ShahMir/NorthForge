@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 
 class AppError(Exception):
     """Base error carrying a stable code, HTTP status, and a user-safe message."""
@@ -38,3 +40,29 @@ class ConfigurationError(AppError):
 class NotFoundError(AppError):
     code = "NOT_FOUND"
     status_code = 404
+
+
+class AuthenticationError(AppError):
+    code = "UNAUTHENTICATED"
+    status_code = 401
+
+
+class ForbiddenError(AppError):
+    code = "FORBIDDEN"
+    status_code = 403
+
+
+class ConflictError(AppError):
+    code = "CONFLICT"
+    status_code = 409
+
+
+class InvalidWorkflowError(AppError):
+    """Raised when a workflow definition fails schema validation."""
+
+    code = "INVALID_WORKFLOW"
+    status_code = 422
+
+    def __init__(self, message: str, *, details: list[Any]) -> None:
+        super().__init__(message)
+        self.details = details

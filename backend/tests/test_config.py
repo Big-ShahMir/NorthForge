@@ -44,3 +44,43 @@ def test_defaults(settings: Settings) -> None:
     assert settings.app_env == "test"
     assert settings.api_port == 8000
     assert settings.is_production is False
+
+
+def test_clerk_mode_without_jwks_or_issuer_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("AUTH_MODE", "clerk")
+    monkeypatch.delenv("CLERK_JWKS_URL", raising=False)
+    monkeypatch.delenv("CLERK_ISSUER", raising=False)
+
+    with pytest.raises(ConfigurationError) as excinfo:
+        load_settings(env_file=None)
+
+    assert any(
+        "AUTH_MODE" in p and "CLERK_JWKS_URL" in p and "CLERK_ISSUER" in p
+        for p in excinfo.value.problems
+    )
+
+
+def test_dev_mode_in_production_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("AUTH_MODE", "dev")
+
+    with pytest.raises(ConfigurationError) as excinfo:
+        load_settings(env_file=None)
+
+    assert any("AUTH_MODE" in p for p in excinfo.value.problems)
+
+
+def test_dev_mode_in_development_passes(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("AUTH_MODE", "dev")
+
+    loaded = load_settings(env_file=None)
+
+    assert loaded.auth_mode == "dev"
+    assert loaded.app_env == "development"

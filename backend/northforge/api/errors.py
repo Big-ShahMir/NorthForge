@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from northforge.api.envelope import error_response
-from northforge.core.errors import AppError
+from northforge.core.errors import AppError, InvalidWorkflowError
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,10 @@ _HTTP_STATUS_CODES = {
 
 async def app_error_handler(request: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, AppError)
-    return error_response(request, status_code=exc.status_code, code=exc.code, message=exc.message)
+    details = exc.details if isinstance(exc, InvalidWorkflowError) else None
+    return error_response(
+        request, status_code=exc.status_code, code=exc.code, message=exc.message, details=details
+    )
 
 
 async def http_exception_handler(request: Request, exc: Exception) -> JSONResponse:

@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import Field, SecretStr, ValidationError
+from pydantic import Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from northforge.core.errors import ConfigurationError
@@ -45,9 +45,16 @@ class Settings(BaseSettings):
     worker_health_check_interval_seconds: int = Field(default=10, ge=1, le=300)
     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
 
-    # Authentication (Clerk) - required from Phase 1 onward
+    # Authentication
+    auth_mode: Literal["clerk", "dev"] = "clerk"
     clerk_secret_key: SecretStr | None = None
     clerk_jwks_url: str | None = None
+    clerk_issuer: str | None = None
+    clerk_authorized_parties: list[str] = Field(default_factory=list)
+
+    # Database
+    database_pool_size: int = 5
+    database_echo: bool = False
 
     # Model provider (NVIDIA) - required from Phase 4 onward
     nvidia_api_key: SecretStr | None = None
@@ -67,12 +74,21 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.app_env == "production"
 
+    @model_validator(mode="after")
+    def _validate_auth_mode(self) -> Self:
+        if self.auth_mode == "clerk" and (self.clerk_jwks_url is None or self.clerk_issuer is None):
+            raise ValueError("AUTH_MODE: clerk mode requires CLERK_JWKS_URL and CLERK_ISSUER")
+        if self.auth_mode == "dev" and self.app_env == "production":
+            raise ValueError("AUTH_MODE: dev mode is not allowed when APP_ENV=production")
+        return self
+
 
 def _format_problems(exc: ValidationError) -> list[str]:
     problems: list[str] = []
     for error in exc.errors():
-        location = ".".join(str(part) for part in error["loc"]) or "<settings>"
-        problems.append(f"{location.upper()}: {error['msg']}")
+        location = ".".join(str(part) for part in error["loc"])
+        message = error["msg"].removeprefix("Value error, ")
+        problems.append(f"{location.upper()}: {message}" if location else message)
     return problems
 
 

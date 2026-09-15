@@ -151,6 +151,43 @@ This file records material choices, alternatives, assumptions, and reversibility
 **Consequences:** Schemas in Phase 2 and Phase 8 follow the detailed specifications.  
 **Revisit when:** A specification is amended.
 
+## ADR-017: Authentication modes and just-in-time user provisioning
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** The API supports two authentication modes selected by `AUTH_MODE`. `clerk` verifies Clerk session JWTs (RS256) against the Clerk JWKS endpoint with issuer and optional authorized-party checks. `dev` trusts an `X-Dev-User` header and is rejected at startup when `APP_ENV=production`. Users are provisioned on first authenticated request by upserting on the Clerk subject identifier.  
+**Context:** Clerk is the chosen identity provider (ADR-013), but local development, tests, and CI must not require a Clerk account. Token verification is deterministic code that needs no Clerk SDK.  
+**Alternatives:** Clerk Backend SDK; a shared static API key for development; no development mode.  
+**Consequences:** Every project-data route depends on `get_current_user`. Tests inject a `Principal` directly. The dev header is documented as a local convenience, never a security boundary.  
+**Revisit when:** Organisations or memberships are introduced, or Clerk changes its token format.
+
+## ADR-018: Unauthorized access to another owner's resources returns 404
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** Repository reads are scoped by owner. A resource that exists but belongs to another user is indistinguishable from a missing one: the API returns `NOT_FOUND`. `FORBIDDEN` is reserved for authenticated actions a user is not allowed to perform on resources they can see.  
+**Context:** Returning 403 for other users' identifiers confirms that the identifier exists, which leaks information across tenants.  
+**Consequences:** Cross-owner tests assert 404. Authorization lives in the repository layer, so no route can forget it.  
+**Revisit when:** Shared projects or memberships require visible-but-restricted resources.
+
+## ADR-019: Database conventions
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** UUID primary keys, timezone-aware timestamps, JSONB for versioned documents and payloads, string status columns with CHECK constraints instead of native Postgres enums, SQLAlchemy 2 async with asyncpg, and hand-written Alembic migrations verified against the models with `alembic check`.  
+**Context:** Native enums make additive status changes require type migrations. CHECK constraints keep the allowed values visible in the schema while remaining cheap to change. `alembic check` guards against model and migration drift in CI.  
+**Consequences:** Adding a status value is a one-line constraint change plus a migration. Workflow definitions are validated by Pydantic on every read and write, not by the database.  
+**Revisit when:** Query patterns need typed columns extracted from JSON documents.
+
+## ADR-020: Workflow definition envelope defined in Phase 1, step language in Phase 2
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** Phase 1 fixes the top-level workflow document shape (`schema_version`, name, request, inputs, steps, edges, tools, output schema, approval points, policies), the eight step types, and structural validators (unique ids, edges reference steps, acyclic, one finish step). Per-step input, output, timeout, retry, and failure fields are permitted but not yet typed; Phase 2 tightens them.  
+**Context:** Persistence and versioning need a stable, validated document now. Typing every step before tools exist would be speculative.  
+**Consequences:** Definitions saved in Phase 1 remain valid after Phase 2 as long as they only use the envelope fields. Phase 2 adds a `schema_version` bump only if the envelope changes.  
+**Revisit when:** Phase 2 begins.
+
 ## Decision template
 
 ### ADR-XXX: Title

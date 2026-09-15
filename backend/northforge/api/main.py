@@ -19,6 +19,7 @@ from northforge import __version__
 from northforge.api.errors import register_error_handlers
 from northforge.api.middleware import RequestContextMiddleware
 from northforge.api.routes import system
+from northforge.auth.tokens import ClerkTokenVerifier
 from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
@@ -36,6 +37,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.settings = resolved
         app.state.redis = redis
         app.state.readiness_probe = ReadinessProbe(resolved, redis)
+        if resolved.auth_mode == "clerk":
+            assert resolved.clerk_jwks_url is not None
+            assert resolved.clerk_issuer is not None
+            app.state.token_verifier = ClerkTokenVerifier(
+                resolved.clerk_jwks_url,
+                resolved.clerk_issuer,
+                authorized_parties=resolved.clerk_authorized_parties,
+            )
+        else:
+            app.state.token_verifier = None
         logger.info("api started", extra={"version": __version__, "app_env": resolved.app_env})
         try:
             yield
