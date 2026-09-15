@@ -35,3 +35,6 @@ Thumbs.db
 # Local data and logs
 *.log
 data/local/
+
+# Local-only notes
+LOCAL_RUN.md
