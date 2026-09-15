@@ -1,0 +1,36 @@
+# Local development dependencies for NorthForge.
+# Start:  docker compose up -d
+# Stop:   docker compose down          (keeps data)
+# Reset:  docker compose down -v       (destroys local data; never run against shared databases)
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: northforge-postgres
+    environment:
+      POSTGRES_USER: northforge
+      POSTGRES_PASSWORD: northforge
+      POSTGRES_DB: northforge
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U northforge -d northforge"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: northforge-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
