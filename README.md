@@ -49,13 +49,16 @@ DECISIONS.md       Architecture decision records
 
    The database is published on host port 5433 by default so a locally installed PostgreSQL on 5432 does not intercept connections. Override with `POSTGRES_PORT` and `DATABASE_URL` in `.env`.
 
-3. Install and start the API (terminal 1):
+3. Install dependencies, apply database migrations, and start the API (terminal 1):
 
    ```bash
    cd backend
    uv sync
+   uv run alembic upgrade head
    uv run python -m northforge.api
    ```
+
+   Re-run `uv run alembic upgrade head` after pulling any change that adds a migration.
 
 4. Start the worker (terminal 2):
 
@@ -86,6 +89,24 @@ DECISIONS.md       Architecture decision records
 
 Every API response uses the envelope `{"data", "error", "request_id"}`. The `X-Request-ID` header is echoed or generated and appears in every JSON log line for that request.
 
+## Authentication
+
+`AUTH_MODE` selects how the API authenticates a caller:
+
+- `AUTH_MODE=dev` (the `.env.example` default) trusts an `X-Dev-User: <any string>` request header instead of verifying a real session token. Each distinct header value is its own user, created automatically on first use. This mode is for local development only and startup fails if `APP_ENV=production`.
+- `AUTH_MODE=clerk` verifies a Clerk-issued session token from `Authorization: Bearer <token>` against Clerk's published JWKS, and requires `CLERK_JWKS_URL` and `CLERK_ISSUER` to be set.
+
+With the API running locally in dev mode, create a project as user `alice`:
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/projects \
+  -H "Content-Type: application/json" \
+  -H "X-Dev-User: alice" \
+  -d '{"name": "Vendor contract review", "description": "MVP demo project"}'
+```
+
+A request for the same project id with a different `X-Dev-User` value (a different user) gets `404 NOT_FOUND`, not `403 FORBIDDEN` -- see `docs/API_SPEC.md`.
+
 ## Quality checks
 
 Backend (from `backend/`):
@@ -97,6 +118,8 @@ uv run mypy
 uv run pytest -q                                  # unit tests, no services needed
 NORTHFORGE_INTEGRATION=1 uv run pytest -q         # also probes live PostgreSQL and Redis
 ```
+
+Repository and API tests migrate and use a separate database so they never touch development data. It defaults to `DATABASE_URL` with `_test` appended to the database name (e.g. `northforge_test`); set `NORTHFORGE_TEST_DATABASE_URL` to override it explicitly (CI does this to target its own service container).
 
 Frontend (from `frontend/`):
 
@@ -120,7 +143,7 @@ All settings are read from environment variables (or `.env` at the repository ro
 
 ## Known limitations
 
-- No authentication, projects, workflows, runs, or evaluations yet. Sidebar entries for those areas render a clearly labelled "not yet implemented" page.
+- Projects and workflows have a backend API (see `docs/API_SPEC.md`) but no frontend UI yet; there is no run or evaluation support yet either. Sidebar entries for those areas render a clearly labelled "not yet implemented" page.
 - The readiness endpoint opens a fresh PostgreSQL connection per probe; a pooled engine arrives with the Phase 1 data layer.
 - Windows: the worker cannot install POSIX signal handlers, so stop it with Ctrl+C in its terminal; in-flight jobs are not gracefully drained.
 - Docker Desktop must be running before `docker compose up`.

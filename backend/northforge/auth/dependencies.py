@@ -1,16 +1,23 @@
-"""FastAPI dependency for resolving the authenticated caller.
+"""FastAPI dependencies for resolving the authenticated caller.
 
-Only ``get_principal`` lives here. Mapping a ``Principal`` to a persisted
-``User`` row (``get_current_user``) is added alongside the database session
-dependency by other Phase 1 work.
+``get_principal`` verifies the bearer token (or trusts the dev header) and
+returns a ``Principal``. ``get_current_user`` maps that principal onto a
+persisted ``User`` row via the users repository, upserting it on every
+request so a caller seen for the first time is created automatically.
 """
 
 from __future__ import annotations
 
-from fastapi import Request
+from typing import Annotated
 
+from fastapi import Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from northforge.api.deps import get_session
 from northforge.auth.principal import Principal
 from northforge.core.errors import AuthenticationError
+from northforge.db.models import User
+from northforge.db.repositories.users import UsersRepository
 
 DEV_USER_HEADER = "X-Dev-User"
 
@@ -42,3 +49,11 @@ def get_principal(request: Request) -> Principal:
     if verifier is None:
         raise RuntimeError("token verifier not initialised; app lifespan did not run")
     return verifier.verify(token)  # type: ignore[no-any-return]
+
+
+async def get_current_user(
+    principal: Annotated[Principal, Depends(get_principal)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> User:
+    """The persisted ``User`` row for the current caller, upserted from ``principal``."""
+    return await UsersRepository(session).upsert_from_principal(principal)

@@ -20,11 +20,14 @@ Use FastAPI with Pydantic schemas. All project data endpoints require authentica
 ### Workflows
 
 - `GET /api/projects/{project_id}/workflows` — list workflows.
-- `POST /api/projects/{project_id}/workflows/plan` — create a planner job from natural-language request.
+- `POST /api/projects/{project_id}/workflows` — create a workflow from a manually supplied definition (version 1, draft). Phase 5 adds the natural-language planner job.
 - `GET /api/workflows/{workflow_id}` — retrieve workflow and versions.
-- `POST /api/workflows/{workflow_id}/versions` — save a draft version.
+- `POST /api/workflows/{workflow_id}/versions` — save a new draft version.
+- `GET /api/workflow-versions/{version_id}` — retrieve a version's definition, status, and validation warnings.
+- `PATCH /api/workflow-versions/{version_id}` — overwrite a draft or validated version's definition (resets its status to draft). Returns `409 VERSION_IMMUTABLE` for an approved or archived version.
 - `POST /api/workflow-versions/{version_id}/validate` — validate definition.
-- `POST /api/workflow-versions/{version_id}/approve` — approve immutable version.
+- `POST /api/workflow-versions/{version_id}/approve` — approve a validated version, making it immutable. Returns `409 VERSION_NOT_VALIDATED` if the version has not been validated.
+- `POST /api/workflow-versions/{version_id}/restore` — create a new draft version copying an earlier version's definition verbatim.
 
 ### Runs
 
@@ -56,11 +59,13 @@ Use FastAPI with Pydantic schemas. All project data endpoints require authentica
 
 ## Response rules
 
-Use consistent envelopes where useful: `{data, error, request_id}`. Pagination uses cursor or limit/offset consistently. Run responses include status, timestamps, current step, and links to events. Never return API keys, internal stack traces, or unauthorized document content.
+Use consistent envelopes where useful: `{data, error, request_id}`. Pagination uses cursor or limit/offset consistently: a list endpoint's `data` is `{items: [...], total, limit, offset}`. Run responses include status, timestamps, current step, and links to events. Never return API keys, internal stack traces, or unauthorized document content.
+
+Every project-scoped and workflow-scoped route requires an authenticated caller and enforces ownership on every read. A request for a project, workflow, workflow version, or run owned by a different user returns `404 NOT_FOUND`, deliberately not `403 FORBIDDEN`, so a caller cannot distinguish "does not exist" from "exists but is not yours".
 
 ## Error codes
 
-Use stable codes such as `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_WORKFLOW`, `RUN_NOT_APPROVABLE`, `RUN_NOT_RETRYABLE`, `PROVIDER_RATE_LIMITED`, `PROVIDER_UNAVAILABLE`, `TOOL_BLOCKED`, and `INTERNAL_ERROR`.
+Use stable codes such as `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_WORKFLOW`, `VERSION_IMMUTABLE`, `VERSION_NOT_VALIDATED`, `VERSION_NOT_APPROVED`, `INVALID_RUN_TRANSITION`, `RUN_NOT_APPROVABLE`, `RUN_NOT_RETRYABLE`, `PROVIDER_RATE_LIMITED`, `PROVIDER_UNAVAILABLE`, `TOOL_BLOCKED`, and `INTERNAL_ERROR`.
 
 ## Async behavior
 

@@ -12,9 +12,11 @@ import time
 from dataclasses import dataclass
 from typing import Literal
 
-import asyncpg
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from northforge.core.config import Settings
 from northforge.core.queue import WORKER_HEALTH_KEY
@@ -47,15 +49,16 @@ def _elapsed_ms(started: float) -> float:
     return round((time.perf_counter() - started) * 1000, 1)
 
 
-async def check_postgres(dsn: str, timeout_seconds: float) -> CheckResult:
+async def check_postgres(engine: AsyncEngine, timeout_seconds: float) -> CheckResult:
     started = time.perf_counter()
+
+    async def _probe() -> None:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+
     try:
-        conn = await asyncpg.connect(dsn, timeout=timeout_seconds)
-        try:
-            await asyncio.wait_for(conn.fetchval("SELECT 1"), timeout=timeout_seconds)
-        finally:
-            await conn.close()
-    except (OSError, asyncpg.PostgresError, TimeoutError) as exc:
+        await asyncio.wait_for(_probe(), timeout=timeout_seconds)
+    except (OSError, SQLAlchemyError, TimeoutError) as exc:
         logger.warning("postgres readiness check failed", extra={"error": repr(exc)})
         return CheckResult("postgres", "error", _elapsed_ms(started), "connection failed")
     return CheckResult("postgres", "ok", _elapsed_ms(started))
@@ -90,14 +93,15 @@ async def check_worker(redis: Redis, timeout_seconds: float) -> CheckResult:
 class ReadinessProbe:
     """Runs all dependency checks concurrently and aggregates a readiness status."""
 
-    def __init__(self, settings: Settings, redis: Redis) -> None:
+    def __init__(self, settings: Settings, redis: Redis, engine: AsyncEngine) -> None:
         self._settings = settings
         self._redis = redis
+        self._engine = engine
 
     async def run(self) -> ReadinessReport:
         timeout_seconds = self._settings.readiness_timeout_seconds
         results = await asyncio.gather(
-            check_postgres(self._settings.database_url, timeout_seconds),
+            check_postgres(self._engine, timeout_seconds),
             check_redis(self._redis, timeout_seconds),
             check_worker(self._redis, timeout_seconds),
         )

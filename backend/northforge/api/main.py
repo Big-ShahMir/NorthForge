@@ -18,11 +18,12 @@ from redis.asyncio import Redis
 from northforge import __version__
 from northforge.api.errors import register_error_handlers
 from northforge.api.middleware import RequestContextMiddleware
-from northforge.api.routes import system
+from northforge.api.routes import projects, system, workflows
 from northforge.auth.tokens import ClerkTokenVerifier
 from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
+from northforge.db.engine import create_engine, create_session_factory
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         redis = Redis.from_url(resolved.redis_url)
+        engine = create_engine(resolved)
+        session_factory = create_session_factory(engine)
         app.state.settings = resolved
         app.state.redis = redis
-        app.state.readiness_probe = ReadinessProbe(resolved, redis)
+        app.state.engine = engine
+        app.state.session_factory = session_factory
+        app.state.readiness_probe = ReadinessProbe(resolved, redis, engine)
         if resolved.auth_mode == "clerk":
             assert resolved.clerk_jwks_url is not None
             assert resolved.clerk_issuer is not None
@@ -52,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             yield
         finally:
             await redis.aclose()
+            await engine.dispose()
             logger.info("api stopped")
 
     app = FastAPI(
@@ -66,6 +72,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(RequestContextMiddleware)
     register_error_handlers(app)
     app.include_router(system.router)
+    app.include_router(projects.router)
+    app.include_router(workflows.router)
     return app
 
 

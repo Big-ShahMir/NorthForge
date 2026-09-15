@@ -8,7 +8,7 @@ PostgreSQL is the source of truth for product metadata, workflow definitions, ru
 
 ### `users`
 
-Stores application identity and timestamps. Use the existing authentication integration where available. Never store provider credentials here.
+`id`, `clerk_user_id` (unique; the Clerk `sub` claim in Clerk auth mode, or `dev|<X-Dev-User value>` in dev auth mode), `email` (nullable), `display_name` (nullable), `created_at`, `updated_at`. Rows are upserted by `clerk_user_id` on every authenticated request (`INSERT ... ON CONFLICT (clerk_user_id) DO UPDATE`), so a caller seen for the first time is created automatically; a new `email`/`display_name` overwrites the stored value, and a missing one never clobbers what is already stored. Never store provider credentials here.
 
 ### `projects`
 
@@ -28,11 +28,15 @@ Statuses: `draft`, `validated`, `approved`, `archived`.
 
 `id`, `workflow_version_id`, `project_id`, `status`, `input_json`, `result_json`, `error_json`, `checkpoint_ref`, `idempotency_key`, `started_at`, `completed_at`, `created_by`.
 
-Statuses: `queued`, `running`, `paused`, `completed`, `failed`, `cancelled`.
+Statuses: `queued`, `running`, `paused`, `completed`, `failed`, `cancelled`. Allowed transitions: `queued` → `running` or `cancelled`; `running` → `paused`, `completed`, `failed`, or `cancelled`; `paused` → `running` or `cancelled`. `completed`, `failed`, and `cancelled` are terminal.
+
+A run can only be created against an `approved` workflow version. `idempotency_key` is unique per `workflow_version_id` via a **partial** unique index (`WHERE idempotency_key IS NOT NULL`) rather than a plain unique constraint, so any number of runs may share a `NULL` key (no idempotency requested) while a repeated key for the same version returns the existing run instead of creating a duplicate.
 
 ### `step_runs`
 
 `id`, `run_id`, `step_id`, `attempt`, `status`, `input_json`, `output_json`, `error_json`, `started_at`, `completed_at`.
+
+Statuses: `pending`, `running`, `completed`, `failed`, `cancelled`. Unique on `(run_id, step_id, attempt)` so a retried step records a new row rather than overwriting the failed attempt.
 
 ### `trace_events`
 
@@ -65,6 +69,12 @@ Index foreign keys, workflow status, run status and creation time, trace events 
 ## JSON rules
 
 Use JSON for versioned workflow definitions, flexible trace payloads, model configuration metadata, and evaluation metrics. Keep fields needed for filtering or joins as typed columns. Validate every JSON document at the application boundary.
+
+Every JSON column uses PostgreSQL's `JSONB` type (via `sqlalchemy.dialects.postgresql.JSONB`), never plain `JSON` or a text column, so values are stored in a binary, indexable, whitespace-independent form. Columns that always hold a document rather than being optional (e.g. `definition_json`, `input_json`) are `NOT NULL` with a `'[]'::jsonb` or `'{}'::jsonb` `server_default` where an empty document is a valid starting state; columns that are genuinely absent until something happens (e.g. `result_json`, `output_json`) are nullable with no default.
+
+## Status columns and CHECK constraints
+
+Every status column is `String(32)` (never a native PostgreSQL `ENUM` type) with a `CheckConstraint` enumerating the allowed values, so adding a new status only requires a migration that adjusts the constraint rather than an `ALTER TYPE`. The Python-side allowed values live as `StrEnum`s next to the ORM models (`WorkflowVersionStatus`, `RunStatus`, `StepRunStatus`, `FeedbackLabelValue`, `EvaluationRunStatus`) so application code never compares against a bare string literal.
 
 ## Retention
 
