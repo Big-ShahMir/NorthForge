@@ -4,6 +4,8 @@ from collections.abc import Callable
 
 import pytest
 
+from northforge.retrieval.fixture import FixtureRetriever
+from northforge.retrieval.rules import FixturePolicyRuleStore
 from northforge.tools.context import ToolCallRecord, ToolContext
 from northforge.tools.registry import ToolRegistry, default_registry
 
@@ -21,6 +23,8 @@ def make_context(
     return ToolContext(
         project_id="proj_test",
         user_id="user_test",
+        retriever=FixtureRetriever(),
+        rule_store=FixturePolicyRuleStore(),
         access_groups=access_groups,
         allowed_tools=allowed_tools,
         trace=trace,

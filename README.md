@@ -41,13 +41,13 @@ DECISIONS.md       Architecture decision records
    cp .env.example .env
    ```
 
-2. Start PostgreSQL and Redis:
+2. Start PostgreSQL, Redis, and MinIO:
 
    ```bash
    docker compose up -d --wait
    ```
 
-   The database is published on host port 5433 by default so a locally installed PostgreSQL on 5432 does not intercept connections. Override with `POSTGRES_PORT` and `DATABASE_URL` in `.env`.
+   The database is published on host port 5433 by default so a locally installed PostgreSQL on 5432 does not intercept connections. Override with `POSTGRES_PORT` and `DATABASE_URL` in `.env`. MinIO (S3-compatible object storage, used for raw document content) publishes its API on 9000 and its console on 9001; the API creates its bucket automatically on startup.
 
 3. Install dependencies, apply database migrations, and start the API (terminal 1):
 
@@ -82,9 +82,10 @@ DECISIONS.md       Architecture decision records
 | Component | Command | Expected |
 |---|---|---|
 | API liveness | `curl -i http://127.0.0.1:8000/health` | `200` with `{"data":{"status":"ok",...}}` |
-| Dependencies | `curl -i http://127.0.0.1:8000/ready` | `200` and `"status":"ready"`; `"degraded"` if the worker is stopped; `503` if PostgreSQL or Redis is down |
+| Dependencies | `curl -i http://127.0.0.1:8000/ready` | `200` and `"status":"ready"`; `"degraded"` if the worker is stopped; `503` if PostgreSQL, Redis, or object storage is down |
 | Worker liveness | `cd backend && uv run python -m northforge.worker --check` | exit code 0 and a health-check log line |
 | Queue round trip | `cd backend && uv run python -m northforge.worker.ping hello` | JSON echo containing `"echo": "hello"` |
+| Object storage | `curl -i http://127.0.0.1:9001` | MinIO console responds (login `northforge` / `northforge-secret` in `.env.example`) |
 | Frontend | open http://localhost:5173/settings | status cards, or a visible error card if the API is down |
 
 Every API response uses the envelope `{"data", "error", "request_id"}`. The `X-Request-ID` header is echoed or generated and appears in every JSON log line for that request.
@@ -106,6 +107,31 @@ curl -s -X POST http://127.0.0.1:8000/api/projects \
 ```
 
 A request for the same project id with a different `X-Dev-User` value (a different user) gets `404 NOT_FOUND`, not `403 FORBIDDEN` -- see `docs/API_SPEC.md`.
+
+## Synthetic dataset, ingestion, and access groups
+
+`backend/data/synthetic/` is a committed, deterministic corpus of 48 fictional vendor contracts, policies, and vendor records (`docs/DATABASE_SPEC.md`, "Access groups"; ADR-023). Regenerate it with:
+
+```bash
+cd backend
+uv run python -m northforge.data.synthetic --out data/synthetic --seed 20260916 --version v1
+git diff --exit-code -- data/synthetic   # should report no changes for the committed seed
+```
+
+Every user starts with only the `procurement` access group. Some documents (and the policy rules and chunks that cite them) belong to `legal_restricted` or `hr_restricted` instead, and are invisible everywhere -- the documents API, search, and the retrieval tools -- to a caller without that group; a restricted document is `404 NOT_FOUND`, indistinguishable from one that does not exist.
+
+Ingest the dataset into a project for local development with the seed CLI (opens its own database and object-storage connections; the API and worker do not need to be running):
+
+```bash
+cd backend
+uv run python -m northforge.ingestion.seed --project-id <uuid> \
+  [--dataset data/synthetic] [--dataset-version v1] \
+  [--grant-user dev|alice legal_restricted]
+```
+
+It prints an `IngestionReport` as JSON (documents created/updated/skipped, chunks and rules created, any warnings) and is idempotent: re-running it against an unchanged dataset reports everything skipped. `--grant-user <subject> <group>` may be repeated and grants an access group to an already-seen user (one who has made at least one authenticated request), so a local reviewer can, for example, grant themselves `legal_restricted` and immediately see the difference in a documents list or search call.
+
+The same ingestion also runs asynchronously through the API: `POST /api/projects/{project_id}/documents/ingest` enqueues the `ingest_synthetic_dataset` worker job and returns `202 {job_id}` immediately; poll `GET /api/jobs/{job_id}` for its status (`queued`, `in_progress`, `complete`, or `failed`). This needs the worker running (`python -m northforge.worker`) to actually process the job -- see `docs/API_SPEC.md`.
 
 ## Quality checks
 

@@ -34,6 +34,21 @@ Use FastAPI with Pydantic schemas. All project data endpoints require authentica
 - `GET /api/tools` — list every registered tool (`name`, `description`, `side_effect_class`, `access_scope`, `kind`, `input_schema`, `output_schema` as JSON Schema). No implementation details are exposed.
 - `GET /api/workflow-step-types` — list every supported workflow step type (`type`, `title`, `description`, `config_schema`, `output_schema`, `allowed_tool_kinds`, `is_model_driven`).
 
+### Documents and search (Phase 3, ADR-023–025)
+
+Every route below is access-group filtered: a caller only ever sees documents, chunks, and rules whose `access_group` is a member of their own `access_groups_json` (see `docs/DATABASE_SPEC.md`, "Access groups"). Outside a caller's access groups, a document is `404 NOT_FOUND`, identical to a document that does not exist.
+
+- `GET /api/projects/{project_id}/documents` — paginated (`limit`, `offset`; `data` is `{items, total, limit, offset}`), filterable by `document_type` and `vendor`. `404` if the project is not owned by the caller.
+- `GET /api/documents/{document_id}` — document metadata plus a chunk list (`chunk_id`, `sequence`, `heading`, a 200-character `preview`, `token_count`) — never full chunk text.
+- `GET /api/documents/{document_id}/chunks/{chunk_id}` — one chunk's full text and offsets.
+- `POST /api/projects/{project_id}/documents/ingest` — body `{dataset_version}` (default `"v1"`); enqueues the `ingest_synthetic_dataset` worker job and returns `202 {job_id}` immediately. Ingestion itself is idempotent by content hash (see `docs/ARCHITECTURE.md`); calling this repeatedly is safe.
+- `GET /api/jobs/{job_id}` — arq job status: `{status: queued | deferred | in_progress | complete | failed | not_found, result, error}`. `result` is only populated for a successful `complete` job; `error` is only the failing exception's class name (e.g. `"RuntimeError"`), never its message, so nothing sensitive from a job failure reaches the API response.
+- `POST /api/projects/{project_id}/search` — body `{query, document_types?, vendor?, limit?}`; returns a `RetrievalOutcome` (`{status: ok | insufficient_evidence | conflicting_evidence, chunks, reason, total_candidates}`) scoped to the caller's access groups. This is the evidence-browsing endpoint a reviewer uses directly; the same retriever backs the `search_documents` tool.
+
+### Users
+
+- `GET /api/me` — `{id, subject, email, display_name, access_groups}` for the authenticated caller.
+
 ### Runs
 
 - `POST /api/workflow-versions/{version_id}/runs` — enqueue a run with input and idempotency key.

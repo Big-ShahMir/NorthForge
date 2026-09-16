@@ -8,7 +8,9 @@ PostgreSQL is the source of truth for product metadata, workflow definitions, ru
 
 ### `users`
 
-`id`, `clerk_user_id` (unique; the Clerk `sub` claim in Clerk auth mode, or `dev|<X-Dev-User value>` in dev auth mode), `email` (nullable), `display_name` (nullable), `created_at`, `updated_at`. Rows are upserted by `clerk_user_id` on every authenticated request (`INSERT ... ON CONFLICT (clerk_user_id) DO UPDATE`), so a caller seen for the first time is created automatically; a new `email`/`display_name` overwrites the stored value, and a missing one never clobbers what is already stored. Never store provider credentials here.
+`id`, `clerk_user_id` (unique; the Clerk `sub` claim in Clerk auth mode, or `dev|<X-Dev-User value>` in dev auth mode), `email` (nullable), `display_name` (nullable), `access_groups_json` (JSONB, `NOT NULL DEFAULT '["procurement"]'`), `created_at`, `updated_at`. Rows are upserted by `clerk_user_id` on every authenticated request (`INSERT ... ON CONFLICT (clerk_user_id) DO UPDATE`), so a caller seen for the first time is created automatically; a new `email`/`display_name` overwrites the stored value, and a missing one never clobbers what is already stored. Never store provider credentials here.
+
+`access_groups_json` is a list of access group names (`procurement`, `legal_restricted`, `hr_restricted`; see "Access groups" below). Every user starts with `["procurement"]` only; additional groups are granted out of band (locally, `python -m northforge.ingestion.seed --grant-user <subject> <group>`).
 
 ### `projects`
 
@@ -58,13 +60,29 @@ Statuses: `pending`, `running`, `completed`, `failed`, `cancelled`. Unique on `(
 
 `id`, `evaluation_run_id`, `case_id`, `status`, `metrics_json`, `output_json`, `trace_ref`, `failure_category`, `created_at`.
 
+### `documents`
+
+`id`, `project_id`, `external_id` (str(200); the dataset's stable id, e.g. `doc_acme_cloud_msa`), `name`, `document_type` (`msa`, `dpa`, `sow`, `nda`, `order_form`, `policy`), `vendor` (nullable), `effective_date` (nullable date), `expires_at` (nullable date), `access_group`, `metadata_json` (JSONB; carries `document_family`, `policy_area`, `supersedes`, and other dataset-specific fields), `content_hash` (sha256 of the raw document content, used by ingestion to skip unchanged documents), `storage_key` (nullable; the object storage key holding the raw markdown, `projects/<project_id>/documents/<external_id>.md`), `dataset_version`, `chunk_count`, `created_at`, `updated_at`. Unique on `(project_id, external_id)`. Indexed on `(project_id, document_type)` and `(project_id, vendor)`.
+
+### `document_chunks`
+
+`id`, `document_id`, `chunk_id` (str(32), sequential per document: `c01`, `c02`, ...), `sequence`, `heading` (nullable; the `##` heading the chunk falls under), `text`, `start_offset`/`end_offset` (into the normalized document content), `token_count`, `content_hash` (sha256 of the chunk's own normalized text), `metadata_json`, `search_vector` (a PostgreSQL-generated stored column, `to_tsvector('english', coalesce(heading,'') || ' ' || text)`, never written from application code), `created_at`. Unique on `(document_id, chunk_id)`. A GIN index on `search_vector` backs full-text search; an index on `content_hash` backs near-duplicate detection.
+
+### `policy_rules`
+
+`id`, `project_id`, `rule_id` (str(100), stable across dataset versions), `policy_document_id` (FK `documents`), `chunk_id` (the chunk of that document stating the rule; resolved at ingestion time from the dataset's `section` heading), `policy_area`, `condition`, `requirement`, `severity` (`low`, `medium`, `high`). Unique on `(project_id, rule_id)`. A rule's access group is inherited from `policy_document_id`'s document, not stored redundantly.
+
+## Access groups
+
+Every `documents` row (and by inheritance every `document_chunks` and `policy_rules` row) belongs to exactly one access group: `procurement` (the default for every user), `legal_restricted`, or `hr_restricted`. A caller only ever sees rows whose `access_group` is a member of their own `access_groups_json`; a restricted document is filtered out in the SQL `WHERE` clause of every read (the documents API, the search API, and the `search_documents`/`get_document_chunk`/`lookup_policy_rules` tools), never in Python after the fact, so a caller without a group cannot distinguish "does not exist" from "exists but is restricted".
+
 ## Relationships and authorization
 
-Users own projects. Projects own workflows and evaluation cases. Workflow runs inherit project ownership. Every query must filter through the authenticated user’s project ownership or an explicit future membership table.
+Users own projects. Projects own workflows, evaluation cases, and (Phase 3) documents and policy rules. Workflow runs inherit project ownership. Every query must filter through the authenticated user's project ownership (and, for documents/chunks/rules, the caller's access groups) or an explicit future membership table.
 
 ## Indexes
 
-Index foreign keys, workflow status, run status and creation time, trace events by run and sequence, evaluation results by evaluation run, and dataset version. Add full-text or vector indexes only after measuring retrieval needs.
+Index foreign keys, workflow status, run status and creation time, trace events by run and sequence, evaluation results by evaluation run, and dataset version. `document_chunks.search_vector` has a GIN index for full-text search; `documents` is indexed on `(project_id, document_type)` and `(project_id, vendor)` for the documents-list and search filters.
 
 ## JSON rules
 

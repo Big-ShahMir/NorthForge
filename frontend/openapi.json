@@ -40,6 +40,455 @@
         "title": "CheckData",
         "type": "object"
       },
+      "ChunkOut": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "document_external_id": {
+            "title": "Document External Id",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "end_offset": {
+            "title": "End Offset",
+            "type": "integer"
+          },
+          "heading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heading"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "start_offset": {
+            "title": "Start Offset",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "token_count": {
+            "title": "Token Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "document_external_id",
+          "chunk_id",
+          "sequence",
+          "heading",
+          "text",
+          "start_offset",
+          "end_offset",
+          "token_count",
+          "metadata"
+        ],
+        "title": "ChunkOut",
+        "type": "object"
+      },
+      "ChunkSummary": {
+        "description": "A chunk's identity plus a preview, never its full text.\n\n``preview`` is truncated to ``DOCUMENT_CHUNK_PREVIEW_LENGTH`` characters;\nthe full text is only ever returned by the single-chunk endpoint.",
+        "properties": {
+          "chunk_id": {
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "heading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heading"
+          },
+          "preview": {
+            "title": "Preview",
+            "type": "string"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "token_count": {
+            "title": "Token Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "chunk_id",
+          "sequence",
+          "heading",
+          "preview",
+          "token_count"
+        ],
+        "title": "ChunkSummary",
+        "type": "object"
+      },
+      "DocumentDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "access_group": {
+            "title": "Access Group",
+            "type": "string"
+          },
+          "chunk_count": {
+            "title": "Chunk Count",
+            "type": "integer"
+          },
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/ChunkSummary"
+            },
+            "title": "Chunks",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "dataset_version": {
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "document_type": {
+            "title": "Document Type",
+            "type": "string"
+          },
+          "effective_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Date"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "external_id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor"
+          }
+        },
+        "required": [
+          "id",
+          "external_id",
+          "name",
+          "document_type",
+          "vendor",
+          "effective_date",
+          "expires_at",
+          "access_group",
+          "metadata",
+          "dataset_version",
+          "chunk_count",
+          "created_at",
+          "updated_at",
+          "chunks"
+        ],
+        "title": "DocumentDetail",
+        "type": "object"
+      },
+      "DocumentList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "DocumentList",
+        "type": "object"
+      },
+      "DocumentOut": {
+        "additionalProperties": false,
+        "properties": {
+          "access_group": {
+            "title": "Access Group",
+            "type": "string"
+          },
+          "chunk_count": {
+            "title": "Chunk Count",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "dataset_version": {
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "document_type": {
+            "title": "Document Type",
+            "type": "string"
+          },
+          "effective_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Date"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "external_id": {
+            "title": "External Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor"
+          }
+        },
+        "required": [
+          "id",
+          "external_id",
+          "name",
+          "document_type",
+          "vendor",
+          "effective_date",
+          "expires_at",
+          "access_group",
+          "metadata",
+          "dataset_version",
+          "chunk_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DocumentOut",
+        "type": "object"
+      },
+      "Envelope_ChunkOut_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChunkOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[ChunkOut]",
+        "type": "object"
+      },
+      "Envelope_DocumentDetail_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[DocumentDetail]",
+        "type": "object"
+      },
+      "Envelope_DocumentList_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentList"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[DocumentList]",
+        "type": "object"
+      },
       "Envelope_HealthData_": {
         "properties": {
           "data": {
@@ -71,6 +520,105 @@
           "request_id"
         ],
         "title": "Envelope[HealthData]",
+        "type": "object"
+      },
+      "Envelope_IngestAccepted_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IngestAccepted"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[IngestAccepted]",
+        "type": "object"
+      },
+      "Envelope_JobStatusOut_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobStatusOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[JobStatusOut]",
+        "type": "object"
+      },
+      "Envelope_MeOut_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[MeOut]",
         "type": "object"
       },
       "Envelope_ProjectList_": {
@@ -170,6 +718,39 @@
           "request_id"
         ],
         "title": "Envelope[ReadinessData]",
+        "type": "object"
+      },
+      "Envelope_SearchResult_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SearchResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[SearchResult]",
         "type": "object"
       },
       "Envelope_StepTypeList_": {
@@ -371,6 +952,65 @@
         "title": "ErrorBody",
         "type": "object"
       },
+      "EvidenceChunk": {
+        "additionalProperties": false,
+        "description": "A retrievable passage with the identifiers needed for citations.",
+        "properties": {
+          "chunk_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "document_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Document Id",
+            "type": "string"
+          },
+          "document_name": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Document Name",
+            "type": "string"
+          },
+          "document_type": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Document Type",
+            "type": "string"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "chunk_id",
+          "document_name",
+          "document_type",
+          "text"
+        ],
+        "title": "EvidenceChunk",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -405,6 +1045,125 @@
           "app_env"
         ],
         "title": "HealthData",
+        "type": "object"
+      },
+      "IngestAccepted": {
+        "properties": {
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "IngestAccepted",
+        "type": "object"
+      },
+      "IngestRequest": {
+        "properties": {
+          "dataset_version": {
+            "default": "v1",
+            "title": "Dataset Version",
+            "type": "string"
+          }
+        },
+        "title": "IngestRequest",
+        "type": "object"
+      },
+      "JobStatusOut": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "deferred",
+              "in_progress",
+              "complete",
+              "failed",
+              "not_found"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "JobStatusOut",
+        "type": "object"
+      },
+      "MeOut": {
+        "properties": {
+          "access_groups": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Access Groups",
+            "type": "array"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "subject",
+          "email",
+          "display_name",
+          "access_groups"
+        ],
+        "title": "MeOut",
         "type": "object"
       },
       "ProjectCreate": {
@@ -576,6 +1335,89 @@
           "checks"
         ],
         "title": "ReadinessData",
+        "type": "object"
+      },
+      "SearchRequest": {
+        "properties": {
+          "document_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Document Types",
+            "type": "array"
+          },
+          "limit": {
+            "default": 8,
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "query": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Query",
+            "type": "string"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "title": "SearchRequest",
+        "type": "object"
+      },
+      "SearchResult": {
+        "properties": {
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceChunk"
+            },
+            "title": "Chunks",
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "insufficient_evidence",
+              "conflicting_evidence"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "total_candidates": {
+            "title": "Total Candidates",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "status",
+          "chunks",
+          "reason",
+          "total_candidates"
+        ],
+        "title": "SearchResult",
         "type": "object"
       },
       "StepTypeInfo": {
@@ -1116,6 +1958,164 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/documents/{document_id}": {
+      "get": {
+        "operationId": "get_document_api_documents__document_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_DocumentDetail_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Document",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/documents/{document_id}/chunks/{chunk_id}": {
+      "get": {
+        "operationId": "get_document_chunk_route_api_documents__document_id__chunks__chunk_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "chunk_id",
+            "required": true,
+            "schema": {
+              "title": "Chunk Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_ChunkOut_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Document Chunk Route",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_job_api_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_JobStatusOut_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Job",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/me": {
+      "get": {
+        "operationId": "get_me_api_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_MeOut_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Me",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
     "/api/projects": {
       "get": {
         "operationId": "list_projects_api_projects_get",
@@ -1302,6 +2302,210 @@
         "summary": "Update Project",
         "tags": [
           "projects"
+        ]
+      }
+    },
+    "/api/projects/{project_id}/documents": {
+      "get": {
+        "operationId": "list_documents_api_projects__project_id__documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "document_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "vendor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_DocumentList_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Documents",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/projects/{project_id}/documents/ingest": {
+      "post": {
+        "operationId": "ingest_project_documents_api_projects__project_id__documents_ingest_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_IngestAccepted_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest Project Documents",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/projects/{project_id}/search": {
+      "post": {
+        "operationId": "search_project_api_projects__project_id__search_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_SearchResult_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Project",
+        "tags": [
+          "documents"
         ]
       }
     },

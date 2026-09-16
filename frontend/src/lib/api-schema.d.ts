@@ -4,6 +4,74 @@
  */
 
 export interface paths {
+    "/api/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Document */
+        get: operations["get_document_api_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/documents/{document_id}/chunks/{chunk_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Document Chunk Route */
+        get: operations["get_document_chunk_route_api_documents__document_id__chunks__chunk_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Job */
+        get: operations["get_job_api_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Me */
+        get: operations["get_me_api_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects": {
         parameters: {
             query?: never;
@@ -38,6 +106,57 @@ export interface paths {
         head?: never;
         /** Update Project */
         patch: operations["update_project_api_projects__project_id__patch"];
+        trace?: never;
+    };
+    "/api/projects/{project_id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Documents */
+        get: operations["list_documents_api_projects__project_id__documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/documents/ingest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ingest Project Documents */
+        post: operations["ingest_project_documents_api_projects__project_id__documents_ingest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{project_id}/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Project */
+        post: operations["search_project_api_projects__project_id__search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/projects/{project_id}/workflows": {
@@ -247,9 +366,191 @@ export interface components {
              */
             status: "ok" | "error" | "unavailable";
         };
+        /** ChunkOut */
+        ChunkOut: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Document External Id */
+            document_external_id: string;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** End Offset */
+            end_offset: number;
+            /** Heading */
+            heading: string | null;
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Sequence */
+            sequence: number;
+            /** Start Offset */
+            start_offset: number;
+            /** Text */
+            text: string;
+            /** Token Count */
+            token_count: number;
+        };
+        /**
+         * ChunkSummary
+         * @description A chunk's identity plus a preview, never its full text.
+         *
+         *     ``preview`` is truncated to ``DOCUMENT_CHUNK_PREVIEW_LENGTH`` characters;
+         *     the full text is only ever returned by the single-chunk endpoint.
+         */
+        ChunkSummary: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Heading */
+            heading: string | null;
+            /** Preview */
+            preview: string;
+            /** Sequence */
+            sequence: number;
+            /** Token Count */
+            token_count: number;
+        };
+        /** DocumentDetail */
+        DocumentDetail: {
+            /** Access Group */
+            access_group: string;
+            /** Chunk Count */
+            chunk_count: number;
+            /** Chunks */
+            chunks: components["schemas"]["ChunkSummary"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Dataset Version */
+            dataset_version: string;
+            /** Document Type */
+            document_type: string;
+            /** Effective Date */
+            effective_date: string | null;
+            /** Expires At */
+            expires_at: string | null;
+            /** External Id */
+            external_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Name */
+            name: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Vendor */
+            vendor: string | null;
+        };
+        /** DocumentList */
+        DocumentList: {
+            /** Items */
+            items: components["schemas"]["DocumentOut"][];
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+            /** Total */
+            total: number;
+        };
+        /** DocumentOut */
+        DocumentOut: {
+            /** Access Group */
+            access_group: string;
+            /** Chunk Count */
+            chunk_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Dataset Version */
+            dataset_version: string;
+            /** Document Type */
+            document_type: string;
+            /** Effective Date */
+            effective_date: string | null;
+            /** Expires At */
+            expires_at: string | null;
+            /** External Id */
+            external_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Metadata */
+            metadata: {
+                [key: string]: unknown;
+            };
+            /** Name */
+            name: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Vendor */
+            vendor: string | null;
+        };
+        /** Envelope[ChunkOut] */
+        Envelope_ChunkOut_: {
+            data?: components["schemas"]["ChunkOut"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[DocumentDetail] */
+        Envelope_DocumentDetail_: {
+            data?: components["schemas"]["DocumentDetail"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[DocumentList] */
+        Envelope_DocumentList_: {
+            data?: components["schemas"]["DocumentList"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
         /** Envelope[HealthData] */
         Envelope_HealthData_: {
             data?: components["schemas"]["HealthData"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[IngestAccepted] */
+        Envelope_IngestAccepted_: {
+            data?: components["schemas"]["IngestAccepted"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[JobStatusOut] */
+        Envelope_JobStatusOut_: {
+            data?: components["schemas"]["JobStatusOut"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[MeOut] */
+        Envelope_MeOut_: {
+            data?: components["schemas"]["MeOut"] | null;
             error?: components["schemas"]["ErrorBody"] | null;
             /** Request Id */
             request_id: string;
@@ -271,6 +572,13 @@ export interface components {
         /** Envelope[ReadinessData] */
         Envelope_ReadinessData_: {
             data?: components["schemas"]["ReadinessData"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
+        /** Envelope[SearchResult] */
+        Envelope_SearchResult_: {
+            data?: components["schemas"]["SearchResult"] | null;
             error?: components["schemas"]["ErrorBody"] | null;
             /** Request Id */
             request_id: string;
@@ -321,6 +629,28 @@ export interface components {
             /** Message */
             message: string;
         };
+        /**
+         * EvidenceChunk
+         * @description A retrievable passage with the identifiers needed for citations.
+         */
+        EvidenceChunk: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Document Id */
+            document_id: string;
+            /** Document Name */
+            document_name: string;
+            /** Document Type */
+            document_type: string;
+            /** Metadata */
+            metadata?: {
+                [key: string]: unknown;
+            };
+            /** Score */
+            score?: number | null;
+            /** Text */
+            text: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -334,6 +664,49 @@ export interface components {
             status: string;
             /** Version */
             version: string;
+        };
+        /** IngestAccepted */
+        IngestAccepted: {
+            /** Job Id */
+            job_id: string;
+        };
+        /** IngestRequest */
+        IngestRequest: {
+            /**
+             * Dataset Version
+             * @default v1
+             */
+            dataset_version: string;
+        };
+        /** JobStatusOut */
+        JobStatusOut: {
+            /** Error */
+            error?: string | null;
+            /** Result */
+            result?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "deferred" | "in_progress" | "complete" | "failed" | "not_found";
+        };
+        /** MeOut */
+        MeOut: {
+            /** Access Groups */
+            access_groups: string[];
+            /** Display Name */
+            display_name: string | null;
+            /** Email */
+            email: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Subject */
+            subject: string;
         };
         /** ProjectCreate */
         ProjectCreate: {
@@ -408,6 +781,34 @@ export interface components {
              * @enum {string}
              */
             status: "ready" | "degraded" | "not_ready";
+        };
+        /** SearchRequest */
+        SearchRequest: {
+            /** Document Types */
+            document_types?: string[];
+            /**
+             * Limit
+             * @default 8
+             */
+            limit: number;
+            /** Query */
+            query: string;
+            /** Vendor */
+            vendor?: string | null;
+        };
+        /** SearchResult */
+        SearchResult: {
+            /** Chunks */
+            chunks: components["schemas"]["EvidenceChunk"][];
+            /** Reason */
+            reason: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "insufficient_evidence" | "conflicting_evidence";
+            /** Total Candidates */
+            total_candidates: number;
         };
         /**
          * StepTypeInfo
@@ -655,6 +1056,120 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_document_api_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DocumentDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_document_chunk_route_api_documents__document_id__chunks__chunk_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+                chunk_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ChunkOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_job_api_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_JobStatusOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_me_api_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_MeOut_"];
+                };
+            };
+        };
+    };
     list_projects_api_projects_get: {
         parameters: {
             query?: {
@@ -773,6 +1288,112 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_ProjectOut_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_documents_api_projects__project_id__documents_get: {
+        parameters: {
+            query?: {
+                document_type?: string | null;
+                vendor?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DocumentList_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingest_project_documents_api_projects__project_id__documents_ingest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IngestRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_IngestAccepted_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search_project_api_projects__project_id__search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_SearchResult_"];
                 };
             };
             /** @description Validation Error */

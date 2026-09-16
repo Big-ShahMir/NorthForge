@@ -1,32 +1,23 @@
 """``lookup_policy_rules``: fetch policy rules for a policy area from the policy library.
 
 A rule is visible only when the policy document it cites is in one of the
-caller's ``access_groups``, mirroring the access filtering ``search_documents``
-and ``get_document_chunk`` apply to chunks -- a caller without the
-``legal_restricted`` group cannot discover legal policy rules through this
-tool either.
+caller's ``access_groups`` -- enforced entirely inside ``context.rule_store``
+(``PostgresPolicyRuleStore`` in production, ``FixturePolicyRuleStore`` in
+tests without a database), mirroring the access filtering
+``search_documents`` and ``get_document_chunk`` apply to chunks. The
+``__timeout__``/``__error__`` failure triggers used by ``tests/tools`` live
+in ``FixturePolicyRuleStore``, not here.
 """
 
 from __future__ import annotations
 
-import asyncio
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from northforge.schemas.evidence import PolicyRule, Severity
 from northforge.tools.context import ToolContext
-from northforge.tools.errors import ToolExecutionError
-from northforge.tools.fixtures.corpus import (
-    ERROR_TRIGGER,
-    TIMEOUT_TRIGGER,
-    document_access_group,
-    policy_rules,
-    severity_at_least,
-)
 from northforge.tools.spec import ToolSpec
-
-_TIMEOUT_SLEEP_SECONDS = 3600.0
 
 
 class LookupPolicyRulesInput(BaseModel):
@@ -64,26 +55,9 @@ LOOKUP_POLICY_RULES_SPEC = ToolSpec(
 async def lookup_policy_rules(args: BaseModel, context: ToolContext) -> dict[str, Any]:
     assert isinstance(args, LookupPolicyRulesInput)
 
-    if args.policy_area == TIMEOUT_TRIGGER:
-        await asyncio.sleep(_TIMEOUT_SLEEP_SECONDS)
-        return {}
+    rules = await context.rule_store.rules_for(
+        context.project_id, args.policy_area, args.severity_at_least, context.access_groups
+    )
 
-    if args.policy_area == ERROR_TRIGGER:
-        raise ToolExecutionError(
-            "simulated provider error from lookup_policy_rules", retryable=True
-        )
-
-    matches = [
-        rule
-        for rule in policy_rules()
-        if rule.policy_area == args.policy_area
-        and document_access_group(rule.policy_document_id) in context.access_groups
-    ]
-    if args.severity_at_least is not None:
-        matches = [
-            rule for rule in matches if severity_at_least(rule.severity, args.severity_at_least)
-        ]
-    matches.sort(key=lambda rule: rule.rule_id)
-
-    output = LookupPolicyRulesOutput(rules=matches)
+    output = LookupPolicyRulesOutput(rules=rules)
     return output.model_dump(mode="json")

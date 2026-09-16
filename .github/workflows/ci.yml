@@ -32,6 +32,26 @@ jobs:
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 5s --health-timeout 3s --health-retries 10
+      minio:
+        # GitHub Actions service containers always run their image's default
+        # entrypoint/command with no way to append `server /data` here (there
+        # is no `command:` key for service containers), so the plain
+        # `quay.io/minio/minio` image used by docker-compose.yml -- which
+        # requires that argument -- cannot be used directly in CI.
+        # `bitnami/minio` ships a default command that starts the server
+        # from MINIO_ROOT_USER/MINIO_ROOT_PASSWORD alone, so CI uses it only
+        # for that reason; it is API-compatible with the MinIO used locally
+        # and in production. Bitnami moved its actively updated images
+        # behind a paid catalog in 2025; `bitnamilegacy/minio` is the frozen,
+        # still-public image Bitnami published for exactly this transition.
+        image: bitnamilegacy/minio:latest
+        ports: ["9000:9000"]
+        env:
+          MINIO_ROOT_USER: northforge
+          MINIO_ROOT_PASSWORD: northforge-secret
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       APP_ENV: test
       AUTH_MODE: dev
@@ -39,6 +59,12 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       NORTHFORGE_TEST_DATABASE_URL: postgresql://northforge:northforge@localhost:5432/northforge_test
       NORTHFORGE_INTEGRATION: "1"
+      S3_ENDPOINT: http://localhost:9000
+      S3_BUCKET: northforge
+      S3_ACCESS_KEY: northforge
+      S3_SECRET_KEY: northforge-secret
+      S3_REGION: us-east-1
+      S3_USE_SSL: "false"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -50,6 +76,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy
       - run: uv run alembic upgrade head
+      - name: dataset (regeneration must be byte-identical to the committed corpus)
+        run: |
+          uv run python -m northforge.data.synthetic --out data/synthetic --seed 20260916 --version v1
+          git diff --exit-code -- data/synthetic
       - run: uv run pytest -q
 
   frontend:

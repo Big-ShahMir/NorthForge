@@ -12,12 +12,20 @@ from northforge.retrieval.retriever import (
     RetrievalStatus,
     Retriever,
 )
+from northforge.retrieval.rules import (
+    FixturePolicyRuleStore,
+    PolicyRuleStore,
+    PostgresPolicyRuleStore,
+)
 
 __all__ = [
     "ChunkSpan",
     "Embedder",
+    "FixturePolicyRuleStore",
     "FixtureRetriever",
     "NoopEmbedder",
+    "PolicyRuleStore",
+    "PostgresPolicyRuleStore",
     "PostgresRetriever",
     "RetrievalOutcome",
     "RetrievalQuery",

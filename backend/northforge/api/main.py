@@ -13,17 +13,20 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import uvicorn
+from arq import create_pool
+from arq.connections import RedisSettings
 from fastapi import FastAPI
 from redis.asyncio import Redis
 
 from northforge import __version__
 from northforge.api.errors import register_error_handlers
 from northforge.api.middleware import RequestContextMiddleware
-from northforge.api.routes import catalog, projects, system, workflows
+from northforge.api.routes import catalog, documents, projects, system, workflows
 from northforge.auth.tokens import ClerkTokenVerifier
 from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
+from northforge.core.queue import QUEUE_NAME
 from northforge.db.engine import create_engine, create_session_factory
 from northforge.storage.base import ObjectStorage
 from northforge.storage.s3 import S3ObjectStorage
@@ -59,6 +62,16 @@ def create_app(
             logger.warning(
                 "object storage bucket unavailable at startup", extra={"error": repr(exc)}
             )
+        try:
+            redis_settings = RedisSettings.from_dsn(resolved.redis_url)
+            redis_settings.conn_retries = 0
+            app.state.arq_pool = await asyncio.wait_for(
+                create_pool(redis_settings, default_queue_name=QUEUE_NAME),
+                timeout=resolved.readiness_timeout_seconds,
+            )
+        except Exception as exc:  # queue outage must not crash startup
+            logger.warning("arq pool unavailable at startup", extra={"error": repr(exc)})
+            app.state.arq_pool = None
         if resolved.auth_mode == "clerk":
             assert resolved.clerk_jwks_url is not None
             assert resolved.clerk_issuer is not None
@@ -73,6 +86,8 @@ def create_app(
         try:
             yield
         finally:
+            if app.state.arq_pool is not None:
+                await app.state.arq_pool.aclose()
             await redis.aclose()
             await engine.dispose()
             logger.info("api stopped")
@@ -93,6 +108,7 @@ def create_app(
     app.include_router(projects.router)
     app.include_router(workflows.router)
     app.include_router(catalog.router)
+    app.include_router(documents.router)
     return app
 
 
