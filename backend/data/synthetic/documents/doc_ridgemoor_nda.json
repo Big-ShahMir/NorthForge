@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Ridgemoor Analytics -- Mutual Non-Disclosure Agreement\n\nThis Mutual Non-Disclosure Agreement records the terms on which Ridgemoor Analytics provides analytics tooling and reporting services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Ridgemoor Analytics, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThis Mutual Non-Disclosure Agreement has a fixed term that begins on 2025-10-22 and expires on 2026-10-22. It does not renew automatically. Halvard Systems and Ridgemoor Analytics may extend the term only by a written amendment executed at least fifteen (15) days before expiry.\n\n## Termination\n\nEither party may terminate this Mutual Non-Disclosure Agreement for cause if the other materially breaches it and does not cure the breach within fifteen (15) days of written notice. Halvard Systems may also terminate for convenience, in whole or in part, on ninety (90) days written notice to Ridgemoor Analytics.\n\n## Confidentiality\n\nEach party shall protect the Confidential Information of the other with at least the care it applies to its own. Ridgemoor Analytics and Halvard Systems shall disclose Confidential Information only to personnel who need it to perform this Mutual Non-Disclosure Agreement, and these obligations survive for three (3) years after termination.\n\n## Governing Law\n\nThis Mutual Non-Disclosure Agreement is governed by the laws of the Commonwealth of Massachusetts, excluding its conflict-of-laws rules. Halvard Systems and Ridgemoor Analytics submit to the exclusive jurisdiction of the courts of the Commonwealth of Massachusetts.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Ridgemoor Analytics at contracts@ridgemoor.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nSigned for Halvard Systems by Tobias Renner, Head of Vendor Management. Signed for Ridgemoor Analytics by Nils Ekstrand, Managing Director. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "nda",
+  "edge_cases": [],
+  "effective_date": "2025-10-22",
+  "expires_at": "2026-10-22",
+  "external_id": "doc_ridgemoor_nda",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Ridgemoor Analytics",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "analytics",
+    "vendor_id": "ven_ridgemoor",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Ridgemoor Analytics -- Mutual Non-Disclosure Agreement",
+  "vendor": "Ridgemoor Analytics"
+}

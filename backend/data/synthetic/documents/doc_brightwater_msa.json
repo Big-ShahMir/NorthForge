@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Brightwater Facilities Group -- Master Service Agreement\n\nThis fictional Master Service Agreement between Halvard Systems and Brightwater Facilities Group covers facilities management and workplace services and the commercial terms that apply to it. It is synthetic evaluation data, not legal advice and not a real agreement.\n\n## Term and Renewal\n\nThe term of this Master Service Agreement runs from 2026-10-02 to 2027-10-02 with no automatic renewal. Brightwater Facilities Group shall tell Halvard Systems at least thirty (30) days before expiry whether it intends to propose renewal terms.\n\n## Termination\n\nEither party may terminate this Master Service Agreement for cause if the other materially breaches it and does not cure the breach within fifteen (15) days of written notice. Halvard Systems may also terminate for convenience, in whole or in part, on sixty (60) days written notice to Brightwater Facilities Group.\n\n## Limitation of Liability\n\nLiability is capped. The aggregate liability of Halvard Systems and of Brightwater Facilities Group for all claims under this Master Service Agreement is limited to the fees paid in the six (6) months preceding the claim. Liability for breach of confidentiality and for a breach of data protection obligations is not capped by this clause.\n\n## Governing Law\n\nThe laws of the Commonwealth of Massachusetts govern this Master Service Agreement and any dispute between Halvard Systems and Brightwater Facilities Group arising out of it. Proceedings shall be brought only in the courts of the Commonwealth of Massachusetts.\n\n## Data Protection\n\nPersonal data processed by Brightwater Facilities Group on behalf of Halvard Systems is governed by the Data Protection Addendum incorporated into this Master Service Agreement. Brightwater Facilities Group shall keep Customer Data encrypted in transit and at rest and shall give Halvard Systems thirty (30) days notice of any new subprocessor.\n\n## Payment Terms\n\nFees are due thirty (30) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Brightwater Facilities Group may charge one and a half percent (1.5%) per month on undisputed overdue amounts.\n\n## Confidentiality\n\nBrightwater Facilities Group and Halvard Systems shall use Confidential Information only for the purposes of this Master Service Agreement. The duty of confidence continues for three (3) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nNotices under this Master Service Agreement are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@brightwater.example.com for Brightwater Facilities Group, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nSigned for Halvard Systems by Colm Fitzgerald, Commercial Counsel. Signed for Brightwater Facilities Group by Felix Amory, Director of Partnerships. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "msa",
+  "edge_cases": [],
+  "effective_date": "2026-10-02",
+  "expires_at": "2027-10-02",
+  "external_id": "doc_brightwater_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Colm Fitzgerald",
+        "party": "Halvard Systems",
+        "role": "Commercial Counsel"
+      },
+      {
+        "name": "Felix Amory",
+        "party": "Brightwater Facilities Group",
+        "role": "Director of Partnerships"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "facilities",
+    "vendor_id": "ven_brightwater",
+    "vendor_risk_tier": "low"
+  },
+  "name": "Brightwater Facilities Group -- Master Service Agreement",
+  "vendor": "Brightwater Facilities Group"
+}

@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Thornbury Logistics -- Master Service Agreement\n\nThis Master Service Agreement records the terms on which Thornbury Logistics provides freight brokerage and supply-chain visibility services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Thornbury Logistics, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThe current term of this Master Service Agreement between Halvard Systems and Thornbury Logistics runs until 2028-03-03 and renews automatically for an additional twenty-four (24) month term on the same terms. Either party may prevent renewal by giving notice thirty (30) days in advance of the renewal date; renewal does not change the agreed fees.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on ninety (90) days notice. Thornbury Logistics may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within thirty (30) days of written notice.\n\n## Limitation of Liability\n\nThe aggregate liability of Halvard Systems and of Thornbury Logistics arising out of this Master Service Agreement is limited to USD 750,000, whether the claim is contractual or otherwise. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThis Master Service Agreement is governed by the laws of the Commonwealth of Massachusetts, excluding its conflict-of-laws rules. Halvard Systems and Thornbury Logistics submit to the exclusive jurisdiction of the courts of the Commonwealth of Massachusetts.\n\n## Data Protection\n\nThornbury Logistics handles Customer Data under this Master Service Agreement without a separate Data Protection Addendum. Thornbury Logistics shall tell Halvard Systems about a confirmed personal data breach without undue delay, but no subprocessor approval right is granted.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Thornbury Logistics invoice within thirty (30) days. Invoices must reference the applicable order form, and interest of one percent (1%) per month applies to late undisputed amounts.\n\n## Confidentiality\n\nThornbury Logistics and Halvard Systems shall use Confidential Information only for the purposes of this Master Service Agreement. The duty of confidence continues for two (2) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nNotices under this Master Service Agreement are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@thornbury.example.com for Thornbury Logistics, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Marit Halvorsen (Director of Procurement) for Halvard Systems and by Felix Amory (Director of Partnerships) for Thornbury Logistics. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "msa",
+  "edge_cases": [],
+  "effective_date": "2026-03-03",
+  "expires_at": "2028-03-03",
+  "external_id": "doc_thornbury_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Marit Halvorsen",
+        "party": "Halvard Systems",
+        "role": "Director of Procurement"
+      },
+      {
+        "name": "Felix Amory",
+        "party": "Thornbury Logistics",
+        "role": "Director of Partnerships"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "logistics",
+    "vendor_id": "ven_thornbury",
+    "vendor_risk_tier": "low"
+  },
+  "name": "Thornbury Logistics -- Master Service Agreement",
+  "vendor": "Thornbury Logistics"
+}

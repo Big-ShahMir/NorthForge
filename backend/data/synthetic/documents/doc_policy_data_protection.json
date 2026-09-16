@@ -1,0 +1,20 @@
+{
+  "access_group": "procurement",
+  "content": "# Halvard Systems Vendor Data Protection Policy\n\nData protection policy of Halvard Systems for vendor engagements. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis policy applies to every Halvard Systems vendor agreement under which a vendor processes personal data or Customer Data.\n\n## Data Protection Addendum Requirement\n\nA vendor that processes personal data for Halvard Systems must sign the Halvard Systems Data Protection Addendum before the services begin.\n\n## Subprocessor Approval\n\nA vendor must give Halvard Systems at least thirty (30) days notice before engaging a new subprocessor and must bind that subprocessor to equivalent terms.\n\n## Data Retention\n\nA vendor must delete or return Customer Data within sixty (60) days of the end of the agreement unless a legal hold applies.\n",
+  "document_type": "policy",
+  "edge_cases": [],
+  "effective_date": "2025-04-01",
+  "expires_at": null,
+  "external_id": "doc_policy_data_protection",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "data_protection",
+    "policy_version": 1,
+    "supersedes": []
+  },
+  "name": "Halvard Systems Vendor Data Protection Policy",
+  "vendor": null
+}

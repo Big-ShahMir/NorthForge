@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Saltmarsh Security Labs -- Statement of Work\n\nHalvard Systems (Customer) and Saltmarsh Security Labs (Vendor) enter into this Statement of Work for security monitoring and vulnerability testing services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe initial term of this Statement of Work begins on 2026-08-13 and ends on 2028-08-13. The term then renews automatically for successive twenty-four (24) month terms unless Halvard Systems or Saltmarsh Security Labs delivers written notice of non-renewal at least one hundred twenty (120) days before the end of the then-current term.\n\n## Termination\n\nEither party may terminate this Statement of Work for cause if the other materially breaches it and does not cure the breach within ten (10) days of written notice. Halvard Systems may also terminate for convenience, in whole or in part, on sixty (60) days written notice to Saltmarsh Security Labs.\n\n## Payment Terms\n\nSaltmarsh Security Labs invoices Halvard Systems monthly in arrears. Undisputed invoices are payable within ninety (90) days of receipt, and late undisputed amounts accrue interest at one percent (1%) per month.\n\n## Governing Law\n\nThis Statement of Work is governed by the laws of the Province of Ontario, excluding its conflict-of-laws rules. Halvard Systems and Saltmarsh Security Labs submit to the exclusive jurisdiction of the courts of the Province of Ontario.\n\n## Notices\n\nNotices under this Statement of Work are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@saltmarsh.example.com for Saltmarsh Security Labs, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Tobias Renner (Head of Vendor Management) for Halvard Systems and by Rosa Alven (General Manager) for Saltmarsh Security Labs. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "sow",
+  "edge_cases": [],
+  "effective_date": "2026-08-13",
+  "expires_at": "2028-08-13",
+  "external_id": "doc_saltmarsh_sow",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Rosa Alven",
+        "party": "Saltmarsh Security Labs",
+        "role": "General Manager"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "security",
+    "vendor_id": "ven_saltmarsh",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Saltmarsh Security Labs -- Statement of Work",
+  "vendor": "Saltmarsh Security Labs"
+}

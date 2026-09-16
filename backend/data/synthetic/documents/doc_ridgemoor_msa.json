@@ -1,0 +1,38 @@
+{
+  "access_group": "procurement",
+  "content": "# Ridgemoor Analytics -- Master Service Agreement\n\nHalvard Systems (Customer) and Ridgemoor Analytics (Vendor) enter into this Master Service Agreement for analytics tooling and reporting services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThis Master Service Agreement takes effect on 2025-11-26 and the current term expires on 2026-11-26. Renewal is automatic for a further twelve (12) month term unless either party gives sixty (60) days written notice that it does not wish to renew. Ridgemoor Analytics shall acknowledge a non-renewal notice in writing.\n\n## Termination\n\nHalvard Systems may terminate this Master Service Agreement for convenience at any time on thirty (30) days written notice. Either party may terminate for cause where a material breach remains uncured thirty (30) days after notice, and Ridgemoor Analytics shall return or delete Customer materials on termination.\n\n## Limitation of Liability\n\nThe aggregate liability of Halvard Systems and of Ridgemoor Analytics arising out of this Master Service Agreement is limited to USD 1,000,000, whether the claim is contractual or otherwise. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThe laws of the State of New York govern this Master Service Agreement and any dispute between Halvard Systems and Ridgemoor Analytics arising out of it. Proceedings shall be brought only in the courts of the State of New York.\n\n## Data Protection\n\nRidgemoor Analytics handles Customer Data under this Master Service Agreement without a separate Data Protection Addendum. Ridgemoor Analytics shall tell Halvard Systems about a confirmed personal data breach without undue delay, but no subprocessor approval right is granted.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Ridgemoor Analytics invoice within ninety (90) days. Invoices must reference the applicable order form, and interest of two percent (2%) per month applies to late undisputed amounts.\n\n## Confidentiality\n\nConfidential Information disclosed under this Master Service Agreement remains the property of the disclosing party. Ridgemoor Analytics shall return or destroy the Confidential Information of Halvard Systems on request, and confidentiality obligations survive five (5) years beyond termination.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Ridgemoor Analytics at contracts@ridgemoor.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nExecuted by Marit Halvorsen (Director of Procurement) for Halvard Systems and by Ines Calloway (Chief Revenue Officer) for Ridgemoor Analytics. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "near_duplicate"
+  ],
+  "effective_date": "2025-11-26",
+  "expires_at": "2026-11-26",
+  "external_id": "doc_ridgemoor_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "contract_version": 1,
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Marit Halvorsen",
+        "party": "Halvard Systems",
+        "role": "Director of Procurement"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Ridgemoor Analytics",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "superseded_by": "doc_ridgemoor_msa_v2",
+    "term_months": 12,
+    "vendor_category": "analytics",
+    "vendor_id": "ven_ridgemoor",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Ridgemoor Analytics -- Master Service Agreement",
+  "vendor": "Ridgemoor Analytics"
+}

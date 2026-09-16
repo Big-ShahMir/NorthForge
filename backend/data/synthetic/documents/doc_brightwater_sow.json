@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Brightwater Facilities Group -- Statement of Work\n\nHalvard Systems (Customer) and Brightwater Facilities Group (Vendor) enter into this Statement of Work for facilities management and workplace services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe term of this Statement of Work runs from 2026-07-02 to 2027-07-02 with no automatic renewal. Brightwater Facilities Group shall tell Halvard Systems at least thirty (30) days before expiry whether it intends to propose renewal terms.\n\n## Termination\n\nHalvard Systems may terminate this Statement of Work for convenience at any time on sixty (60) days written notice. Either party may terminate for cause where a material breach remains uncured fifteen (15) days after notice, and Brightwater Facilities Group shall return or delete Customer materials on termination.\n\n## Payment Terms\n\nFees are due thirty (30) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Brightwater Facilities Group may charge two percent (2%) per month on undisputed overdue amounts.\n\n## Governing Law\n\nGoverning law and venue. The law of the Commonwealth of Massachusetts applies to this Statement of Work. Brightwater Facilities Group and Halvard Systems agree that the courts of the Commonwealth of Massachusetts have exclusive jurisdiction over disputes arising from it.\n\n## Notices\n\nAny notice, including notice of non-renewal or termination, must be in writing and sent to contracts@brightwater.example.com or contracts@halvard.example.com as applicable. Notices sent to any other address are not effective under this Statement of Work.\n\n## Signatures\n\nSigned for Halvard Systems by Tobias Renner, Head of Vendor Management. Signed for Brightwater Facilities Group by Ines Calloway, Chief Revenue Officer. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "sow",
+  "edge_cases": [],
+  "effective_date": "2026-07-02",
+  "expires_at": "2027-07-02",
+  "external_id": "doc_brightwater_sow",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Brightwater Facilities Group",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "facilities",
+    "vendor_id": "ven_brightwater",
+    "vendor_risk_tier": "low"
+  },
+  "name": "Brightwater Facilities Group -- Statement of Work",
+  "vendor": "Brightwater Facilities Group"
+}

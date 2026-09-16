@@ -1,0 +1,39 @@
+{
+  "access_group": "procurement",
+  "content": "# Pinegate Consulting Group -- Statement of Work\n\nHalvard Systems (Customer) and Pinegate Consulting Group (Vendor) enter into this Statement of Work for process consulting and change-management services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThis Statement of Work renews automatically for successive twelve (12) month terms from 2027-05-16 unless either party gives reasonable notice of non-renewal before the end of the then-current term. The parties have not fixed a number of days; Pinegate Consulting Group and Halvard Systems rely on their customary practice.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on sixty (60) days notice. Pinegate Consulting Group may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within thirty (30) days of written notice.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Pinegate Consulting Group invoice within sixty (60) days. Invoices must reference the applicable order form, and interest of two percent (2%) per month applies to late undisputed amounts.\n\n## Governing Law\n\nGoverning law and venue. The law of England and Wales applies to this Statement of Work. Pinegate Consulting Group and Halvard Systems agree that the courts of England and Wales have exclusive jurisdiction over disputes arising from it.\n\n## Notices\n\nNotices under this Statement of Work are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@pinegate.example.com for Pinegate Consulting Group, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nSigned for Halvard Systems by Priya Raghavan, Procurement Lead. Signed for Pinegate Consulting Group by Nils Ekstrand, Managing Director. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "sow",
+  "edge_cases": [
+    "ambiguous_terms"
+  ],
+  "effective_date": "2026-05-16",
+  "expires_at": "2027-05-16",
+  "external_id": "doc_pinegate_sow",
+  "metadata": {
+    "ambiguous_fields": [
+      "notice_period_days"
+    ],
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Pinegate Consulting Group",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "consulting",
+    "vendor_id": "ven_pinegate",
+    "vendor_risk_tier": "low"
+  },
+  "name": "Pinegate Consulting Group -- Statement of Work",
+  "vendor": "Pinegate Consulting Group"
+}

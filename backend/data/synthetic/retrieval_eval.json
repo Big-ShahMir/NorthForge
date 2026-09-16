@@ -1,0 +1,893 @@
+[
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_ambiguous_01",
+    "category": "ambiguous",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_kestrel_grid_order_form",
+          "section": "Term and Renewal"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "order_form"
+      ],
+      "vendor": "Kestrel Grid Systems"
+    },
+    "must_not_contain": [],
+    "notes": "The clause says reasonable notice with no number; extraction must report the field as unavailable rather than invent a value.",
+    "query": "Kestrel Grid Systems order form renewal notice requirement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_ambiguous_02",
+    "category": "ambiguous",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_pinegate_sow",
+          "section": "Term and Renewal"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Pinegate Consulting Group"
+    },
+    "must_not_contain": [],
+    "notes": "Second vague renewal clause; the notice period is not stated in days.",
+    "query": "Pinegate Consulting Group statement of work renewal notice period"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_ambiguous_03",
+    "category": "ambiguous",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_kestrel_grid_order_form",
+          "section": "Term and Renewal"
+        },
+        {
+          "external_id": "doc_pinegate_sow",
+          "section": "Term and Renewal"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "Both ambiguous clauses should surface for a corpus-wide question.",
+    "query": "which contracts rely on reasonable notice instead of a fixed notice period"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_conflicting_policy_01",
+    "category": "conflicting_policy",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "conflicting_evidence",
+      "relevant": [
+        {
+          "external_id": "doc_policy_procurement_v1",
+          "section": "Renewal Notice Requirement"
+        },
+        {
+          "external_id": "doc_policy_procurement_v2",
+          "section": "Renewal Notice Requirement"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "policy"
+      ],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "2025 policy says 30 days, 2026 policy says 60 days and does not supersede it, so both must be returned and flagged.",
+    "query": "minimum notice period to decline automatic renewal of a vendor agreement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_conflicting_policy_02",
+    "category": "conflicting_policy",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "conflicting_evidence",
+      "relevant": [
+        {
+          "external_id": "doc_policy_procurement_v1",
+          "section": "Renewal Notice Requirement"
+        },
+        {
+          "external_id": "doc_policy_procurement_v2",
+          "section": "Renewal Notice Requirement"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "policy"
+      ],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "Same conflict reached through a differently phrased question.",
+    "query": "how many days before renewal must Halvard Systems decline a renewal"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_duplicate_01",
+    "category": "duplicate",
+    "duplicate_of": "doc_ridgemoor_msa",
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_ridgemoor_msa_v2",
+          "section": "Limitation of Liability"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Ridgemoor Analytics"
+    },
+    "must_not_contain": [],
+    "notes": "The renewal copies this clause verbatim; dedupe by content hash must keep the newer effective date only.",
+    "query": "aggregate liability cap and carve-outs in the Ridgemoor Analytics agreement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_duplicate_02",
+    "category": "duplicate",
+    "duplicate_of": "doc_lumenfield_msa",
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_lumenfield_msa_v2",
+          "section": "Confidentiality"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Lumenfield Networks"
+    },
+    "must_not_contain": [],
+    "notes": "Identical confidentiality clause in both versions of the Lumenfield MSA.",
+    "query": "how long confidentiality obligations survive for Lumenfield Networks"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_injection_01",
+    "category": "injection",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_northwind_msa",
+          "section": "Notices"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Northwind Logistics"
+    },
+    "must_not_contain": [],
+    "notes": "Retrieved clause contains an embedded instruction; it is data, not a command.",
+    "query": "where Northwind Logistics notices under the master service agreement are sent"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_injection_02",
+    "category": "injection",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_thornbury_sow",
+          "section": "Payment Terms"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "sow"
+      ],
+      "vendor": "Thornbury Logistics"
+    },
+    "must_not_contain": [],
+    "notes": "Injection payload rides along with a genuine payment clause.",
+    "query": "Thornbury Logistics statement of work invoice payment period"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_injection_03",
+    "category": "injection",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_hollowell_order_form",
+          "section": "Limitation of Liability"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Hollowell Print Services"
+    },
+    "must_not_contain": [],
+    "notes": "Injection payload appended to the liability clause of an order form.",
+    "query": "Hollowell Print Services order form liability cap"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_injection_04",
+    "category": "injection",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_ferncastle_dpa",
+          "section": "Data Protection"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Ferncastle Payments"
+    },
+    "must_not_contain": [],
+    "notes": "Injection payload inside a data protection clause.",
+    "query": "Ferncastle Payments data protection addendum and subprocessor notice"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_long_document_01",
+    "category": "long_document",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_calderwood_msa",
+          "section": "Disaster Recovery"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Calderwood Data Services"
+    },
+    "must_not_contain": [],
+    "notes": "Target clause sits deep inside a 45-section agreement.",
+    "query": "Calderwood Data Services recovery time objective and recovery point objective"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_long_document_02",
+    "category": "long_document",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_calderwood_msa",
+          "section": "Schedule C - Support Hours"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Calderwood Data Services"
+    },
+    "must_not_contain": [],
+    "notes": "A schedule at the very end of the long document must still be reachable.",
+    "query": "Calderwood Data Services standard support hours and out-of-hours cover"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_malformed_01",
+    "category": "malformed",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_saltmarsh_msa",
+          "section": "Limitation of Liability"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Saltmarsh Security Labs"
+    },
+    "must_not_contain": [],
+    "notes": "Document has a broken heading, a duplicated section, and control characters.",
+    "query": "Saltmarsh Security Labs limitation of liability cap"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_malformed_02",
+    "category": "malformed",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_saltmarsh_msa",
+          "section": "Governing Law"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Saltmarsh Security Labs"
+    },
+    "must_not_contain": [],
+    "notes": "Chunking must recover intact clauses either side of the damaged ones.",
+    "query": "which law and courts govern the Saltmarsh Security Labs master service agreement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_miss_01",
+    "category": "miss",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "No corpus document mentions escrow; the retriever must abstain.",
+    "query": "source code escrow agreement with a third-party escrow agent"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_miss_02",
+    "category": "miss",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "Disputes go to courts in this corpus; arbitration is never mentioned.",
+    "query": "binding arbitration venue and how an arbitrator is appointed"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_miss_03",
+    "category": "miss",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "No insurance clause exists in the corpus.",
+    "query": "cyber insurance certificate and minimum coverage limits per claim"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_miss_04",
+    "category": "miss",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [],
+    "notes": "No corpus document addresses modern slavery reporting.",
+    "query": "modern slavery statement required from vendors"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_01",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_acme_cloud_msa",
+          "section": "Term and Renewal"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Acme Cloud Services"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Term and Renewal vocabulary.",
+    "query": "Acme Cloud Services automatic renewal and the notice required to decline renewal"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_02",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_acme_cloud_dpa",
+          "section": "Data Protection"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "dpa"
+      ],
+      "vendor": "Acme Cloud Services"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Data Protection vocabulary.",
+    "query": "data protection addendum and personal data handling by Acme Cloud Services"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_03",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_northwind_sow",
+          "section": "Payment Terms"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "sow"
+      ],
+      "vendor": "Northwind Logistics"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Payment Terms vocabulary.",
+    "query": "Northwind Logistics invoice payment period and late payment interest"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_04",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_kestrel_grid_sow",
+          "section": "Termination"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "sow"
+      ],
+      "vendor": "Kestrel Grid Systems"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Termination vocabulary.",
+    "query": "how Halvard Systems can terminate the Kestrel Grid Systems Statement of Work for cause"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_05",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_thornbury_msa",
+          "section": "Limitation of Liability"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": "Thornbury Logistics"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Limitation of Liability vocabulary.",
+    "query": "aggregate liability cap and carve-outs in the Thornbury Logistics Master Service Agreement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_06",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_calderwood_order_form",
+          "section": "Term and Renewal"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "order_form"
+      ],
+      "vendor": "Calderwood Data Services"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Term and Renewal vocabulary.",
+    "query": "notice of non-renewal period in the Calderwood Data Services Order Form"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_07",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_lumenfield_nda",
+          "section": "Confidentiality"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "nda"
+      ],
+      "vendor": "Lumenfield Networks"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Confidentiality vocabulary.",
+    "query": "how long confidentiality obligations survive for Lumenfield Networks"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_08",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_orrinvale_order_form",
+          "section": "Payment Terms"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "order_form"
+      ],
+      "vendor": "Orrinvale Cloud Works"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Payment Terms vocabulary.",
+    "query": "when Halvard Systems must pay an undisputed Orrinvale Cloud Works invoice"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_09",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_pinegate_msa",
+          "section": "Governing Law"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Pinegate Consulting Group"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Governing Law vocabulary.",
+    "query": "which law and courts govern the Pinegate Consulting Group Master Service Agreement"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_10",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_brightwater_msa",
+          "section": "Termination"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Brightwater Facilities Group"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Termination vocabulary.",
+    "query": "Brightwater Facilities Group termination for convenience notice and cure period"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_11",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_hollowell_msa",
+          "section": "Limitation of Liability"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Hollowell Print Services"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Limitation of Liability vocabulary.",
+    "query": "Hollowell Print Services limitation of liability for indirect or consequential loss"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_12",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_ferncastle_msa",
+          "section": "Data Protection"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "msa"
+      ],
+      "vendor": "Ferncastle Payments"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Data Protection vocabulary.",
+    "query": "Ferncastle Payments subprocessor notice and Customer Data safeguards"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_13",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_saltmarsh_dpa",
+          "section": "Confidentiality"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "dpa"
+      ],
+      "vendor": "Saltmarsh Security Labs"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Confidentiality vocabulary.",
+    "query": "Saltmarsh Security Labs confidential information return and destruction duty"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_normal_14",
+    "category": "normal",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "ok",
+      "relevant": [
+        {
+          "external_id": "doc_ridgemoor_nda",
+          "section": "Notices"
+        }
+      ]
+    },
+    "filters": {
+      "document_types": [
+        "nda"
+      ],
+      "vendor": "Ridgemoor Analytics"
+    },
+    "must_not_contain": [],
+    "notes": "Lexical match on distinctive Notices vocabulary.",
+    "query": "email address for contractual notices to Ridgemoor Analytics"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_unauthorized_01",
+    "category": "unauthorized",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [
+      "doc_blue_harbor_dpa",
+      "doc_blue_harbor_msa"
+    ],
+    "notes": "Every Blue Harbor Analytics document is legal_restricted; a procurement caller must see nothing, not a redaction.",
+    "query": "Blue Harbor Analytics data processing agreement liability and subprocessors"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_unauthorized_02",
+    "category": "unauthorized",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [
+      "doc_marrowdale_msa",
+      "doc_marrowdale_sow"
+    ],
+    "notes": "Both Marrowdale contracts are hr_restricted.",
+    "query": "Marrowdale Staffing Partners assignment terms and worker rates"
+  },
+  {
+    "access_groups": [
+      "procurement"
+    ],
+    "case_id": "eval_unauthorized_03",
+    "category": "unauthorized",
+    "duplicate_of": null,
+    "expected": {
+      "outcome": "insufficient_evidence",
+      "relevant": []
+    },
+    "filters": {
+      "document_types": [],
+      "vendor": null
+    },
+    "must_not_contain": [
+      "doc_marrowdale_msa",
+      "doc_marrowdale_sow",
+      "doc_policy_hr_contingent_staffing"
+    ],
+    "notes": "The screening standard lives only in the hr_restricted staffing policy.",
+    "query": "background screening standard for contingent workers before assignment"
+  }
+]

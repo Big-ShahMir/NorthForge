@@ -1,0 +1,39 @@
+{
+  "access_group": "procurement",
+  "content": "# Kestrel Grid Systems -- Order Form\n\nThis fictional Order Form between Halvard Systems and Kestrel Grid Systems covers grid telemetry hardware and maintenance services and the commercial terms that apply to it. It is synthetic evaluation data, not legal advice and not a real agreement.\n\n## Term and Renewal\n\nThis Order Form renews automatically for successive twenty-four (24) month terms from 2027-12-06 unless either party gives reasonable notice of non-renewal before the end of the then-current term. The parties have not fixed a number of days; Kestrel Grid Systems and Halvard Systems rely on their customary practice.\n\n## Payment Terms\n\nKestrel Grid Systems invoices Halvard Systems monthly in arrears. Undisputed invoices are payable within forty-five (45) days of receipt, and late undisputed amounts accrue interest at one and a half percent (1.5%) per month.\n\n## Limitation of Liability\n\nExcept for the carve-outs below, the aggregate liability of each party arising out of this Order Form is limited to the fees paid by Halvard Systems to Kestrel Grid Systems in the three (3) months preceding the event giving rise to the claim. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Notices\n\nNotices under this Order Form are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@kestrelgrid.example.com for Kestrel Grid Systems, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Priya Raghavan (Procurement Lead) for Halvard Systems and by Nils Ekstrand (Managing Director) for Kestrel Grid Systems. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "order_form",
+  "edge_cases": [
+    "ambiguous_terms"
+  ],
+  "effective_date": "2025-12-06",
+  "expires_at": "2027-12-06",
+  "external_id": "doc_kestrel_grid_order_form",
+  "metadata": {
+    "ambiguous_fields": [
+      "notice_period_days"
+    ],
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Kestrel Grid Systems",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "energy_systems",
+    "vendor_id": "ven_kestrel_grid",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Kestrel Grid Systems -- Order Form",
+  "vendor": "Kestrel Grid Systems"
+}

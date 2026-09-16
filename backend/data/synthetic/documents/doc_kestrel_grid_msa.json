@@ -1,0 +1,39 @@
+{
+  "access_group": "procurement",
+  "content": "# Kestrel Grid Systems -- Master Service Agreement\n\nHalvard Systems (Customer) and Kestrel Grid Systems (Vendor) enter into this Master Service Agreement for grid telemetry hardware and maintenance services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThis Master Service Agreement takes effect on 2025-08-06 and the current term expires on 2027-08-06. Renewal is automatic for a further twenty-four (24) month term unless either party gives thirty (30) days written notice that it does not wish to renew. Kestrel Grid Systems shall acknowledge a non-renewal notice in writing.\n\n## Termination\n\nEither party may terminate this Master Service Agreement for cause if the other materially breaches it and does not cure the breach within fifteen (15) days of written notice. Halvard Systems may also terminate for convenience, in whole or in part, on thirty (30) days written notice to Kestrel Grid Systems.\n\n## Governing Law\n\nThe laws of the State of New York govern this Master Service Agreement and any dispute between Halvard Systems and Kestrel Grid Systems arising out of it. Proceedings shall be brought only in the courts of the State of New York.\n\n## Data Protection\n\nPersonal data processed by Kestrel Grid Systems on behalf of Halvard Systems is governed by the Data Protection Addendum incorporated into this Master Service Agreement. Kestrel Grid Systems shall keep Customer Data encrypted in transit and at rest and shall give Halvard Systems thirty (30) days notice of any new subprocessor.\n\n## Payment Terms\n\nKestrel Grid Systems invoices Halvard Systems monthly in arrears. Undisputed invoices are payable within ninety (90) days of receipt, and late undisputed amounts accrue interest at one percent (1%) per month.\n\n## Confidentiality\n\nEach party shall protect the Confidential Information of the other with at least the care it applies to its own. Kestrel Grid Systems and Halvard Systems shall disclose Confidential Information only to personnel who need it to perform this Master Service Agreement, and these obligations survive for three (3) years after termination.\n\n## Notices\n\nNotices under this Master Service Agreement are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@kestrelgrid.example.com for Kestrel Grid Systems, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Colm Fitzgerald (Commercial Counsel) for Halvard Systems and by Nils Ekstrand (Managing Director) for Kestrel Grid Systems. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "missing_clause"
+  ],
+  "effective_date": "2025-08-06",
+  "expires_at": "2027-08-06",
+  "external_id": "doc_kestrel_grid_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "missing_sections": [
+      "Limitation of Liability"
+    ],
+    "signatories": [
+      {
+        "name": "Colm Fitzgerald",
+        "party": "Halvard Systems",
+        "role": "Commercial Counsel"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Kestrel Grid Systems",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "energy_systems",
+    "vendor_id": "ven_kestrel_grid",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Kestrel Grid Systems -- Master Service Agreement",
+  "vendor": "Kestrel Grid Systems"
+}

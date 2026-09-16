@@ -1,0 +1,36 @@
+{
+  "access_group": "hr_restricted",
+  "content": "# Marrowdale Staffing Partners -- Master Service Agreement\n\nThis Master Service Agreement records the terms on which Marrowdale Staffing Partners provides contingent staffing and workforce administration services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Marrowdale Staffing Partners, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThe initial term of this Master Service Agreement begins on 2026-10-08 and ends on 2028-10-08. The term then renews automatically for successive twenty-four (24) month terms unless Halvard Systems or Marrowdale Staffing Partners delivers written notice of non-renewal at least thirty (30) days before the end of the then-current term.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on ninety (90) days notice. Marrowdale Staffing Partners may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within ten (10) days of written notice.\n\n## Limitation of Liability\n\nLiability is capped. The aggregate liability of Halvard Systems and of Marrowdale Staffing Partners for all claims under this Master Service Agreement is limited to the fees paid in the six (6) months preceding the claim. Liability for breach of confidentiality and for a breach of data protection obligations is not capped by this clause.\n\n## Governing Law\n\nGoverning law and venue. The law of England and Wales applies to this Master Service Agreement. Marrowdale Staffing Partners and Halvard Systems agree that the courts of England and Wales have exclusive jurisdiction over disputes arising from it.\n\n## Data Protection\n\nMarrowdale Staffing Partners shall keep Customer Data confidential and apply reasonable technical safeguards. No Data Protection Addendum is attached to this Master Service Agreement, and Marrowdale Staffing Partners may engage subprocessors without prior notice to Halvard Systems.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Marrowdale Staffing Partners invoice within fifteen (15) days. Invoices must reference the applicable order form, and interest of one percent (1%) per month applies to late undisputed amounts.\n\n## Confidentiality\n\nMarrowdale Staffing Partners and Halvard Systems shall use Confidential Information only for the purposes of this Master Service Agreement. The duty of confidence continues for two (2) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nAny notice, including notice of non-renewal or termination, must be in writing and sent to contracts@marrowdale.example.com or contracts@halvard.example.com as applicable. Notices sent to any other address are not effective under this Master Service Agreement.\n\n## Signatures\n\nSigned for Halvard Systems by Marit Halvorsen, Director of Procurement. Signed for Marrowdale Staffing Partners by Ines Calloway, Chief Revenue Officer. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2026-10-08",
+  "expires_at": "2028-10-08",
+  "external_id": "doc_marrowdale_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Marit Halvorsen",
+        "party": "Halvard Systems",
+        "role": "Director of Procurement"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Marrowdale Staffing Partners",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "staffing",
+    "vendor_id": "ven_marrowdale",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Marrowdale Staffing Partners -- Master Service Agreement",
+  "vendor": "Marrowdale Staffing Partners"
+}

@@ -1,0 +1,39 @@
+{
+  "access_group": "procurement",
+  "content": "# Orrinvale Cloud Works -- Master Service Agreement\n\nHalvard Systems (Customer) and Orrinvale Cloud Works (Vendor) enter into this Master Service Agreement for managed cloud infrastructure and hosting services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe current term of this Master Service Agreement between Halvard Systems and Orrinvale Cloud Works runs until 2027-02-06 and renews automatically for an additional twelve (12) month term on the same terms. Either party may prevent renewal by giving notice forty-five (45) days in advance of the renewal date; renewal does not change the agreed fees.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on one hundred twenty (120) days notice. Orrinvale Cloud Works may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within ten (10) days of written notice.\n\n## Governing Law\n\nGoverning law and venue. The law of the Province of Ontario applies to this Master Service Agreement. Orrinvale Cloud Works and Halvard Systems agree that the courts of the Province of Ontario have exclusive jurisdiction over disputes arising from it.\n\n## Data Protection\n\nOrrinvale Cloud Works handles Customer Data under this Master Service Agreement without a separate Data Protection Addendum. Orrinvale Cloud Works shall tell Halvard Systems about a confirmed personal data breach without undue delay, but no subprocessor approval right is granted.\n\n## Payment Terms\n\nFees are due ninety (90) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Orrinvale Cloud Works may charge one percent (1%) per month on undisputed overdue amounts.\n\n## Confidentiality\n\nEach party shall protect the Confidential Information of the other with at least the care it applies to its own. Orrinvale Cloud Works and Halvard Systems shall disclose Confidential Information only to personnel who need it to perform this Master Service Agreement, and these obligations survive for five (5) years after termination.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Orrinvale Cloud Works at contracts@orrinvale.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nSigned for Halvard Systems by Priya Raghavan, Procurement Lead. Signed for Orrinvale Cloud Works by Ines Calloway, Chief Revenue Officer. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "missing_clause"
+  ],
+  "effective_date": "2026-02-06",
+  "expires_at": "2027-02-06",
+  "external_id": "doc_orrinvale_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "missing_sections": [
+      "Limitation of Liability"
+    ],
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Orrinvale Cloud Works",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "cloud_infrastructure",
+    "vendor_id": "ven_orrinvale",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Orrinvale Cloud Works -- Master Service Agreement",
+  "vendor": "Orrinvale Cloud Works"
+}

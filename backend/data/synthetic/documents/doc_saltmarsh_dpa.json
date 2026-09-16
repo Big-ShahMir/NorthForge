@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Saltmarsh Security Labs -- Data Processing Agreement\n\nHalvard Systems (Customer) and Saltmarsh Security Labs (Vendor) enter into this Data Processing Agreement for security monitoring and vulnerability testing services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe initial term of this Data Processing Agreement begins on 2025-02-12 and ends on 2027-02-12. The term then renews automatically for successive twenty-four (24) month terms unless Halvard Systems or Saltmarsh Security Labs delivers written notice of non-renewal at least thirty (30) days before the end of the then-current term.\n\n## Termination\n\nHalvard Systems may terminate this Data Processing Agreement for convenience at any time on thirty (30) days written notice. Either party may terminate for cause where a material breach remains uncured thirty (30) days after notice, and Saltmarsh Security Labs shall return or delete Customer materials on termination.\n\n## Limitation of Liability\n\nThe aggregate liability of Saltmarsh Security Labs to Halvard Systems under this Data Processing Agreement shall not exceed USD 500,000 across all claims, and indirect or consequential loss is excluded entirely. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThe laws of the State of Delaware govern this Data Processing Agreement and any dispute between Halvard Systems and Saltmarsh Security Labs arising out of it. Proceedings shall be brought only in the courts of the State of Delaware.\n\n## Data Protection\n\nSaltmarsh Security Labs processes Customer Data only to deliver the services and only on documented instructions from Halvard Systems. The Data Protection Addendum attached to this Data Processing Agreement applies, and Saltmarsh Security Labs shall notify Halvard Systems at least thirty (30) days before engaging a new subprocessor.\n\n## Confidentiality\n\nEach party shall protect the Confidential Information of the other with at least the care it applies to its own. Saltmarsh Security Labs and Halvard Systems shall disclose Confidential Information only to personnel who need it to perform this Data Processing Agreement, and these obligations survive for five (5) years after termination.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Saltmarsh Security Labs at contracts@saltmarsh.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nExecuted by Marit Halvorsen (Director of Procurement) for Halvard Systems and by Nils Ekstrand (Managing Director) for Saltmarsh Security Labs. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "dpa",
+  "edge_cases": [],
+  "effective_date": "2025-02-12",
+  "expires_at": "2027-02-12",
+  "external_id": "doc_saltmarsh_dpa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Marit Halvorsen",
+        "party": "Halvard Systems",
+        "role": "Director of Procurement"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Saltmarsh Security Labs",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "security",
+    "vendor_id": "ven_saltmarsh",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Saltmarsh Security Labs -- Data Processing Agreement",
+  "vendor": "Saltmarsh Security Labs"
+}

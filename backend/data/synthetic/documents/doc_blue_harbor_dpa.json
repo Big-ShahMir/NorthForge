@@ -1,0 +1,36 @@
+{
+  "access_group": "legal_restricted",
+  "content": "# Blue Harbor Analytics -- Data Processing Agreement\n\nHalvard Systems (Customer) and Blue Harbor Analytics (Vendor) enter into this Data Processing Agreement for analytics tooling and reporting services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe initial term of this Data Processing Agreement begins on 2025-01-04 and ends on 2027-01-04. The term then renews automatically for successive twenty-four (24) month terms unless Halvard Systems or Blue Harbor Analytics delivers written notice of non-renewal at least thirty (30) days before the end of the then-current term.\n\n## Termination\n\nNeither Halvard Systems nor Blue Harbor Analytics may terminate this Data Processing Agreement for convenience. Termination requires a material breach that remains uncured ten (10) days after written notice, or the insolvency of the other party.\n\n## Limitation of Liability\n\nThe aggregate liability of Halvard Systems and of Blue Harbor Analytics arising out of this Data Processing Agreement is limited to USD 750,000, whether the claim is contractual or otherwise. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThe laws of the State of New York govern this Data Processing Agreement and any dispute between Halvard Systems and Blue Harbor Analytics arising out of it. Proceedings shall be brought only in the courts of the State of New York.\n\n## Data Protection\n\nPersonal data processed by Blue Harbor Analytics on behalf of Halvard Systems is governed by the Data Protection Addendum incorporated into this Data Processing Agreement. Blue Harbor Analytics shall keep Customer Data encrypted in transit and at rest and shall give Halvard Systems forty-five (45) days notice of any new subprocessor.\n\n## Confidentiality\n\nConfidential Information disclosed under this Data Processing Agreement remains the property of the disclosing party. Blue Harbor Analytics shall return or destroy the Confidential Information of Halvard Systems on request, and confidentiality obligations survive five (5) years beyond termination.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Blue Harbor Analytics at contracts@blueharbor.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nExecuted by Priya Raghavan (Procurement Lead) for Halvard Systems and by Rosa Alven (General Manager) for Blue Harbor Analytics. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "dpa",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2025-01-04",
+  "expires_at": "2027-01-04",
+  "external_id": "doc_blue_harbor_dpa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Rosa Alven",
+        "party": "Blue Harbor Analytics",
+        "role": "General Manager"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "analytics",
+    "vendor_id": "ven_blue_harbor",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Blue Harbor Analytics -- Data Processing Agreement",
+  "vendor": "Blue Harbor Analytics"
+}

@@ -1,0 +1,36 @@
+{
+  "access_group": "legal_restricted",
+  "content": "# Calderwood Data Services -- Data Processing Agreement\n\nHalvard Systems (Customer) and Calderwood Data Services (Vendor) enter into this Data Processing Agreement for data engineering and managed data platform services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe initial term of this Data Processing Agreement begins on 2026-06-21 and ends on 2027-06-21. The term then renews automatically for successive twelve (12) month terms unless Halvard Systems or Calderwood Data Services delivers written notice of non-renewal at least forty-five (45) days before the end of the then-current term.\n\n## Termination\n\nHalvard Systems may terminate this Data Processing Agreement for convenience at any time on ninety (90) days written notice. Either party may terminate for cause where a material breach remains uncured fifteen (15) days after notice, and Calderwood Data Services shall return or delete Customer materials on termination.\n\n## Limitation of Liability\n\nThe total liability of Calderwood Data Services under this Data Processing Agreement shall not exceed the fees paid by Halvard Systems in the three (3) months before the claim arose, and neither party is liable for indirect or consequential loss. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThis Data Processing Agreement is governed by the laws of the Commonwealth of Massachusetts, excluding its conflict-of-laws rules. Halvard Systems and Calderwood Data Services submit to the exclusive jurisdiction of the courts of the Commonwealth of Massachusetts.\n\n## Data Protection\n\nCalderwood Data Services processes Customer Data only to deliver the services and only on documented instructions from Halvard Systems. The Data Protection Addendum attached to this Data Processing Agreement applies, and Calderwood Data Services shall notify Halvard Systems at least forty-five (45) days before engaging a new subprocessor.\n\n## Confidentiality\n\nCalderwood Data Services and Halvard Systems shall use Confidential Information only for the purposes of this Data Processing Agreement. The duty of confidence continues for two (2) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Calderwood Data Services at contracts@calderwood.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nSigned for Halvard Systems by Priya Raghavan, Procurement Lead. Signed for Calderwood Data Services by Dara Okonjo, VP Customer Accounts. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "dpa",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2026-06-21",
+  "expires_at": "2027-06-21",
+  "external_id": "doc_calderwood_dpa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Dara Okonjo",
+        "party": "Calderwood Data Services",
+        "role": "VP Customer Accounts"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "data_services",
+    "vendor_id": "ven_calderwood",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Calderwood Data Services -- Data Processing Agreement",
+  "vendor": "Calderwood Data Services"
+}

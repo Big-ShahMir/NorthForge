@@ -1,0 +1,23 @@
+{
+  "access_group": "procurement",
+  "content": "# Halvard Systems Vendor Security Standard (2026 Edition)\n\nVendor security standard of Halvard Systems, 2026 edition, which supersedes the 2025 edition. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis standard supersedes the 2025 edition in full and applies to every vendor that hosts or processes Halvard Systems systems data from 1 February 2026.\n\n## Encryption Requirement\n\nVendor systems must encrypt Halvard Systems data in transit and at rest, and keys must be rotated at least annually.\n\n## Incident Notification\n\nA vendor must notify Halvard Systems of a confirmed security incident within twenty-four (24) hours of discovery.\n\n## Access Review\n\nVendor access to Halvard Systems systems is reviewed quarterly and removed within two business days of a role change.\n",
+  "document_type": "policy",
+  "edge_cases": [],
+  "effective_date": "2026-02-01",
+  "expires_at": null,
+  "external_id": "doc_policy_security_v2",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "security",
+    "policy_version": 2,
+    "review_note": "Correctly superseded pair: the newer edition lists the older one, so this policy_area must never be reported as conflicting.",
+    "supersedes": [
+      "doc_policy_security_v1"
+    ]
+  },
+  "name": "Halvard Systems Vendor Security Standard (2026 Edition)",
+  "vendor": null
+}

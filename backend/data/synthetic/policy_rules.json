@@ -1,0 +1,101 @@
+[
+  {
+    "condition": "Staffing vendor places a contingent worker",
+    "policy_area": "staffing",
+    "policy_document_id": "doc_policy_hr_contingent_staffing",
+    "requirement": "Background screening must complete before the assignment starts",
+    "rule_id": "pr_background_screening",
+    "section": "Background Screening Standard",
+    "severity": "medium"
+  },
+  {
+    "condition": "Vendor processes personal data or Customer Data",
+    "policy_area": "data_protection",
+    "policy_document_id": "doc_policy_data_protection",
+    "requirement": "A signed Data Protection Addendum must be in place",
+    "rule_id": "pr_data_protection_addendum",
+    "section": "Data Protection Addendum Requirement",
+    "severity": "high"
+  },
+  {
+    "condition": "Confirmed security incident at the vendor",
+    "policy_area": "security",
+    "policy_document_id": "doc_policy_security_v2",
+    "requirement": "Vendor must notify the customer within 24 hours",
+    "rule_id": "pr_incident_notification",
+    "section": "Incident Notification",
+    "severity": "high"
+  },
+  {
+    "condition": "Limitation of liability amount",
+    "policy_area": "liability",
+    "policy_document_id": "doc_policy_legal_liability",
+    "requirement": "Cap must be at least 12 months of fees or USD 500,000 when fixed",
+    "rule_id": "pr_liability_cap_floor",
+    "section": "Liability Cap Floor",
+    "severity": "high"
+  },
+  {
+    "condition": "Carve-outs from the liability cap",
+    "policy_area": "liability",
+    "policy_document_id": "doc_policy_legal_liability",
+    "requirement": "Confidentiality and data protection breaches must stay uncapped",
+    "rule_id": "pr_liability_carveouts",
+    "section": "Liability Carve-Outs",
+    "severity": "high"
+  },
+  {
+    "condition": "Payment window for undisputed invoices",
+    "policy_area": "payment",
+    "policy_document_id": "doc_policy_payment_standards",
+    "requirement": "Payment terms shorter than 45 days need finance approval",
+    "rule_id": "pr_payment_terms_floor",
+    "section": "Standard Payment Terms",
+    "severity": "low"
+  },
+  {
+    "condition": "Contract renews automatically",
+    "policy_area": "renewal",
+    "policy_document_id": "doc_policy_procurement_v1",
+    "requirement": "Notice period to decline renewal must be at least 30 days",
+    "rule_id": "pr_renewal_notice_v1",
+    "section": "Renewal Notice Requirement",
+    "severity": "medium"
+  },
+  {
+    "condition": "Contract renews automatically",
+    "policy_area": "renewal",
+    "policy_document_id": "doc_policy_procurement_v2",
+    "requirement": "Notice period to decline renewal must be at least 60 days",
+    "rule_id": "pr_renewal_notice_v2",
+    "section": "Renewal Notice Requirement",
+    "severity": "medium"
+  },
+  {
+    "condition": "Automatic renewal term length",
+    "policy_area": "renewal",
+    "policy_document_id": "doc_policy_procurement_v2",
+    "requirement": "Renewal terms longer than 12 months require legal sign-off",
+    "rule_id": "pr_renewal_term_limit",
+    "section": "Renewal Term Limit",
+    "severity": "low"
+  },
+  {
+    "condition": "Vendor engages a new subprocessor",
+    "policy_area": "data_protection",
+    "policy_document_id": "doc_policy_data_protection",
+    "requirement": "At least 30 days notice and equivalent subprocessor terms",
+    "rule_id": "pr_subprocessor_notice",
+    "section": "Subprocessor Approval",
+    "severity": "high"
+  },
+  {
+    "condition": "Master service agreement without a convenience exit",
+    "policy_area": "termination",
+    "policy_document_id": "doc_policy_procurement_v2",
+    "requirement": "Customer may terminate for convenience on at most 90 days notice",
+    "rule_id": "pr_termination_for_convenience",
+    "section": "Termination for Convenience",
+    "severity": "high"
+  }
+]

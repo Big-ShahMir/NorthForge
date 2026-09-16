@@ -1,0 +1,1371 @@
+[
+  {
+    "external_id": "doc_acme_cloud_dpa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 60,
+      "payment_terms_days": null,
+      "renewal_date": "2027-07-20",
+      "termination_for_convenience": false
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_acme_cloud_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "State of New York",
+      "liability_cap": 1500000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 20,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-03-28",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_acme_cloud_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 45,
+      "payment_terms_days": 30,
+      "renewal_date": "2028-07-05",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_blue_harbor_dpa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "State of New York",
+      "liability_cap": 750000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 30,
+      "payment_terms_days": null,
+      "renewal_date": "2027-01-04",
+      "termination_for_convenience": false
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_blue_harbor_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": false,
+      "governing_law": "State of New York",
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 30,
+      "renewal_date": "2027-01-21",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_brightwater_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": true,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 6,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 30,
+      "renewal_date": "2027-10-02",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_brightwater_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-01-26",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_brightwater_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 30,
+      "payment_terms_days": 30,
+      "renewal_date": "2027-07-02",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_calderwood_dpa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 45,
+      "payment_terms_days": null,
+      "renewal_date": "2027-06-21",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_calderwood_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": 750000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 30,
+      "payment_terms_days": 15,
+      "renewal_date": "2027-04-12",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "termination_for_convenience",
+        "rule_id": "pr_termination_for_convenience"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_calderwood_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 12,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 60,
+      "renewal_date": "2026-09-24",
+      "termination_for_convenience": null
+    },
+    "violations": []
+  },
+  {
+    "external_id": "doc_ferncastle_dpa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": 12,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": null,
+      "renewal_date": "2026-01-21",
+      "termination_for_convenience": false
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_ferncastle_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": 500000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 20,
+      "payment_terms_days": 30,
+      "renewal_date": "2027-03-04",
+      "termination_for_convenience": false
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "termination_for_convenience",
+        "rule_id": "pr_termination_for_convenience"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_ferncastle_nda",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "State of New York",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 20,
+      "payment_terms_days": null,
+      "renewal_date": "2027-12-18",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_hollowell_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "England and Wales",
+      "liability_cap": 6,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 60,
+      "renewal_date": "2026-12-19",
+      "termination_for_convenience": false
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "termination_for_convenience",
+        "rule_id": "pr_termination_for_convenience"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_hollowell_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 6,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 120,
+      "payment_terms_days": 60,
+      "renewal_date": "2027-05-03",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_kestrel_grid_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "State of New York",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 30,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-08-06",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_kestrel_grid_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": null,
+      "payment_terms_days": 45,
+      "renewal_date": "2027-12-06",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_kestrel_grid_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 20,
+      "payment_terms_days": 45,
+      "renewal_date": "2026-02-17",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_lumenfield_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": false,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 1000000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 45,
+      "payment_terms_days": 60,
+      "renewal_date": "2026-02-18",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_lumenfield_msa_v2",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": false,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 1000000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 45,
+      "payment_terms_days": 60,
+      "renewal_date": "2027-02-18",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_lumenfield_nda",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": "State of Delaware",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 45,
+      "payment_terms_days": null,
+      "renewal_date": "2026-05-19",
+      "termination_for_convenience": true
+    },
+    "violations": []
+  },
+  {
+    "external_id": "doc_marrowdale_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "England and Wales",
+      "liability_cap": 6,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 30,
+      "payment_terms_days": 15,
+      "renewal_date": "2028-10-08",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_marrowdale_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 45,
+      "payment_terms_days": 60,
+      "renewal_date": "2028-09-28",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_northwind_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": true,
+      "governing_law": "State of Delaware",
+      "liability_cap": 6,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 90,
+      "payment_terms_days": 45,
+      "renewal_date": "2027-12-16",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_northwind_nda",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": "Republic of Ireland",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 120,
+      "payment_terms_days": null,
+      "renewal_date": "2026-01-24",
+      "termination_for_convenience": true
+    },
+    "violations": []
+  },
+  {
+    "external_id": "doc_northwind_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": "State of New York",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 45,
+      "payment_terms_days": 30,
+      "renewal_date": "2028-07-16",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_orrinvale_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "Province of Ontario",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 45,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-02-06",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "termination_for_convenience",
+        "rule_id": "pr_termination_for_convenience"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_orrinvale_order_form",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": null,
+      "liability_cap": 3,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 60,
+      "payment_terms_days": 15,
+      "renewal_date": "2027-07-03",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "liability_cap",
+        "rule_id": "pr_liability_cap_floor"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_pinegate_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "State of Delaware",
+      "liability_cap": 500000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 15,
+      "payment_terms_days": 90,
+      "renewal_date": "2028-09-12",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_pinegate_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "England and Wales",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": null,
+      "payment_terms_days": 60,
+      "renewal_date": "2027-05-16",
+      "termination_for_convenience": true
+    },
+    "violations": []
+  },
+  {
+    "external_id": "doc_ridgemoor_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "State of New York",
+      "liability_cap": 1000000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 60,
+      "payment_terms_days": 90,
+      "renewal_date": "2026-11-26",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_ridgemoor_msa_v2",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "State of New York",
+      "liability_cap": 1000000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 60,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-11-26",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_ridgemoor_nda",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": false,
+      "data_protection_addendum": null,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 15,
+      "payment_terms_days": null,
+      "renewal_date": "2026-10-22",
+      "termination_for_convenience": true
+    },
+    "violations": []
+  },
+  {
+    "external_id": "doc_saltmarsh_dpa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "State of Delaware",
+      "liability_cap": 500000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 30,
+      "payment_terms_days": null,
+      "renewal_date": "2027-02-12",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_saltmarsh_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": true,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 24,
+      "liability_cap_type": "months_of_fees",
+      "notice_period_days": 120,
+      "payment_terms_days": 90,
+      "renewal_date": "2027-03-16",
+      "termination_for_convenience": null
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_saltmarsh_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "Province of Ontario",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 120,
+      "payment_terms_days": 90,
+      "renewal_date": "2028-08-13",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_thornbury_msa",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "data_protection_addendum": "Data Protection",
+      "governing_law": "Governing Law",
+      "liability_cap": "Limitation of Liability",
+      "liability_cap_type": "Limitation of Liability",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": false,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": 750000,
+      "liability_cap_type": "fixed_amount",
+      "notice_period_days": 30,
+      "payment_terms_days": 30,
+      "renewal_date": "2028-03-03",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "auto_renewal",
+        "rule_id": "pr_renewal_term_limit"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "data_protection_addendum",
+        "rule_id": "pr_data_protection_addendum"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_thornbury_nda",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "Province of Ontario",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 30,
+      "payment_terms_days": null,
+      "renewal_date": "2027-12-11",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "conflicting_policy",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      }
+    ]
+  },
+  {
+    "external_id": "doc_thornbury_sow",
+    "field_sections": {
+      "auto_renewal": "Term and Renewal",
+      "governing_law": "Governing Law",
+      "notice_period_days": "Term and Renewal",
+      "payment_terms_days": "Payment Terms",
+      "renewal_date": "Term and Renewal",
+      "termination_for_convenience": "Termination"
+    },
+    "fields": {
+      "auto_renewal": true,
+      "data_protection_addendum": null,
+      "governing_law": "Commonwealth of Massachusetts",
+      "liability_cap": null,
+      "liability_cap_type": null,
+      "notice_period_days": 15,
+      "payment_terms_days": 30,
+      "renewal_date": "2027-03-24",
+      "termination_for_convenience": true
+    },
+    "violations": [
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v1"
+      },
+      {
+        "expected_outcome": "violation",
+        "field": "notice_period_days",
+        "rule_id": "pr_renewal_notice_v2"
+      },
+      {
+        "expected_outcome": "requires_review",
+        "field": "payment_terms_days",
+        "rule_id": "pr_payment_terms_floor"
+      }
+    ]
+  }
+]

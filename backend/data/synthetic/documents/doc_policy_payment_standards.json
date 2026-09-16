@@ -1,0 +1,20 @@
+{
+  "access_group": "procurement",
+  "content": "# Halvard Systems Payment and Invoicing Standard\n\nPayment and invoicing standard of Halvard Systems. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis standard sets the invoicing and payment terms Halvard Systems accepts in vendor agreements.\n\n## Standard Payment Terms\n\nUndisputed vendor invoices are payable no sooner than forty-five (45) days after receipt; shorter payment windows require finance approval.\n\n## Late Payment Interest\n\nInterest on late undisputed amounts must not exceed one and a half percent per month.\n\n## Invoice Disputes\n\nHalvard Systems raises invoice disputes in writing within twenty business days, and the undisputed portion remains payable.\n",
+  "document_type": "policy",
+  "edge_cases": [],
+  "effective_date": "2025-05-01",
+  "expires_at": null,
+  "external_id": "doc_policy_payment_standards",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "payment",
+    "policy_version": 1,
+    "supersedes": []
+  },
+  "name": "Halvard Systems Payment and Invoicing Standard",
+  "vendor": null
+}

@@ -1,0 +1,22 @@
+{
+  "access_group": "legal_restricted",
+  "content": "# Halvard Systems Legal Review Standard for Liability Terms\n\nLegal review standard of Halvard Systems for liability terms. Restricted to the legal team. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis standard governs how Halvard Systems legal counsel reviews limitation of liability terms in vendor agreements. It is restricted to the legal team.\n\n## Liability Cap Floor\n\nA liability cap accepted in a vendor agreement must be no lower than the fees paid to that vendor in the preceding twelve (12) months, or USD 500,000 where the cap is expressed as a fixed amount.\n\n## Liability Carve-Outs\n\nA limitation of liability must not cover breach of confidentiality or breach of data protection obligations; liability for those breaches remains uncapped.\n\n## Escalation to the General Counsel\n\nA proposed cap below the floor may be accepted only with written approval from the general counsel of Halvard Systems, recorded in the contract file.\n",
+  "document_type": "policy",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2025-03-01",
+  "expires_at": null,
+  "external_id": "doc_policy_legal_liability",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "liability",
+    "policy_version": 1,
+    "supersedes": []
+  },
+  "name": "Halvard Systems Legal Review Standard for Liability Terms",
+  "vendor": null
+}

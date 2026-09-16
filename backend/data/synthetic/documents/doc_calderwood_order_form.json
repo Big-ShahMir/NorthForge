@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Calderwood Data Services -- Order Form\n\nThis fictional Order Form between Halvard Systems and Calderwood Data Services covers data engineering and managed data platform services and the commercial terms that apply to it. It is synthetic evaluation data, not legal advice and not a real agreement.\n\n## Term and Renewal\n\nThis Order Form has a fixed term that begins on 2025-09-24 and expires on 2026-09-24. It does not renew automatically. Halvard Systems and Calderwood Data Services may extend the term only by a written amendment executed at least thirty (30) days before expiry.\n\n## Payment Terms\n\nCalderwood Data Services invoices Halvard Systems monthly in arrears. Undisputed invoices are payable within sixty (60) days of receipt, and late undisputed amounts accrue interest at one and a half percent (1.5%) per month.\n\n## Limitation of Liability\n\nThe total liability of Calderwood Data Services under this Order Form shall not exceed the fees paid by Halvard Systems in the twelve (12) months before the claim arose, and neither party is liable for indirect or consequential loss. Liability for breach of confidentiality and for a breach of data protection obligations is not capped by this clause.\n\n## Notices\n\nNotices under this Order Form are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@calderwood.example.com for Calderwood Data Services, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Colm Fitzgerald (Commercial Counsel) for Halvard Systems and by Rosa Alven (General Manager) for Calderwood Data Services. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "order_form",
+  "edge_cases": [],
+  "effective_date": "2025-09-24",
+  "expires_at": "2026-09-24",
+  "external_id": "doc_calderwood_order_form",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Colm Fitzgerald",
+        "party": "Halvard Systems",
+        "role": "Commercial Counsel"
+      },
+      {
+        "name": "Rosa Alven",
+        "party": "Calderwood Data Services",
+        "role": "General Manager"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "data_services",
+    "vendor_id": "ven_calderwood",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Calderwood Data Services -- Order Form",
+  "vendor": "Calderwood Data Services"
+}

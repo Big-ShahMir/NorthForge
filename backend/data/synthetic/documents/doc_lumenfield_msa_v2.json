@@ -1,0 +1,38 @@
+{
+  "access_group": "procurement",
+  "content": "# Lumenfield Networks -- Master Service Agreement (Renewal)\n\nThis Master Service Agreement records the terms on which Lumenfield Networks provides network monitoring and managed connectivity services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Lumenfield Networks, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThis Master Service Agreement has a fixed term that begins on 2026-02-18 and expires on 2027-02-18. It does not renew automatically. Halvard Systems and Lumenfield Networks may extend the term only by a written amendment executed at least forty-five (45) days before expiry.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on sixty (60) days notice. Lumenfield Networks may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within thirty (30) days of written notice.\n\n## Limitation of Liability\n\nThe aggregate liability of Lumenfield Networks to Halvard Systems under this Master Service Agreement shall not exceed USD 1,000,000 across all claims, and indirect or consequential loss is excluded entirely. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nGoverning law and venue. The law of the Commonwealth of Massachusetts applies to this Master Service Agreement. Lumenfield Networks and Halvard Systems agree that the courts of the Commonwealth of Massachusetts have exclusive jurisdiction over disputes arising from it.\n\n## Data Protection\n\nLumenfield Networks handles Customer Data under this Master Service Agreement without a separate Data Protection Addendum. Lumenfield Networks shall tell Halvard Systems about a confirmed personal data breach without undue delay, but no subprocessor approval right is granted.\n\n## Payment Terms\n\nLumenfield Networks invoices Halvard Systems monthly in arrears. Undisputed invoices are payable within sixty (60) days of receipt, and late undisputed amounts accrue interest at one percent (1%) per month.\n\n## Confidentiality\n\nLumenfield Networks and Halvard Systems shall use Confidential Information only for the purposes of this Master Service Agreement. The duty of confidence continues for three (3) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nAny notice, including notice of non-renewal or termination, must be in writing and sent to contracts@lumenfield.example.com or contracts@halvard.example.com as applicable. Notices sent to any other address are not effective under this Master Service Agreement.\n\n## Signatures\n\nExecuted by Tobias Renner (Head of Vendor Management) for Halvard Systems and by Nils Ekstrand (Managing Director) for Lumenfield Networks. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "near_duplicate"
+  ],
+  "effective_date": "2026-02-18",
+  "expires_at": "2027-02-18",
+  "external_id": "doc_lumenfield_msa_v2",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "contract_version": 2,
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "duplicate_of": "doc_lumenfield_msa",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Lumenfield Networks",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "networking",
+    "vendor_id": "ven_lumenfield",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Lumenfield Networks -- Master Service Agreement (Renewal)",
+  "vendor": "Lumenfield Networks"
+}

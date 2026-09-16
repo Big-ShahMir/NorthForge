@@ -1,0 +1,37 @@
+{
+  "access_group": "procurement",
+  "content": "# Saltmarsh Security Labs -- Master Service Agreement\n\nThis fictional Master Service Agreement between Halvard Systems and Saltmarsh Security Labs covers security monitoring and vulnerability testing services and the commercial terms that apply to it. It is synthetic evaluation data, not legal advice and not a real agreement.\n\n## Term and Renewal\n\nThe current term of this Master Service Agreement between Halvard Systems and Saltmarsh Security Labs runs until 2027-03-16 and renews automatically for an additional twenty-four (24) month term on the same terms. Either party may prevent renewal by giving notice one hundred twenty (120) days in advance of the renewal date; renewal does not change the agreed fees.\n\n##Termination\nTermination for convenience is available to Halvard Systems on sixty (60) days notice. Saltmarsh Security Labs may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within ten (10) days of written notice.\n\n## Limitation of Liability\n\nThe total liability of Saltmarsh Security Labs under this Master Service Agreement shall not exceed the fees paid by Halvard Systems in the twenty-four (24) months before the claim arose, and neither party is liable for indirect or consequential loss. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Governing Law\n\nThis Master Service Agreement is governed by the laws of the Commonwealth of Massachusetts, excluding its conflict-of-laws rules. Halvard Systems and Saltmarsh Security Labs submit to the exclusive jurisdiction of the courts of the Commonwealth of Massachusetts.\n\n## Data Protection\n\nPersonal data processed by Saltmarsh Security Labs on behalf of Halvard Systems is governed by the Data Protection Addendum incorporated into this Master Service Agreement. Saltmarsh Security Labs shall keep Customer Data encrypted in transit and at rest and shall give Halvard Systems fifteen (15) days notice of any new subprocessor.\n\n## Payment Terms\n\nFees are due ninety (90) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Saltmarsh Security Labs may charge one and a half percent (1.5%) per month on undisputed overdue amounts.\n\n## Payment Terms\n\nFees are due ninety (90) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Saltmarsh Security Labs may charge one and a half percent (1.5%) per month on undisputed overdue amounts.\n\n#### Sub-clause 12.4.1\n\nSee above.\f\n\n## Confidentiality\n\nSaltmarsh Security Labs and Halvard Systems shall use Confidential Information only for the\u000b purposes of this Master Service Agreement. The duty of confidence continues for three (3) years after the end of the term, and indefinitely for trade secrets.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Saltmarsh Security Labs at contracts@saltmarsh.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nSigned for Halvard Systems by Tobias Renner, Head of Vendor Management. Signed for Saltmarsh Security Labs by Nils Ekstrand, Managing Director. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "msa",
+  "edge_cases": [
+    "malformed_document"
+  ],
+  "effective_date": "2025-03-16",
+  "expires_at": "2027-03-16",
+  "external_id": "doc_saltmarsh_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "malformed": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Saltmarsh Security Labs",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "security",
+    "vendor_id": "ven_saltmarsh",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Saltmarsh Security Labs -- Master Service Agreement",
+  "vendor": "Saltmarsh Security Labs"
+}

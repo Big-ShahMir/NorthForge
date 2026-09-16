@@ -1,0 +1,23 @@
+{
+  "access_group": "procurement",
+  "content": "# Halvard Systems Procurement Policy (2026 Edition)\n\nInternal procurement policy of Halvard Systems, 2026 edition. This is synthetic material generated for NorthForge evaluation and describes a fictional company.\n\n## Purpose and Scope\n\nThis edition replaces the commercial minimums used by Halvard Systems procurement from 1 January 2026 and applies to every new or renewing vendor agreement.\n\n## Renewal Notice Requirement\n\nA vendor agreement that renews automatically must give Halvard Systems at least sixty (60) days to decline renewal. Agreements that provide less than sixty days are treated as exceptions and must be escalated before signature.\n\n## Renewal Term Limit\n\nAn automatic renewal term longer than twelve (12) months requires legal sign-off before signature.\n\n## Termination for Convenience\n\nEvery master service agreement must allow Halvard Systems to terminate for convenience on no more than ninety (90) days written notice.\n\n## Vendor Risk Tiering\n\nVendors are tiered low, medium, or high on data access, annual spend, and operational criticality. High-tier vendors receive an additional legal review.\n",
+  "document_type": "policy",
+  "edge_cases": [
+    "conflicting_policy"
+  ],
+  "effective_date": "2026-01-01",
+  "expires_at": null,
+  "external_id": "doc_policy_procurement_v2",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "renewal",
+    "policy_version": 2,
+    "review_note": "supersedes is intentionally empty: this 2026 policy sets a 60-day renewal notice while doc_policy_procurement_v1 still says 30 days, so retrieval must report conflicting evidence instead of guessing.",
+    "supersedes": []
+  },
+  "name": "Halvard Systems Procurement Policy (2026 Edition)",
+  "vendor": null
+}

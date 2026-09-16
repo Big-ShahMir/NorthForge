@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Hollowell Print Services -- Master Service Agreement\n\nHalvard Systems (Customer) and Hollowell Print Services (Vendor) enter into this Master Service Agreement for document printing and secure disposal services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe initial term of this Master Service Agreement begins on 2025-12-19 and ends on 2026-12-19. The term then renews automatically for successive twelve (12) month terms unless Halvard Systems or Hollowell Print Services delivers written notice of non-renewal at least thirty (30) days before the end of the then-current term.\n\n## Termination\n\nThis Master Service Agreement may be terminated only for cause. If Halvard Systems or Hollowell Print Services materially breaches it and fails to cure within thirty (30) days of written notice, the other party may terminate with immediate effect. No right to terminate for convenience is granted to either party.\n\n## Limitation of Liability\n\nExcept for the carve-outs below, the aggregate liability of each party arising out of this Master Service Agreement is limited to the fees paid by Halvard Systems to Hollowell Print Services in the six (6) months preceding the event giving rise to the claim. Liability for breach of confidentiality and for a breach of data protection obligations is not capped by this clause.\n\n## Governing Law\n\nThe laws of England and Wales govern this Master Service Agreement and any dispute between Halvard Systems and Hollowell Print Services arising out of it. Proceedings shall be brought only in the courts of England and Wales.\n\n## Data Protection\n\nPersonal data processed by Hollowell Print Services on behalf of Halvard Systems is governed by the Data Protection Addendum incorporated into this Master Service Agreement. Hollowell Print Services shall keep Customer Data encrypted in transit and at rest and shall give Halvard Systems fifteen (15) days notice of any new subprocessor.\n\n## Payment Terms\n\nFees are due sixty (60) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Hollowell Print Services may charge one percent (1%) per month on undisputed overdue amounts.\n\n## Confidentiality\n\nConfidential Information disclosed under this Master Service Agreement remains the property of the disclosing party. Hollowell Print Services shall return or destroy the Confidential Information of Halvard Systems on request, and confidentiality obligations survive two (2) years beyond termination.\n\n## Notices\n\nNotices under this Master Service Agreement are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@hollowell.example.com for Hollowell Print Services, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Tobias Renner (Head of Vendor Management) for Halvard Systems and by Dara Okonjo (VP Customer Accounts) for Hollowell Print Services. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "msa",
+  "edge_cases": [],
+  "effective_date": "2025-12-19",
+  "expires_at": "2026-12-19",
+  "external_id": "doc_hollowell_msa",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Dara Okonjo",
+        "party": "Hollowell Print Services",
+        "role": "VP Customer Accounts"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "print_services",
+    "vendor_id": "ven_hollowell",
+    "vendor_risk_tier": "low"
+  },
+  "name": "Hollowell Print Services -- Master Service Agreement",
+  "vendor": "Hollowell Print Services"
+}

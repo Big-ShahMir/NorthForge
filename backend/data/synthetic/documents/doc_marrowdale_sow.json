@@ -1,0 +1,36 @@
+{
+  "access_group": "hr_restricted",
+  "content": "# Marrowdale Staffing Partners -- Statement of Work\n\nThis Statement of Work records the terms on which Marrowdale Staffing Partners provides contingent staffing and workforce administration services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Marrowdale Staffing Partners, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThe initial term of this Statement of Work begins on 2026-09-28 and ends on 2028-09-28. The term then renews automatically for successive twenty-four (24) month terms unless Halvard Systems or Marrowdale Staffing Partners delivers written notice of non-renewal at least forty-five (45) days before the end of the then-current term.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on ninety (90) days notice. Marrowdale Staffing Partners may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within thirty (30) days of written notice.\n\n## Payment Terms\n\nFees are due sixty (60) days after the invoice date. Halvard Systems may withhold payment of a disputed invoice line while the dispute is open, and Marrowdale Staffing Partners may charge one and a half percent (1.5%) per month on undisputed overdue amounts.\n\n## Governing Law\n\nThis Statement of Work is governed by the laws of the Commonwealth of Massachusetts, excluding its conflict-of-laws rules. Halvard Systems and Marrowdale Staffing Partners submit to the exclusive jurisdiction of the courts of the Commonwealth of Massachusetts.\n\n## Notices\n\nNotices under this Statement of Work are effective when sent to contracts@halvard.example.com for Halvard Systems and to contracts@marrowdale.example.com for Marrowdale Staffing Partners, with delivery confirmed in writing. Either party may change its notice address by giving notice in the same way.\n\n## Signatures\n\nExecuted by Tobias Renner (Head of Vendor Management) for Halvard Systems and by Nils Ekstrand (Managing Director) for Marrowdale Staffing Partners. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "sow",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2026-09-28",
+  "expires_at": "2028-09-28",
+  "external_id": "doc_marrowdale_sow",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Tobias Renner",
+        "party": "Halvard Systems",
+        "role": "Head of Vendor Management"
+      },
+      {
+        "name": "Nils Ekstrand",
+        "party": "Marrowdale Staffing Partners",
+        "role": "Managing Director"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "staffing",
+    "vendor_id": "ven_marrowdale",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Marrowdale Staffing Partners -- Statement of Work",
+  "vendor": "Marrowdale Staffing Partners"
+}

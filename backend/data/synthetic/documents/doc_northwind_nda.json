@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Northwind Logistics -- Mutual Non-Disclosure Agreement\n\nHalvard Systems (Customer) and Northwind Logistics (Vendor) enter into this Mutual Non-Disclosure Agreement for freight brokerage and supply-chain visibility services. The document is fictional and was generated for NorthForge testing; it records no real commercial relationship.\n\n## Term and Renewal\n\nThe term of this Mutual Non-Disclosure Agreement runs from 2025-01-24 to 2026-01-24 with no automatic renewal. Northwind Logistics shall tell Halvard Systems at least one hundred twenty (120) days before expiry whether it intends to propose renewal terms.\n\n## Termination\n\nTermination for convenience is available to Halvard Systems on ninety (90) days notice. Northwind Logistics may terminate for cause only where Halvard Systems fails to pay undisputed fees and does not cure within thirty (30) days of written notice.\n\n## Confidentiality\n\nConfidential Information disclosed under this Mutual Non-Disclosure Agreement remains the property of the disclosing party. Northwind Logistics shall return or destroy the Confidential Information of Halvard Systems on request, and confidentiality obligations survive three (3) years beyond termination.\n\n## Governing Law\n\nGoverning law and venue. The law of the Republic of Ireland applies to this Mutual Non-Disclosure Agreement. Northwind Logistics and Halvard Systems agree that the courts of the Republic of Ireland have exclusive jurisdiction over disputes arising from it.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Northwind Logistics at contracts@northwind.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nExecuted by Priya Raghavan (Procurement Lead) for Halvard Systems and by Felix Amory (Director of Partnerships) for Northwind Logistics. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "nda",
+  "edge_cases": [],
+  "effective_date": "2025-01-24",
+  "expires_at": "2026-01-24",
+  "external_id": "doc_northwind_nda",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Priya Raghavan",
+        "party": "Halvard Systems",
+        "role": "Procurement Lead"
+      },
+      {
+        "name": "Felix Amory",
+        "party": "Northwind Logistics",
+        "role": "Director of Partnerships"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "logistics",
+    "vendor_id": "ven_northwind",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Northwind Logistics -- Mutual Non-Disclosure Agreement",
+  "vendor": "Northwind Logistics"
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "category": "cloud_infrastructure",
+    "country": "United States",
+    "name": "Acme Cloud Services",
+    "preferred": true,
+    "risk_tier": "medium",
+    "vendor_id": "ven_acme_cloud"
+  },
+  {
+    "category": "analytics",
+    "country": "Ireland",
+    "name": "Blue Harbor Analytics",
+    "preferred": false,
+    "risk_tier": "high",
+    "vendor_id": "ven_blue_harbor"
+  },
+  {
+    "category": "facilities",
+    "country": "United States",
+    "name": "Brightwater Facilities Group",
+    "preferred": true,
+    "risk_tier": "low",
+    "vendor_id": "ven_brightwater"
+  },
+  {
+    "category": "data_services",
+    "country": "Canada",
+    "name": "Calderwood Data Services",
+    "preferred": true,
+    "risk_tier": "high",
+    "vendor_id": "ven_calderwood"
+  },
+  {
+    "category": "payments",
+    "country": "Netherlands",
+    "name": "Ferncastle Payments",
+    "preferred": false,
+    "risk_tier": "high",
+    "vendor_id": "ven_ferncastle"
+  },
+  {
+    "category": "print_services",
+    "country": "United Kingdom",
+    "name": "Hollowell Print Services",
+    "preferred": false,
+    "risk_tier": "low",
+    "vendor_id": "ven_hollowell"
+  },
+  {
+    "category": "energy_systems",
+    "country": "United Kingdom",
+    "name": "Kestrel Grid Systems",
+    "preferred": false,
+    "risk_tier": "high",
+    "vendor_id": "ven_kestrel_grid"
+  },
+  {
+    "category": "networking",
+    "country": "Germany",
+    "name": "Lumenfield Networks",
+    "preferred": false,
+    "risk_tier": "medium",
+    "vendor_id": "ven_lumenfield"
+  },
+  {
+    "category": "staffing",
+    "country": "Ireland",
+    "name": "Marrowdale Staffing Partners",
+    "preferred": false,
+    "risk_tier": "medium",
+    "vendor_id": "ven_marrowdale"
+  },
+  {
+    "category": "logistics",
+    "country": "Canada",
+    "name": "Northwind Logistics",
+    "preferred": true,
+    "risk_tier": "medium",
+    "vendor_id": "ven_northwind"
+  },
+  {
+    "category": "cloud_infrastructure",
+    "country": "Sweden",
+    "name": "Orrinvale Cloud Works",
+    "preferred": false,
+    "risk_tier": "medium",
+    "vendor_id": "ven_orrinvale"
+  },
+  {
+    "category": "consulting",
+    "country": "United States",
+    "name": "Pinegate Consulting Group",
+    "preferred": false,
+    "risk_tier": "low",
+    "vendor_id": "ven_pinegate"
+  },
+  {
+    "category": "analytics",
+    "country": "United States",
+    "name": "Ridgemoor Analytics",
+    "preferred": true,
+    "risk_tier": "medium",
+    "vendor_id": "ven_ridgemoor"
+  },
+  {
+    "category": "security",
+    "country": "Netherlands",
+    "name": "Saltmarsh Security Labs",
+    "preferred": true,
+    "risk_tier": "high",
+    "vendor_id": "ven_saltmarsh"
+  },
+  {
+    "category": "logistics",
+    "country": "United Kingdom",
+    "name": "Thornbury Logistics",
+    "preferred": false,
+    "risk_tier": "low",
+    "vendor_id": "ven_thornbury"
+  }
+]

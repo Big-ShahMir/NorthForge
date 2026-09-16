@@ -1,0 +1,22 @@
+{
+  "access_group": "hr_restricted",
+  "content": "# Halvard Systems Contingent Staffing Policy\n\nContingent staffing policy of Halvard Systems. Restricted to the people team. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis policy governs how Halvard Systems engages contingent workers through staffing vendors. It is restricted to the people team.\n\n## Background Screening Standard\n\nA staffing vendor must complete background screening for every contingent worker before the assignment starts and must record the screening date.\n\n## Contingent Worker Tenure Limit\n\nA contingent worker may not hold the same assignment for more than eighteen (18) months without a people team exception.\n\n## Rate Card Approval\n\nStaffing rate cards are approved annually, and an uplift above five percent requires people team and finance approval.\n",
+  "document_type": "policy",
+  "edge_cases": [
+    "unauthorized"
+  ],
+  "effective_date": "2025-06-01",
+  "expires_at": null,
+  "external_id": "doc_policy_hr_contingent_staffing",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "staffing",
+    "policy_version": 1,
+    "supersedes": []
+  },
+  "name": "Halvard Systems Contingent Staffing Policy",
+  "vendor": null
+}

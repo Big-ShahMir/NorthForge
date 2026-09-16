@@ -1,0 +1,20 @@
+{
+  "access_group": "procurement",
+  "content": "# Halvard Systems Vendor Security Standard (2025 Edition)\n\nVendor security standard of Halvard Systems, 2025 edition. Synthetic evaluation material for a fictional company.\n\n## Purpose and Scope\n\nThis standard sets the security controls Halvard Systems requires from vendors that host or process Halvard Systems systems data.\n\n## Encryption Requirement\n\nVendor systems must encrypt Halvard Systems data in transit with current transport security and at rest with platform-managed keys.\n\n## Incident Notification\n\nA vendor must notify Halvard Systems of a confirmed security incident within seventy-two (72) hours of discovery.\n\n## Access Review\n\nVendor access to Halvard Systems systems is reviewed every six months and removed within five business days of a role change.\n",
+  "document_type": "policy",
+  "edge_cases": [],
+  "effective_date": "2025-02-01",
+  "expires_at": null,
+  "external_id": "doc_policy_security_v1",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "policy",
+    "fictional": true,
+    "policy_area": "security",
+    "policy_version": 1,
+    "supersedes": []
+  },
+  "name": "Halvard Systems Vendor Security Standard (2025 Edition)",
+  "vendor": null
+}

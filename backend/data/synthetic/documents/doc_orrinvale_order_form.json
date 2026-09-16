@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Orrinvale Cloud Works -- Order Form\n\nThis Order Form records the terms on which Orrinvale Cloud Works provides managed cloud infrastructure and hosting services to Halvard Systems. It is synthetic material generated for NorthForge evaluation; Orrinvale Cloud Works, Halvard Systems, and every person named below are fictional.\n\n## Term and Renewal\n\nThe current term of this Order Form between Halvard Systems and Orrinvale Cloud Works runs until 2027-07-03 and renews automatically for an additional twenty-four (24) month term on the same terms. Either party may prevent renewal by giving notice sixty (60) days in advance of the renewal date; renewal does not change the agreed fees.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Orrinvale Cloud Works invoice within fifteen (15) days. Invoices must reference the applicable order form, and interest of one and a half percent (1.5%) per month applies to late undisputed amounts.\n\n## Limitation of Liability\n\nLiability is capped. The aggregate liability of Halvard Systems and of Orrinvale Cloud Works for all claims under this Order Form is limited to the fees paid in the three (3) months preceding the claim. This cap does not apply to breaches of confidentiality, to data protection breaches, or to unpaid fees, for which liability remains uncapped.\n\n## Notices\n\nAny notice, including notice of non-renewal or termination, must be in writing and sent to contracts@orrinvale.example.com or contracts@halvard.example.com as applicable. Notices sent to any other address are not effective under this Order Form.\n\n## Signatures\n\nSigned for Halvard Systems by Marit Halvorsen, Director of Procurement. Signed for Orrinvale Cloud Works by Ines Calloway, Chief Revenue Officer. All signatories named in this document are fictional and no real person is represented.\n",
+  "document_type": "order_form",
+  "edge_cases": [],
+  "effective_date": "2025-07-03",
+  "expires_at": "2027-07-03",
+  "external_id": "doc_orrinvale_order_form",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Marit Halvorsen",
+        "party": "Halvard Systems",
+        "role": "Director of Procurement"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Orrinvale Cloud Works",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "term_months": 24,
+    "vendor_category": "cloud_infrastructure",
+    "vendor_id": "ven_orrinvale",
+    "vendor_risk_tier": "medium"
+  },
+  "name": "Orrinvale Cloud Works -- Order Form",
+  "vendor": "Orrinvale Cloud Works"
+}

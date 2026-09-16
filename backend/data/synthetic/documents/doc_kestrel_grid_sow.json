@@ -1,0 +1,34 @@
+{
+  "access_group": "procurement",
+  "content": "# Kestrel Grid Systems -- Statement of Work\n\nThis fictional Statement of Work between Halvard Systems and Kestrel Grid Systems covers grid telemetry hardware and maintenance services and the commercial terms that apply to it. It is synthetic evaluation data, not legal advice and not a real agreement.\n\n## Term and Renewal\n\nThe current term of this Statement of Work between Halvard Systems and Kestrel Grid Systems runs until 2026-02-17 and renews automatically for an additional twelve (12) month term on the same terms. Either party may prevent renewal by giving notice twenty (20) days in advance of the renewal date; renewal does not change the agreed fees.\n\n## Termination\n\nHalvard Systems may terminate this Statement of Work for convenience at any time on ninety (90) days written notice. Either party may terminate for cause where a material breach remains uncured thirty (30) days after notice, and Kestrel Grid Systems shall return or delete Customer materials on termination.\n\n## Payment Terms\n\nPayment terms. Halvard Systems shall pay each undisputed Kestrel Grid Systems invoice within forty-five (45) days. Invoices must reference the applicable order form, and interest of two percent (2%) per month applies to late undisputed amounts.\n\n## Governing Law\n\nGoverning law and venue. The law of the Republic of Ireland applies to this Statement of Work. Kestrel Grid Systems and Halvard Systems agree that the courts of the Republic of Ireland have exclusive jurisdiction over disputes arising from it.\n\n## Notices\n\nContractual notices are delivered electronically: Halvard Systems receives notices at contracts@halvard.example.com and Kestrel Grid Systems at contracts@kestrelgrid.example.com. A notice is deemed received on the next business day after transmission.\n\n## Signatures\n\nExecuted by Colm Fitzgerald (Commercial Counsel) for Halvard Systems and by Ines Calloway (Chief Revenue Officer) for Kestrel Grid Systems. The signatories are fictional characters created for this synthetic corpus.\n",
+  "document_type": "sow",
+  "edge_cases": [],
+  "effective_date": "2025-02-17",
+  "expires_at": "2026-02-17",
+  "external_id": "doc_kestrel_grid_sow",
+  "metadata": {
+    "buyer": "Halvard Systems",
+    "dataset": "northforge-synthetic",
+    "document_family": "contract",
+    "fictional": true,
+    "fictional_signatories": true,
+    "signatories": [
+      {
+        "name": "Colm Fitzgerald",
+        "party": "Halvard Systems",
+        "role": "Commercial Counsel"
+      },
+      {
+        "name": "Ines Calloway",
+        "party": "Kestrel Grid Systems",
+        "role": "Chief Revenue Officer"
+      }
+    ],
+    "term_months": 12,
+    "vendor_category": "energy_systems",
+    "vendor_id": "ven_kestrel_grid",
+    "vendor_risk_tier": "high"
+  },
+  "name": "Kestrel Grid Systems -- Statement of Work",
+  "vendor": "Kestrel Grid Systems"
+}
