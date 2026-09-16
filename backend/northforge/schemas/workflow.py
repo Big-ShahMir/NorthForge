@@ -1,12 +1,21 @@
 """Workflow definition schema: the stable envelope validated on every read and write.
 
-See ``docs/WORKFLOW_SPEC.md``. Phase 2 defines the full typed per-step-type
-field language; Phase 1 only validates the structural envelope: step ids are
-unique, edges and approval points reference real steps, the step graph has
-no cycle, and there is at most one ``finish`` step. ``validate_definition``
-also reports soft warnings (missing ``finish``/``human_review`` steps,
-unreachable steps, declared retrieval without tools) that callers may choose
-to surface without blocking the write.
+See ``docs/WORKFLOW_SPEC.md`` and ``DECISIONS.md`` ADR-020/ADR-021.
+
+Two validation layers apply to every workflow document:
+
+- The **parse layer** (this module, Pydantic): shape, enums, id patterns,
+  unique step ids, edges referencing real steps, an acyclic step graph, and
+  at most one ``finish`` step. Every per-type step field has a default, so
+  any Phase 1 document that only used the envelope fields still parses.
+  Unknown fields on a step are now rejected (``extra="forbid"``) -- the only
+  Phase 1 leniency Phase 2 removes.
+- The **semantic layer** (``schemas/workflow_validation.py``): required
+  per-type configuration, reference wiring between steps, tool declarations,
+  and approval-point bookkeeping. ``validate_definition`` delegates to it for
+  warnings (with ``known_tools=None``, since this module must not depend on
+  the tool registry); callers that need hard semantic errors -- the
+  ``validate``/``approve`` endpoints -- call ``validate_workflow`` directly.
 """
 
 from __future__ import annotations
@@ -16,28 +25,18 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from northforge.core.errors import InvalidWorkflowError
+from northforge.schemas.steps import FinishStep, WorkflowStep
+from northforge.schemas.workflow_validation import validate_workflow
 
-STEP_ID_PATTERN = r"^[a-z][a-z0-9_]{0,63}$"
-
-StepType = Literal[
-    "retrieve_documents",
-    "extract_fields",
-    "compare_policy",
-    "classify",
-    "draft_summary",
-    "human_review",
-    "validate_output",
-    "finish",
-]
+WorkflowInputType = Literal["string", "text", "number", "boolean", "document_id", "list"]
 
 
-class WorkflowStep(BaseModel, extra="allow"):
-    """A single workflow step. Phase 2 tightens the per-type field set."""
+class WorkflowInputSpec(BaseModel, extra="forbid"):
+    """The declared shape of a single workflow input."""
 
-    id: str = Field(pattern=STEP_ID_PATTERN)
-    type: StepType
-    label: str = Field(min_length=1, max_length=200)
-    requires_approval: bool = False
+    type: WorkflowInputType = "string"
+    description: str = ""
+    required: bool = True
 
 
 class WorkflowEdge(BaseModel, extra="forbid"):
@@ -50,13 +49,26 @@ class WorkflowDefinition(BaseModel, extra="forbid"):
     name: str = Field(min_length=1, max_length=200)
     description: str = ""
     user_request: str = ""
-    inputs: dict[str, Any] = Field(default_factory=dict)
+    inputs: dict[str, WorkflowInputSpec] = Field(default_factory=dict)
     steps: list[WorkflowStep] = Field(default_factory=list)
     edges: list[WorkflowEdge] = Field(default_factory=list)
     tools: list[str] = Field(default_factory=list)
-    output_schema: dict[str, Any] = Field(default_factory=dict)
     approval_points: list[str] = Field(default_factory=list)
     policies: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _drop_legacy_output_schema(cls, data: Any) -> Any:
+        """Ignore a leftover Phase 1 ``output_schema`` key instead of rejecting it.
+
+        Phase 2 derives the output schema from the ``finish`` step
+        (``derived_output_schema``) and no longer stores it, but old
+        documents may still carry the key.
+        """
+        if isinstance(data, dict) and "output_schema" in data:
+            data = dict(data)
+            data.pop("output_schema", None)
+        return data
 
     @model_validator(mode="after")
     def _validate_structure(self) -> WorkflowDefinition:
@@ -112,49 +124,37 @@ def _ensure_acyclic(step_ids: set[str], edges: list[WorkflowEdge]) -> None:
         raise ValueError("workflow edges contain a cycle")
 
 
-def _unreachable_steps(definition: WorkflowDefinition) -> list[str]:
-    """Steps not reached by walking forward from a root.
+def derived_output_schema(definition: WorkflowDefinition) -> dict[str, Any]:
+    """Build a JSON Schema for the workflow's final result from its ``finish`` step.
 
-    A root is a step with no incoming edge that participates in at least one
-    edge (as a source or target). Steps untouched by any edge are excluded
-    from the root set so they are reported as unreachable rather than
-    trivially counted as their own root.
+    Property types cannot be inferred here: a ``finish`` step's ``result``
+    maps output names to arbitrary step-output references, and this schema
+    is meant only to declare which named outputs exist, not their types.
     """
-    edge_nodes: set[str] = set()
-    for edge in definition.edges:
-        edge_nodes.add(edge.source)
-        edge_nodes.add(edge.target)
+    finish_steps = [step for step in definition.steps if isinstance(step, FinishStep)]
+    if not finish_steps:
+        return {"type": "object", "properties": {}, "required": []}
 
-    adjacency: dict[str, list[str]] = {step.id: [] for step in definition.steps}
-    has_incoming: dict[str, bool] = {step.id: False for step in definition.steps}
-    for edge in definition.edges:
-        adjacency[edge.source].append(edge.target)
-        has_incoming[edge.target] = True
-
-    roots = [
-        step_id
-        for step_id, incoming in has_incoming.items()
-        if not incoming and step_id in edge_nodes
-    ]
-    reachable: set[str] = set()
-    stack = list(roots)
-    while stack:
-        node = stack.pop()
-        if node in reachable:
-            continue
-        reachable.add(node)
-        stack.extend(adjacency[node])
-
-    return sorted(set(has_incoming) - reachable)
+    keys = sorted(finish_steps[0].result.keys())
+    return {
+        "type": "object",
+        "properties": {key: {} for key in keys},
+        "required": keys,
+    }
 
 
 def validate_definition(raw: dict[str, Any]) -> tuple[WorkflowDefinition, list[str]]:
     """Parse and structurally validate a workflow definition.
 
-    Raises ``InvalidWorkflowError`` (hard failures: malformed shape, dangling
-    references, cycles, multiple ``finish`` steps). Returns the parsed
-    definition plus a list of soft warnings the caller may surface without
-    blocking the write.
+    Raises ``InvalidWorkflowError`` for parse-layer hard failures (malformed
+    shape, dangling references, cycles, multiple ``finish`` steps). Returns
+    the parsed definition plus a list of soft warnings the caller may
+    surface without blocking the write; these are the semantic layer's
+    *warnings* only (``schemas/workflow_validation.validate_workflow``, run
+    with ``known_tools=None``). Semantic *errors* -- missing required
+    per-type config, bad references, undeclared tools, and the like -- are
+    not raised here; callers that need to block on those call
+    ``validate_workflow`` directly with the real tool registry.
     """
     try:
         definition = WorkflowDefinition.model_validate(raw)
@@ -170,18 +170,6 @@ def validate_definition(raw: dict[str, Any]) -> tuple[WorkflowDefinition, list[s
             details=details,
         ) from exc
 
-    warnings: list[str] = []
-    if not definition.steps:
-        warnings.append("workflow has no steps")
-    if not any(step.type == "finish" for step in definition.steps):
-        warnings.append("workflow has no 'finish' step")
-    if not any(step.type == "human_review" for step in definition.steps):
-        warnings.append("workflow has no 'human_review' step")
-    if definition.edges:
-        unreachable = _unreachable_steps(definition)
-        if unreachable:
-            warnings.append("step(s) not reachable from a root step: " + ", ".join(unreachable))
-    if any(step.type == "retrieve_documents" for step in definition.steps) and not definition.tools:
-        warnings.append("workflow has a 'retrieve_documents' step but no tools are declared")
-
+    report = validate_workflow(definition, known_tools=None)
+    warnings = [f"{problem.code}: {problem.message}" for problem in report.warnings]
     return definition, warnings

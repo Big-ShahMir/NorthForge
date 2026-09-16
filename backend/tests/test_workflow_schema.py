@@ -158,31 +158,41 @@ def test_extra_top_level_field_is_rejected() -> None:
         validate_definition(raw)
 
 
-def test_extra_step_field_is_allowed() -> None:
+def test_extra_step_field_is_forbidden() -> None:
+    """Phase 2 removes the one Phase 1 leniency: unknown step fields now
+    hard-fail instead of being silently accepted (DECISIONS.md ADR-021)."""
     raw = _base_definition(
         steps=[
             {
                 "id": "retrieve",
                 "type": "retrieve_documents",
                 "label": "Retrieve documents",
-                "query": "future phase-2 field",
+                "bogus_field": "not a real field",
             },
             {"id": "finish", "type": "finish", "label": "Finish"},
         ]
     )
 
-    definition, _warnings = validate_definition(raw)
+    with pytest.raises(InvalidWorkflowError):
+        validate_definition(raw)
 
-    assert definition.steps[0].id == "retrieve"
 
-
-def test_no_steps_warns() -> None:
+def test_no_steps_still_parses_and_warns_no_human_review() -> None:
+    """Phase 2 drops the old free-text "workflow has no steps" warning; an
+    empty workflow still parses, and the semantic layer's no_human_review
+    warning (there being no steps at all implies no human_review step)
+    still surfaces through validate_definition."""
     _definition, warnings = validate_definition({"schema_version": 1, "name": "Empty workflow"})
 
-    assert "workflow has no steps" in warnings
+    assert any(warning.startswith("no_human_review:") for warning in warnings)
 
 
-def test_no_finish_step_warns() -> None:
+def test_no_finish_step_no_longer_warns_via_validate_definition() -> None:
+    """no_finish_step is now a semantic *error* code (ADR-021), not a
+    warning, so validate_definition -- which only ever surfaces warnings,
+    never semantic errors -- silently omits it. The error itself is
+    exercised directly against validate_workflow in
+    test_workflow_validation.py::test_no_finish_step_error."""
     raw = {
         "schema_version": 1,
         "name": "No finish",
@@ -192,16 +202,19 @@ def test_no_finish_step_warns() -> None:
 
     _definition, warnings = validate_definition(raw)
 
-    assert "workflow has no 'finish' step" in warnings
+    assert not any("finish" in warning for warning in warnings)
 
 
 def test_no_human_review_step_warns() -> None:
+    """The warning text is now the formatted semantic code, not free text."""
     _definition, warnings = validate_definition(_base_definition())
 
-    assert "workflow has no 'human_review' step" in warnings
+    assert any(warning.startswith("no_human_review:") for warning in warnings)
 
 
-def test_unreachable_step_warns() -> None:
+def test_unreachable_step_no_longer_warns_via_validate_definition() -> None:
+    """unreachable_step is now a semantic *error* code (ADR-021); see
+    test_workflow_validation.py::test_unreachable_step_error."""
     raw = _base_definition(
         steps=[
             {"id": "retrieve", "type": "retrieve_documents", "label": "Retrieve"},
@@ -213,12 +226,14 @@ def test_unreachable_step_warns() -> None:
 
     _definition, warnings = validate_definition(raw)
 
-    assert any("not reachable" in warning and "orphan" in warning for warning in warnings)
+    assert not any(warning.startswith("unreachable_step:") for warning in warnings)
 
 
-def test_retrieve_documents_without_tools_warns() -> None:
+def test_retrieve_documents_without_tools_no_longer_warns_via_validate_definition() -> None:
+    """An undeclared tool is now the semantic *error* code tool_not_declared
+    (ADR-021); see test_workflow_validation.py::test_tool_not_declared_error."""
     raw = _base_definition(tools=[])
 
     _definition, warnings = validate_definition(raw)
 
-    assert any("no tools are declared" in warning for warning in warnings)
+    assert not any("tool" in warning for warning in warnings)

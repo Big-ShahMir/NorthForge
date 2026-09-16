@@ -188,6 +188,26 @@ This file records material choices, alternatives, assumptions, and reversibility
 **Consequences:** Definitions saved in Phase 1 remain valid after Phase 2 as long as they only use the envelope fields. Phase 2 adds a `schema_version` bump only if the envelope changes.  
 **Revisit when:** Phase 2 begins.
 
+## ADR-021: Two workflow validation layers and a string reference syntax
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** Workflow definitions are checked in two layers. The parse layer (Pydantic, on every read and write) enforces shape, enums, unique ids, referential edges, an acyclic graph, and one finish step; every per-type field has a default so a document is never rejected for being incomplete. The semantic layer (`validate_workflow`) runs on the validate and approve endpoints and reports coded errors (missing required configuration, dangling or non-ancestor references, undeclared or unregistered tools, approval point mismatches) and warnings. Step inputs reference data with the strings `$input.<name>` and `$step.<step_id>.<field>`.  
+**Context:** The UI separates Save Draft from Validate and Approve. Users must be able to save partial work, but nothing incomplete may become approved or executable. A string reference form keeps definitions diff-friendly and readable in JSON.  
+**Alternatives:** One strict schema that rejects incomplete drafts; structured reference objects; JSONPath expressions.  
+**Consequences:** `validation_warnings_json` keeps storing warnings; semantic errors return 422 `INVALID_WORKFLOW` with per-problem codes and paths and leave the version in draft. The planner (Phase 5) and editor (Phase 7) target the same problem codes.  
+**Revisit when:** Steps need to consume nested output fields or computed expressions.
+
+## ADR-022: Tool registry with fixture-backed read-only tools
+
+**Date:** 2026-09-15  
+**Status:** Accepted  
+**Decision:** Tools are registered with a typed specification (name, description, input and output models, side-effect class, access scope, kind) and are invoked only through `invoke_tool`, which checks registration, the workflow version's declared tool allowlist, argument validity, a timeout, and output validity before returning, classifying every failure with the evaluation taxonomy. Phase 2 ships three read-only tools (`search_documents`, `get_document_chunk`, `lookup_policy_rules`) backed by a small deterministic synthetic corpus with documented failure triggers and access groups.  
+**Context:** The runtime, planner, and evaluator all need typed tool contracts and deterministic doubles before real retrieval exists. Centralising the checks in the invoker means no tool implementation can bypass them.  
+**Alternatives:** LangChain tool abstractions directly; ad-hoc function calls inside graph nodes.  
+**Consequences:** Phase 3 replaces the search implementation with real retrieval over the generated corpus while keeping the same contracts and tests. Failure triggers (`__timeout__`, `__error__`, `doc_malformed`, restricted chunks) stay available for runtime and evaluation tests.  
+**Revisit when:** A draft-only tool (for example creating a review summary artifact) is added, or tools need per-project configuration.
+
 ## Decision template
 
 ### ADR-XXX: Title
