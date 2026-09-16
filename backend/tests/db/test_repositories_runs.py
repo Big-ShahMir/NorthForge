@@ -14,9 +14,13 @@ from northforge.db.repositories.projects import ProjectsRepository
 from northforge.db.repositories.runs import RunsRepository
 from northforge.db.repositories.workflows import WorkflowsRepository
 from northforge.schemas.workflow import validate_definition
+from tests.fixtures_workflows import COMPLETE_DEFINITION, REAL_TOOL_NAMES
 
 MakeUser = Callable[..., Awaitable[User]]
 
+#: Parses cleanly but is semantically incomplete (see
+#: ``tests/db/test_repositories_workflows.py``); fine here since this
+#: definition is only ever created as a draft, never validated or approved.
 _VALID_RAW: dict[str, Any] = {
     "schema_version": 1,
     "name": "Contract review",
@@ -28,6 +32,8 @@ _VALID_RAW: dict[str, Any] = {
     "tools": ["doc_search"],
 }
 
+KNOWN_TOOLS = frozenset(REAL_TOOL_NAMES)
+
 
 async def _approved_version(
     db_session: AsyncSession, make_user: MakeUser, subject: str = "user_a"
@@ -37,11 +43,11 @@ async def _approved_version(
         owner.id, "Project", "", "contract_review"
     )
     wf_repo = WorkflowsRepository(db_session)
-    definition, _warnings = validate_definition(_VALID_RAW)
+    definition, _warnings = validate_definition(COMPLETE_DEFINITION)
     workflow = await wf_repo.create(project, "Review", "", definition, owner.id)
     version = workflow.versions[0]
-    await wf_repo.validate(version)
-    await wf_repo.approve(version)
+    await wf_repo.validate(version, known_tools=KNOWN_TOOLS)
+    await wf_repo.approve(version, known_tools=KNOWN_TOOLS)
     return owner, project, version
 
 

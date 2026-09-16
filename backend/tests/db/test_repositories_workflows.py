@@ -9,14 +9,24 @@ from typing import Any
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from northforge.core.errors import ConflictError
+from northforge.core.errors import ConflictError, InvalidWorkflowError
 from northforge.db.models import User, WorkflowVersionStatus
 from northforge.db.repositories.projects import ProjectsRepository
 from northforge.db.repositories.workflows import WorkflowsRepository
 from northforge.schemas.workflow import WorkflowDefinition, validate_definition
+from tests.fixtures_workflows import COMPLETE_DEFINITION, REAL_TOOL_NAMES
 
 MakeUser = Callable[..., Awaitable[User]]
 
+#: The real tool names (see ``tests.fixtures_workflows``), used wherever a
+#: test needs a semantic-layer ``known_tools`` set.
+KNOWN_TOOLS = frozenset(REAL_TOOL_NAMES)
+
+#: Parses cleanly but is semantically incomplete: its ``retrieve_documents``
+#: step has no ``query`` and declares an unregistered tool. Fine for tests
+#: that only exercise ``create``/``create_version`` (the parse layer, which
+#: never blocks on semantic errors); tests that call ``validate``/``approve``
+#: need a semantically complete definition instead (``_complete_definition``).
 _VALID_RAW: dict[str, Any] = {
     "schema_version": 1,
     "name": "Contract review",
@@ -28,9 +38,38 @@ _VALID_RAW: dict[str, Any] = {
     "tools": ["doc_search"],
 }
 
+#: A minimal definition with zero semantic errors and exactly one warning
+#: (``no_human_review``), for the one test that asserts warnings are stored.
+_WARNING_ONLY_RAW: dict[str, Any] = {
+    "schema_version": 1,
+    "name": "Minimal",
+    "steps": [
+        {
+            "id": "retrieve",
+            "type": "retrieve_documents",
+            "label": "Retrieve",
+            "query": "acme master service agreement renewal terms",
+        },
+        {
+            "id": "finish",
+            "type": "finish",
+            "label": "Finish",
+            "result": {"chunks": "$step.retrieve.chunks"},
+        },
+    ],
+    "edges": [{"source": "retrieve", "target": "finish"}],
+    "tools": ["search_documents"],
+}
+
 
 def _definition(name: str = "Contract review") -> WorkflowDefinition:
     raw = dict(_VALID_RAW, name=name)
+    definition, _warnings = validate_definition(raw)
+    return definition
+
+
+def _complete_definition(name: str = "Contract review") -> WorkflowDefinition:
+    raw = dict(COMPLETE_DEFINITION, name=name)
     definition, _warnings = validate_definition(raw)
     return definition
 
@@ -152,12 +191,12 @@ async def test_update_definition_resets_status_to_draft(
 ) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    workflow = await repo.create(project, "Review", "", _complete_definition(), owner.id)
     version = workflow.versions[0]
-    await repo.validate(version)
+    await repo.validate(version, known_tools=KNOWN_TOOLS)
     assert version.status == WorkflowVersionStatus.VALIDATED.value
 
-    updated = await repo.update_definition(version, _definition("Review updated"))
+    updated = await repo.update_definition(version, _complete_definition("Review updated"))
 
     assert updated.status == WorkflowVersionStatus.DRAFT.value
     assert updated.validation_warnings_json == []
@@ -168,27 +207,41 @@ async def test_update_definition_raises_conflict_when_approved(
 ) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    workflow = await repo.create(project, "Review", "", _complete_definition(), owner.id)
     version = workflow.versions[0]
-    await repo.validate(version)
-    await repo.approve(version)
+    await repo.validate(version, known_tools=KNOWN_TOOLS)
+    await repo.approve(version, known_tools=KNOWN_TOOLS)
 
     with pytest.raises(ConflictError) as exc_info:
-        await repo.update_definition(version, _definition())
+        await repo.update_definition(version, _complete_definition())
     assert exc_info.value.code == "VERSION_IMMUTABLE"
 
 
 async def test_validate_stores_soft_warnings(db_session: AsyncSession, make_user: MakeUser) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    minimal, _warnings = validate_definition({"schema_version": 1, "name": "Minimal"})
+    minimal, _warnings = validate_definition(_WARNING_ONLY_RAW)
     workflow = await repo.create(project, "Review", "", minimal, owner.id)
     version = workflow.versions[0]
 
-    validated = await repo.validate(version)
+    validated = await repo.validate(version, known_tools=KNOWN_TOOLS)
 
     assert validated.status == WorkflowVersionStatus.VALIDATED.value
     assert len(validated.validation_warnings_json) > 0
+
+
+async def test_validate_raises_invalid_workflow_for_semantic_errors(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    version = workflow.versions[0]
+
+    with pytest.raises(InvalidWorkflowError) as exc_info:
+        await repo.validate(version, known_tools=KNOWN_TOOLS)
+    assert exc_info.value.details
+    assert version.status == WorkflowVersionStatus.DRAFT.value
 
 
 async def test_validate_raises_conflict_when_immutable(
@@ -196,13 +249,13 @@ async def test_validate_raises_conflict_when_immutable(
 ) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    workflow = await repo.create(project, "Review", "", _complete_definition(), owner.id)
     version = workflow.versions[0]
-    await repo.validate(version)
-    await repo.approve(version)
+    await repo.validate(version, known_tools=KNOWN_TOOLS)
+    await repo.approve(version, known_tools=KNOWN_TOOLS)
 
     with pytest.raises(ConflictError) as exc_info:
-        await repo.validate(version)
+        await repo.validate(version, known_tools=KNOWN_TOOLS)
     assert exc_info.value.code == "VERSION_IMMUTABLE"
 
 
@@ -211,12 +264,25 @@ async def test_approve_raises_conflict_before_validated(
 ) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    workflow = await repo.create(project, "Review", "", _complete_definition(), owner.id)
     version = workflow.versions[0]
 
     with pytest.raises(ConflictError) as exc_info:
-        await repo.approve(version)
+        await repo.approve(version, known_tools=KNOWN_TOOLS)
     assert exc_info.value.code == "VERSION_NOT_VALIDATED"
+
+
+async def test_approve_raises_invalid_workflow_for_semantic_errors(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    version = workflow.versions[0]
+
+    with pytest.raises(InvalidWorkflowError) as exc_info:
+        await repo.approve(version, known_tools=KNOWN_TOOLS)
+    assert exc_info.value.details
 
 
 async def test_approve_sets_status_approved_at_and_current_version(
@@ -224,11 +290,11 @@ async def test_approve_sets_status_approved_at_and_current_version(
 ) -> None:
     owner, project = await _project(db_session, make_user)
     repo = WorkflowsRepository(db_session)
-    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
-    v2 = await repo.create_version(workflow, _definition("v2"), owner.id)
-    await repo.validate(v2)
+    workflow = await repo.create(project, "Review", "", _complete_definition(), owner.id)
+    v2 = await repo.create_version(workflow, _complete_definition("v2"), owner.id)
+    await repo.validate(v2, known_tools=KNOWN_TOOLS)
 
-    approved = await repo.approve(v2)
+    approved = await repo.approve(v2, known_tools=KNOWN_TOOLS)
 
     assert approved.status == WorkflowVersionStatus.APPROVED.value
     assert approved.approved_at is not None

@@ -178,7 +178,8 @@ async def validate_version(
     version = await repo.get_version_for_owner(version_id, user.id)
     if version is None:
         raise NotFoundError("Workflow version not found.")
-    version = await repo.validate(version)
+    known_tools = request.app.state.tool_registry.names()
+    version = await repo.validate(version, known_tools=known_tools)
     return Envelope[VersionOut](data=_version_out(version), request_id=request_id_of(request))
 
 
@@ -190,7 +191,8 @@ async def approve_version(
     version = await repo.get_version_for_owner(version_id, user.id)
     if version is None:
         raise NotFoundError("Workflow version not found.")
-    version = await repo.approve(version)
+    known_tools = request.app.state.tool_registry.names()
+    version = await repo.approve(version, known_tools=known_tools)
     return Envelope[VersionOut](data=_version_out(version), request_id=request_id_of(request))
 
 

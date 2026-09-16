@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from dataclasses import asdict
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select, update
@@ -10,9 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.orm.attributes import set_committed_value
 
-from northforge.core.errors import ConflictError
+from northforge.core.errors import ConflictError, InvalidWorkflowError
 from northforge.db.models import Project, Workflow, WorkflowVersion, WorkflowVersionStatus
-from northforge.schemas.workflow import WorkflowDefinition, validate_definition
+from northforge.schemas.workflow import WorkflowDefinition, parse_definition
+from northforge.schemas.workflow_validation import ValidationReport, validate_workflow
 
 _MUTABLE_STATUSES = {WorkflowVersionStatus.DRAFT.value, WorkflowVersionStatus.VALIDATED.value}
 
@@ -132,15 +134,22 @@ class WorkflowsRepository:
         await self._session.flush()
         return version
 
-    async def validate(self, version: WorkflowVersion) -> WorkflowVersion:
+    async def validate(
+        self, version: WorkflowVersion, *, known_tools: frozenset[str] | set[str]
+    ) -> WorkflowVersion:
         self._require_mutable(version)
-        _definition, warnings = validate_definition(version.definition_json)
-        version.validation_warnings_json = list(warnings)
+        report = self._run_semantic_validation(version, known_tools=known_tools)
+        version.validation_warnings_json = [
+            f"{problem.code}: {problem.message}" for problem in report.warnings
+        ]
         version.status = WorkflowVersionStatus.VALIDATED.value
         await self._session.flush()
         return version
 
-    async def approve(self, version: WorkflowVersion) -> WorkflowVersion:
+    async def approve(
+        self, version: WorkflowVersion, *, known_tools: frozenset[str] | set[str]
+    ) -> WorkflowVersion:
+        self._run_semantic_validation(version, known_tools=known_tools)
         if version.status != WorkflowVersionStatus.VALIDATED.value:
             raise ConflictError(
                 "Workflow version must be validated before it can be approved.",
@@ -155,6 +164,26 @@ class WorkflowsRepository:
         )
         await self._session.flush()
         return version
+
+    @staticmethod
+    def _run_semantic_validation(
+        version: WorkflowVersion, *, known_tools: frozenset[str] | set[str]
+    ) -> ValidationReport:
+        """Run semantic validation, raising ``InvalidWorkflowError`` (422) on error.
+
+        Used by both ``validate`` and ``approve`` -- ``approve`` re-runs this
+        because the tool registry may have changed since the version was
+        last validated. Returns the full report (including warnings) on
+        success so ``validate`` can store them without validating twice.
+        """
+        definition = parse_definition(version.definition_json)
+        report = validate_workflow(definition, known_tools=known_tools)
+        if not report.ok:
+            raise InvalidWorkflowError(
+                f"Workflow definition has {len(report.errors)} semantic error(s).",
+                details=[asdict(problem) for problem in report.errors],
+            )
+        return report
 
     async def restore(
         self, workflow: Workflow, source_version: WorkflowVersion, created_by: uuid.UUID

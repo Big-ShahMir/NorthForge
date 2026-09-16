@@ -133,6 +133,16 @@ npm run build
 
 CI runs the same commands on every push and pull request without provider credentials.
 
+### Frontend API types
+
+`frontend/src/lib/api-schema.d.ts` is generated from the backend's OpenAPI schema (`frontend/openapi.json`) and both files are committed. Regenerate them after any change to API routes or Pydantic schemas:
+
+```bash
+cd backend && uv run python -m northforge.api.export_openapi && cd ../frontend && npm run generate:api
+```
+
+CI's `contracts` job regenerates both files and fails the build if `git diff --exit-code` finds a difference, so a contract change without regenerated types fails CI.
+
 ## Configuration
 
 All settings are read from environment variables (or `.env` at the repository root). Missing or invalid required variables stop startup with a message that names every problem. Secrets are `SecretStr` values and never appear in logs, error responses, or the frontend bundle. See `.env.example` for the full list; later-phase variables (Clerk, NVIDIA, S3) are optional until their phase.

@@ -25,9 +25,14 @@ Use FastAPI with Pydantic schemas. All project data endpoints require authentica
 - `POST /api/workflows/{workflow_id}/versions` — save a new draft version.
 - `GET /api/workflow-versions/{version_id}` — retrieve a version's definition, status, and validation warnings.
 - `PATCH /api/workflow-versions/{version_id}` — overwrite a draft or validated version's definition (resets its status to draft). Returns `409 VERSION_IMMUTABLE` for an approved or archived version.
-- `POST /api/workflow-versions/{version_id}/validate` — validate definition.
-- `POST /api/workflow-versions/{version_id}/approve` — approve a validated version, making it immutable. Returns `409 VERSION_NOT_VALIDATED` if the version has not been validated.
+- `POST /api/workflow-versions/{version_id}/validate` — run semantic validation (`docs/WORKFLOW_SPEC.md`) against the version's definition and the live tool registry. On success, sets status `validated` and stores any warnings (`"<code>: <message>"` strings); on semantic errors returns `422 INVALID_WORKFLOW` and leaves status and stored warnings unchanged. `error.details` is a list of problem objects (`code`, `message`, `step_id`, `path`).
+- `POST /api/workflow-versions/{version_id}/approve` — re-run the same semantic validation (the tool registry may have changed since the version was last validated) and refuse with `422 INVALID_WORKFLOW` under the same conditions as `validate`, then approve a validated version, making it immutable. Returns `409 VERSION_NOT_VALIDATED` if the version has not been validated.
 - `POST /api/workflow-versions/{version_id}/restore` — create a new draft version copying an earlier version's definition verbatim.
+
+### Catalog
+
+- `GET /api/tools` — list every registered tool (`name`, `description`, `side_effect_class`, `access_scope`, `kind`, `input_schema`, `output_schema` as JSON Schema). No implementation details are exposed.
+- `GET /api/workflow-step-types` — list every supported workflow step type (`type`, `title`, `description`, `config_schema`, `output_schema`, `allowed_tool_kinds`, `is_model_driven`).
 
 ### Runs
 

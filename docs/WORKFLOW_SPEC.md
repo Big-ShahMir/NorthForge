@@ -21,7 +21,71 @@ A workflow contains `id`, `version`, `name`, `description`, `user_request`, `inp
 
 ## Step contract
 
-Every step has `id`, `type`, `label`, `inputs`, `output_schema`, `timeout_seconds`, `retry_policy`, `requires_approval`, and `failure_policy`. Inputs reference prior outputs or approved project data. Outputs are schema-validated before becoming available to later steps.
+Every step has `id`, `type`, `label`, `instructions`, per-type configuration fields (see the table below), `timeout_seconds` (1-600, default 120), `retry_policy` (`max_attempts` 1-5, `backoff_seconds`, `backoff_multiplier`, `max_backoff_seconds`), `requires_approval`, and `failure_policy` (`fail_run` | `pause_for_review` | `skip`). Unknown fields on a step are rejected. Outputs are schema-validated before becoming available to later steps (`schemas/step_outputs.py`).
+
+### Reference syntax
+
+A per-type configuration field accepts either a literal value or a reference string that points at a declared workflow input or a prior step's output field (`schemas/refs.py`):
+
+- `"$input.<name>"` refers to a declared workflow input named `<name>`.
+- `"$step.<step_id>.<field>"` refers to the `<field>` output of the step identified by `<step_id>`.
+
+Anything else, including non-string values, is a literal. A string starting with `$` that matches neither form is a malformed reference and is rejected. Semantic validation requires the referenced step to be an ancestor of the referencing step (via `edges`) and `field` to be a real top-level field of that step type's output model.
+
+### Per-type configuration
+
+| type | config fields | output fields |
+|---|---|---|
+| `retrieve_documents` | `tool` (`search_documents` or `get_document_chunk`, default `search_documents`), `query` (literal or ref, required), `document_types`, `vendor`, `limit` (1-20, default 8), `min_results` | `chunks: EvidenceChunk[]` |
+| `extract_fields` | `evidence` (ref to a `chunks` field, required), `fields: FieldSpec[]` (`name`, `description`, `type`: string/text/date/number/boolean, `required`) (required, non-empty), `require_citations` | `fields: {name: ExtractedField}` |
+| `compare_policy` | `fields` (ref, required), `policy_area` or a non-empty `rules` list (required), `tool` (`lookup_policy_rules`, default), `rules: DeterministicRule[]` (`rule_id`, `field`, `operator`, `value`, `severity`, `description`), `use_model_interpretation` | `results: PolicyCheckResult[]` |
+| `classify` | `evidence` (ref, required), `categories` (at least two, required) | `category`, `confidence`, `evidence`, `rationale` |
+| `draft_summary` | `sources` (list of refs, non-empty, required), `require_citations`, `max_words` | `summary_markdown`, `citations`, `uncertainties` |
+| `human_review` | `show` (list of refs), `decisions` (default `["approve", "reject", "edit"]`) | `decision`, `reviewer_notes`, `edited_payload` |
+| `validate_output` | `target` (ref, required), `checks` (subset of `schema`/`required_fields`/`citations`/`policy_results`) | `passed`, `checks: CheckOutcome[]` |
+| `finish` | `result: {name: ref}` (every value must be a reference, non-empty, required) | `result: {name: value}` |
+
+Every per-type field has a default, so a document that only sets the common fields still parses; the semantic layer (below) is what enforces the "required" fields in this table.
+
+## Validation layers
+
+Every workflow document passes through two layers (ADR-021):
+
+- **Parse layer** (`schemas/workflow.py`, Pydantic, every read and write): shape, enums, the step id pattern, unique step ids, edges that reference real steps, an acyclic step graph, and at most one `finish` step. Every per-type field has a default, so any document that only sets the common fields still parses. Unknown fields on a step are rejected. Parse failures raise `INVALID_WORKFLOW` (422) with Pydantic's own error list as `details` and always block the write.
+- **Semantic layer** (`schemas/workflow_validation.py`, run by the `validate` and `approve` endpoints, and non-blocking on every write): required per-type configuration, reference wiring between steps, tool declarations, and approval-point bookkeeping. Returns a report of `errors` and `warnings`, both lists of `Problem{code, message, step_id, path}`. Errors block `validate`/`approve` with `INVALID_WORKFLOW` (422, `details` is the list of problem objects) and leave the version's status and stored warnings untouched. Warnings never block; `validate` stores them as `"<code>: <message>"` strings on the version and sets its status to `validated`. A draft with semantic errors can still be saved (`POST`/`PATCH` only run the parse layer); only `validate` and `approve` enforce errors.
+
+Problem codes:
+
+| code | severity | meaning |
+|---|---|---|
+| `missing_required_config` | error | a step is missing a per-type field this spec marks required |
+| `unknown_input_reference` | error | a `$input.<name>` reference names an input the workflow does not declare |
+| `reference_not_ancestor` | error | a `$step.<id>.<field>` reference names a step that is not an ancestor of the referencing step via `edges` |
+| `reference_unknown_field` | error | a `$step.<id>.<field>` reference names a field that step type's output model does not have |
+| `invalid_reference_syntax` | error | a string starts with `$` but matches neither reference form |
+| `tool_not_declared` | error | a step names a tool absent from the workflow's `tools` list |
+| `tool_not_registered` | error | a declared or step-level tool name is not in the running tool registry (`GET /api/tools`) |
+| `tool_not_allowed_for_step` | error | a step names a tool outside the kinds allowed for its type (e.g. only `lookup_policy_rules` for `compare_policy`) |
+| `approval_point_mismatch` | error | `approval_points` is not exactly the steps with `requires_approval=true` plus every `human_review` step |
+| `no_finish_step` | error | the workflow has no `finish` step |
+| `unreachable_step` | error | a step is not reachable by walking forward from a root step |
+| `finish_result_reference_invalid` | error | a `finish.result` value is not a reference (every result value must reference a prior step's output) |
+| `no_human_review` | warning | the workflow has no `human_review` step |
+| `no_retrieval_before_extraction` | warning | an `extract_fields` step has no `retrieve_documents` ancestor |
+| `draft_without_citations` | warning | a `draft_summary` step sets `require_citations=false` |
+| `high_retry_budget` | warning | a step's `max_attempts x timeout_seconds` exceeds 20 minutes |
+
+`known_tools` (the registry's tool names) is optional in `validate_workflow`; passing `None` skips `tool_not_registered` entirely. Drafts are validated this way (they must not depend on the tool registry); `validate`/`approve` always pass the real registry's names.
+
+## Failure policy semantics
+
+`failure_policy` governs what happens when a step exhausts its `retry_policy` without succeeding:
+
+- `fail_run` (default): the run transitions to `failed`; downstream steps do not execute.
+- `pause_for_review`: the run pauses and surfaces the failure for a human decision, the same way an approval point does, rather than terminating outright.
+- `skip`: the step is marked failed but the run continues to steps that do not depend on its output.
+
+`retry_policy` applies bounded exponential backoff (`backoff_seconds * backoff_multiplier ** attempt`, capped at `max_backoff_seconds`) to each retryable attempt, up to `max_attempts`. Only tool failures the runtime classifies as retryable (`ToolExecutionError(retryable=True)`) are retried; malformed arguments, blocked tools, and invalid tool output are not.
 
 ## Runtime state
 

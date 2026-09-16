@@ -143,21 +143,18 @@ def derived_output_schema(definition: WorkflowDefinition) -> dict[str, Any]:
     }
 
 
-def validate_definition(raw: dict[str, Any]) -> tuple[WorkflowDefinition, list[str]]:
-    """Parse and structurally validate a workflow definition.
+def parse_definition(raw: dict[str, Any]) -> WorkflowDefinition:
+    """Parse a raw definition, raising ``InvalidWorkflowError`` on parse-layer failures.
 
-    Raises ``InvalidWorkflowError`` for parse-layer hard failures (malformed
-    shape, dangling references, cycles, multiple ``finish`` steps). Returns
-    the parsed definition plus a list of soft warnings the caller may
-    surface without blocking the write; these are the semantic layer's
-    *warnings* only (``schemas/workflow_validation.validate_workflow``, run
-    with ``known_tools=None``). Semantic *errors* -- missing required
-    per-type config, bad references, undeclared tools, and the like -- are
-    not raised here; callers that need to block on those call
-    ``validate_workflow`` directly with the real tool registry.
+    Parse-layer failures are malformed shape, dangling references, cycles,
+    and multiple ``finish`` steps -- everything ``WorkflowDefinition``
+    itself enforces. This is the shared entry point for both
+    ``validate_definition`` (soft warnings only) and
+    ``WorkflowsRepository.validate``/``approve`` (hard semantic errors, via
+    ``schemas.workflow_validation.validate_workflow``).
     """
     try:
-        definition = WorkflowDefinition.model_validate(raw)
+        return WorkflowDefinition.model_validate(raw)
     except ValidationError as exc:
         errors = exc.errors(include_url=False)
         # Keep only JSON-serialisable fields; ``ctx`` may hold raw exception objects.
@@ -170,6 +167,21 @@ def validate_definition(raw: dict[str, Any]) -> tuple[WorkflowDefinition, list[s
             details=details,
         ) from exc
 
+
+def validate_definition(raw: dict[str, Any]) -> tuple[WorkflowDefinition, list[str]]:
+    """Parse and structurally validate a workflow definition.
+
+    Raises ``InvalidWorkflowError`` for parse-layer hard failures (see
+    ``parse_definition``). Returns the parsed definition plus a list of soft
+    warnings the caller may surface without blocking the write; these are
+    the semantic layer's *warnings* only (``schemas/workflow_validation.
+    validate_workflow``, run with ``known_tools=None``). Semantic *errors* --
+    missing required per-type config, bad references, undeclared tools, and
+    the like -- are not raised here; callers that need to block on those
+    call ``validate_workflow`` directly with the real tool registry (see
+    ``WorkflowsRepository.validate``/``approve``).
+    """
+    definition = parse_definition(raw)
     report = validate_workflow(definition, known_tools=None)
     warnings = [f"{problem.code}: {problem.message}" for problem in report.warnings]
     return definition, warnings

@@ -15,6 +15,7 @@ request) versus warnings (store them, but let the draft save).
 
 from __future__ import annotations
 
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -71,13 +72,14 @@ class ValidationReport:
 
 
 def validate_workflow(
-    definition: WorkflowDefinition, *, known_tools: set[str] | None
+    definition: WorkflowDefinition, *, known_tools: AbstractSet[str] | None
 ) -> ValidationReport:
     """Run every semantic check against a parsed workflow definition.
 
-    ``known_tools`` is the set of tool names actually registered at runtime.
-    Passing ``None`` skips the ``tool_not_registered`` check entirely (used
-    by ``validate_definition``, which must not depend on the tool registry).
+    ``known_tools`` is the set of tool names actually registered at runtime
+    (a ``set`` or ``frozenset``, e.g. ``ToolRegistry.names()``). Passing
+    ``None`` skips the ``tool_not_registered`` check entirely (used by
+    ``validate_definition``, which must not depend on the tool registry).
     """
     errors: list[Problem] = []
     warnings: list[Problem] = []
@@ -339,7 +341,7 @@ def _missing_config(step_id: str, base_path: str, field_name: str, step_type: st
 def _check_tool(
     step: RetrieveDocumentsStep | ComparePolicyStep,
     declared_tools: list[str],
-    known_tools: set[str] | None,
+    known_tools: AbstractSet[str] | None,
     errors: list[Problem],
     base_path: str,
 ) -> None:

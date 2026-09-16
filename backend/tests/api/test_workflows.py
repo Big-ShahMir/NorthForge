@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any
 
 import httpx2 as httpx
 
 from northforge.auth.principal import Principal
 from tests.api.conftest import AsUser
+from tests.fixtures_workflows import COMPLETE_DEFINITION
 
 ALICE = Principal(subject="dev|alice")
 BOB = Principal(subject="dev|bob")
@@ -29,10 +31,12 @@ async def _create_project(api_client: httpx.AsyncClient) -> str:
     return str(response.json()["data"]["id"])
 
 
-async def _create_workflow(api_client: httpx.AsyncClient, project_id: str) -> dict[str, Any]:
+async def _create_workflow(
+    api_client: httpx.AsyncClient, project_id: str, definition: dict[str, Any] | None = None
+) -> dict[str, Any]:
     response = await api_client.post(
         f"/api/projects/{project_id}/workflows",
-        json={"name": "Review", "definition": _VALID_DEFINITION},
+        json={"name": "Review", "definition": definition or _VALID_DEFINITION},
     )
     data: dict[str, Any] = response.json()["data"]
     return data
@@ -221,7 +225,7 @@ async def test_validate_then_approve_happy_path(
 ) -> None:
     as_user(ALICE)
     project_id = await _create_project(api_client)
-    workflow = await _create_workflow(api_client, project_id)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
     version_id = workflow["versions"][0]["id"]
 
     validated = await api_client.post(f"/api/workflow-versions/{version_id}/validate")
@@ -239,7 +243,7 @@ async def test_approve_before_validate_returns_409(
 ) -> None:
     as_user(ALICE)
     project_id = await _create_project(api_client)
-    workflow = await _create_workflow(api_client, project_id)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
     version_id = workflow["versions"][0]["id"]
 
     response = await api_client.post(f"/api/workflow-versions/{version_id}/approve")
@@ -253,7 +257,7 @@ async def test_patch_approved_version_returns_409(
 ) -> None:
     as_user(ALICE)
     project_id = await _create_project(api_client)
-    workflow = await _create_workflow(api_client, project_id)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
     version_id = workflow["versions"][0]["id"]
     await api_client.post(f"/api/workflow-versions/{version_id}/validate")
     await api_client.post(f"/api/workflow-versions/{version_id}/approve")
@@ -264,6 +268,92 @@ async def test_patch_approved_version_returns_409(
 
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "VERSION_IMMUTABLE"
+
+
+async def test_validate_complete_definition_returns_zero_warnings(
+    api_client: httpx.AsyncClient, as_user: AsUser
+) -> None:
+    as_user(ALICE)
+    project_id = await _create_project(api_client)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
+    version_id = workflow["versions"][0]["id"]
+
+    response = await api_client.post(f"/api/workflow-versions/{version_id}/validate")
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["status"] == "validated"
+    assert data["validation_warnings"] == []
+
+
+async def test_validate_with_broken_reference_returns_422(
+    api_client: httpx.AsyncClient, as_user: AsUser
+) -> None:
+    as_user(ALICE)
+    project_id = await _create_project(api_client)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
+    version_id = workflow["versions"][0]["id"]
+
+    broken = deepcopy(COMPLETE_DEFINITION)
+    # 'extract' does not have 'draft' as an ancestor: not wired via edges.
+    broken["steps"][1]["evidence"] = "$step.draft.summary_markdown"
+    await api_client.patch(f"/api/workflow-versions/{version_id}", json={"definition": broken})
+
+    response = await api_client.post(f"/api/workflow-versions/{version_id}/validate")
+
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error"]["code"] == "INVALID_WORKFLOW"
+    problems = body["error"]["details"]
+    assert any(
+        problem["code"] == "reference_not_ancestor" and problem["path"] for problem in problems
+    )
+
+    version = await api_client.get(f"/api/workflow-versions/{version_id}")
+    assert version.json()["data"]["status"] == "draft"
+
+
+async def test_validate_with_unregistered_tool_returns_tool_not_registered(
+    api_client: httpx.AsyncClient, as_user: AsUser
+) -> None:
+    as_user(ALICE)
+    project_id = await _create_project(api_client)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
+    version_id = workflow["versions"][0]["id"]
+
+    broken = deepcopy(COMPLETE_DEFINITION)
+    broken["tools"].append("not_a_real_tool")
+    broken["steps"][0]["tool"] = "not_a_real_tool"
+    await api_client.patch(f"/api/workflow-versions/{version_id}", json={"definition": broken})
+
+    response = await api_client.post(f"/api/workflow-versions/{version_id}/validate")
+
+    assert response.status_code == 422
+    problems = response.json()["error"]["details"]
+    assert any(problem["code"] == "tool_not_registered" for problem in problems)
+
+
+async def test_approve_refuses_invalid_version_with_422(
+    api_client: httpx.AsyncClient, as_user: AsUser
+) -> None:
+    as_user(ALICE)
+    project_id = await _create_project(api_client)
+    workflow = await _create_workflow(api_client, project_id, COMPLETE_DEFINITION)
+    version_id = workflow["versions"][0]["id"]
+    await api_client.post(f"/api/workflow-versions/{version_id}/validate")
+
+    broken = deepcopy(COMPLETE_DEFINITION)
+    broken["steps"][1]["evidence"] = "$step.draft.summary_markdown"
+    # PATCH resets the version to draft, so validate it back to 'validated'
+    # first is not possible with a broken definition; approve must refuse
+    # a version whose *current* definition fails semantic validation even
+    # though it was validated before being edited.
+    await api_client.patch(f"/api/workflow-versions/{version_id}", json={"definition": broken})
+
+    response = await api_client.post(f"/api/workflow-versions/{version_id}/approve")
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "INVALID_WORKFLOW"
 
 
 async def test_restore_creates_new_draft(api_client: httpx.AsyncClient, as_user: AsUser) -> None:

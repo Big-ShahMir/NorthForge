@@ -71,3 +71,28 @@ jobs:
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
+
+  contracts:
+    name: Contracts (generated frontend types match the backend OpenAPI schema)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv python install 3.12
+        working-directory: backend
+      - run: uv sync --frozen
+        working-directory: backend
+      - run: uv run python -m northforge.api.export_openapi
+        working-directory: backend
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run generate:api
+        working-directory: frontend
+      - run: git diff --exit-code -- frontend/openapi.json frontend/src/lib/api-schema.d.ts

@@ -18,12 +18,13 @@ from redis.asyncio import Redis
 from northforge import __version__
 from northforge.api.errors import register_error_handlers
 from northforge.api.middleware import RequestContextMiddleware
-from northforge.api.routes import projects, system, workflows
+from northforge.api.routes import catalog, projects, system, workflows
 from northforge.auth.tokens import ClerkTokenVerifier
 from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
 from northforge.db.engine import create_engine, create_session_factory
+from northforge.tools.registry import get_tool_registry
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.engine = engine
         app.state.session_factory = session_factory
         app.state.readiness_probe = ReadinessProbe(resolved, redis, engine)
+        app.state.tool_registry = get_tool_registry()
         if resolved.auth_mode == "clerk":
             assert resolved.clerk_jwks_url is not None
             assert resolved.clerk_issuer is not None
@@ -69,11 +71,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redoc_url=None,
     )
     app.state.settings = resolved
+    app.state.tool_registry = get_tool_registry()
     app.add_middleware(RequestContextMiddleware)
     register_error_handlers(app)
     app.include_router(system.router)
     app.include_router(projects.router)
     app.include_router(workflows.router)
+    app.include_router(catalog.router)
     return app
 
 

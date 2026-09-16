@@ -1,13 +1,17 @@
 /**
- * Hand-maintained mirror of the backend response contracts.
- * Keep in sync with backend/northforge/api/envelope.py and routes/system.py.
+ * Backend response types, generated from the OpenAPI schema.
+ *
+ * `components["schemas"][...]` types come from `src/lib/api-schema.d.ts`
+ * (run `npm run generate:api` after the backend contract changes; see
+ * `backend/northforge/api/export_openapi.py`). `Envelope<T>` stays
+ * hand-written because openapi-typescript emits one concrete
+ * `Envelope_<T>_` schema per response type (e.g. `Envelope_HealthData_`),
+ * not a reusable generic -- this wrapper is that generic, shaped to match.
  */
 
-export interface ErrorBody {
-  code: string;
-  message: string;
-  details: unknown[] | Record<string, unknown> | null;
-}
+import type { components } from "./api-schema";
+
+export type ErrorBody = components["schemas"]["ErrorBody"];
 
 export interface Envelope<T> {
   data: T | null;
@@ -15,23 +19,9 @@ export interface Envelope<T> {
   request_id: string;
 }
 
-export interface HealthData {
-  status: string;
-  version: string;
-  app_env: string;
-}
+export type HealthData = components["schemas"]["HealthData"];
+export type ReadinessData = components["schemas"]["ReadinessData"];
+export type CheckData = components["schemas"]["CheckData"];
 
-export type CheckStatus = "ok" | "error" | "unavailable";
-export type ReadinessStatus = "ready" | "degraded" | "not_ready";
-
-export interface CheckData {
-  name: string;
-  status: CheckStatus;
-  latency_ms: number;
-  detail: string | null;
-}
-
-export interface ReadinessData {
-  status: ReadinessStatus;
-  checks: CheckData[];
-}
+export type CheckStatus = CheckData["status"];
+export type ReadinessStatus = ReadinessData["status"];
