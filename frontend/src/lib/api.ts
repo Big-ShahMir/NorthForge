@@ -35,6 +35,20 @@ export async function apiGet<T>(
   try {
     body = (await response.json()) as Envelope<T>;
   } catch {
+    // A non-JSON body on a 2xx response means the API itself misbehaved.
+    // A non-JSON body on an error status (e.g. 500/502/503/504) is more
+    // likely an intermediary -- such as Vite's dev proxy reporting it
+    // couldn't reach the API at all when the backend process isn't running
+    // -- rather than the API itself, which always replies with a JSON
+    // envelope.
+    if (!response.ok) {
+      throw new ApiError(
+        "The API could not be reached.",
+        "API_UNREACHABLE",
+        response.status,
+        requestId,
+      );
+    }
     throw new ApiError(
       `The API returned a non-JSON response (HTTP ${response.status}).`,
       "INVALID_RESPONSE",

@@ -28,6 +28,13 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
+function textResponse(body: string, status: number) {
+  return new Response(body, {
+    status,
+    headers: { "content-type": "text/plain" },
+  });
+}
+
 function mockFetch(handler: (path: string) => Response | Promise<Response>) {
   const spy = vi.fn((input: RequestInfo | URL) => Promise.resolve(handler(String(input))));
   vi.stubGlobal("fetch", spy);
@@ -96,7 +103,7 @@ describe("SystemStatusPage", () => {
     expect(screen.getByText("Unavailable")).toBeInTheDocument();
   });
 
-  it("shows an error state with the code when the API is unreachable", async () => {
+  it("shows an API unreachable state when fetch rejects outright", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.reject(new TypeError("Failed to fetch"))),
@@ -104,8 +111,41 @@ describe("SystemStatusPage", () => {
     renderPage();
 
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("Could not load system status");
+    expect(alert).toHaveTextContent("API unreachable");
     expect(alert).toHaveTextContent("NETWORK_ERROR");
+  });
+
+  it("shows an API unreachable state when the dev proxy answers with a non-JSON 500", async () => {
+    mockFetch(() =>
+      textResponse("Error occurred while trying to proxy: localhost:5173/health", 500),
+    );
+    renderPage();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("API unreachable");
+    expect(alert).toHaveTextContent("API_UNREACHABLE");
+  });
+
+  it("shows an API unreachable state for a 503 API_UNREACHABLE envelope", async () => {
+    mockFetch(() =>
+      jsonResponse(
+        {
+          data: null,
+          error: {
+            code: "API_UNREACHABLE",
+            message: "The API is not running or not reachable from the dev server.",
+            details: null,
+          },
+          request_id: "dev-proxy",
+        },
+        503,
+      ),
+    );
+    renderPage();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("API unreachable");
+    expect(alert).toHaveTextContent("API_UNREACHABLE");
   });
 
   it("surfaces an API error envelope with its request id", async () => {
@@ -122,6 +162,7 @@ describe("SystemStatusPage", () => {
     renderPage();
 
     const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Could not load system status");
     expect(alert).toHaveTextContent("Boom.");
     expect(alert).toHaveTextContent("INTERNAL_ERROR");
     expect(alert).toHaveTextContent("req-500");

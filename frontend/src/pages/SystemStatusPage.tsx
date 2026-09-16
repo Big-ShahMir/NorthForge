@@ -90,9 +90,15 @@ export function SystemStatusPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <XCircle className="text-danger size-4" aria-hidden="true" />
-              Could not load system status
+              {state.error.code === "API_UNREACHABLE" || state.error.code === "NETWORK_ERROR"
+                ? "API unreachable"
+                : "Could not load system status"}
             </CardTitle>
-            <CardDescription>{state.error.message}</CardDescription>
+            <CardDescription>
+              {state.error.code === "API_UNREACHABLE" || state.error.code === "NETWORK_ERROR"
+                ? "Start the backend with cd backend && uv run python -m northforge.api, then refresh."
+                : state.error.message}
+            </CardDescription>
           </CardHeader>
           <CardContent className="text-muted-foreground text-xs">
             Code: <code>{state.error.code}</code>
