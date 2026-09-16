@@ -31,6 +31,7 @@ from northforge.api.main import create_app
 from northforge.auth.dependencies import get_principal
 from northforge.auth.principal import Principal
 from northforge.core.config import Settings
+from northforge.storage.memory import MemoryObjectStorage
 
 
 class AsUser(Protocol):
@@ -48,7 +49,7 @@ def api_app(settings: Settings, db_session: AsyncSession) -> Iterator[FastAPI]:
     without committing, so tests can inspect what a route wrote via the same
     session object.
     """
-    app = create_app(settings)
+    app = create_app(settings, storage=MemoryObjectStorage())
 
     async def _override_get_session() -> AsyncIterator[AsyncSession]:
         yield db_session

@@ -33,5 +33,26 @@ services:
       timeout: 3s
       retries: 10
 
+  minio:
+    # minio/minio no longer exists on Docker Hub; the maintainers publish to
+    # quay.io. Tag pinned to the same release the design specified.
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: northforge-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: northforge
+      MINIO_ROOT_PASSWORD: northforge-secret
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   postgres-data:
+  minio-data:

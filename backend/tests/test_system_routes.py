@@ -40,7 +40,7 @@ def test_ready_all_ok(client: TestClient, use_report: Install) -> None:
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["status"] == "ready"
-    assert [c["name"] for c in data["checks"]] == ["postgres", "redis", "worker"]
+    assert [c["name"] for c in data["checks"]] == ["postgres", "redis", "worker", "storage"]
 
 
 def test_ready_is_degraded_without_worker(client: TestClient, use_report: Install) -> None:
@@ -70,6 +70,9 @@ def test_ready_against_unreachable_dependencies_reports_not_ready(client: TestCl
     statuses = {c["name"]: c["status"] for c in data["checks"]}
     assert statuses["postgres"] == "error"
     assert statuses["redis"] == "error"
+    # Tests inject in-memory object storage, so storage reports ok here;
+    # the S3 failure path is covered by tests/test_health_checks.py.
+    assert statuses["storage"] == "ok"
     details = " ".join(c["detail"] or "" for c in data["checks"])
     assert "secret" not in details
     assert "127.0.0.1" not in details

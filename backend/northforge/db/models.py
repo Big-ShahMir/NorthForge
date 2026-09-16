@@ -11,12 +11,14 @@ a status value only requires a migration that adjusts the check constraint.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    Computed,
+    Date,
     DateTime,
     ForeignKey,
     Index,
@@ -26,7 +28,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from northforge.db.base import Base, created_at_column, updated_at_column, uuid_pk
@@ -73,6 +75,12 @@ class EvaluationRunStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
+class PolicyRuleSeverity(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -80,6 +88,9 @@ class User(Base):
     clerk_user_id: Mapped[str] = mapped_column(String(191), nullable=False)
     email: Mapped[str | None] = mapped_column(String(320))
     display_name: Mapped[str | None] = mapped_column(String(200))
+    access_groups_json: Mapped[list[Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[\"procurement\"]'::jsonb")
+    )
     created_at: Mapped[datetime] = created_at_column()
     updated_at: Mapped[datetime] = updated_at_column()
 
@@ -372,14 +383,131 @@ class EvaluationResult(Base):
     __table_args__ = (Index("ix_evaluation_results_evaluation_run_id", "evaluation_run_id"),)
 
 
+class Document(Base):
+    """A source document (contract, policy, vendor record) ingested for retrieval.
+
+    Content itself lives in object storage (``storage_key``) and, chunked,
+    in ``document_chunks``; this row is metadata plus the access-group and
+    dataset-version bookkeeping retrieval and ingestion need.
+    """
+
+    __tablename__ = "documents"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    external_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    name: Mapped[str] = mapped_column(String(300), nullable=False)
+    document_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    vendor: Mapped[str | None] = mapped_column(String(200))
+    effective_date: Mapped[date | None] = mapped_column(Date)
+    expires_at: Mapped[date | None] = mapped_column(Date)
+    access_group: Mapped[str] = mapped_column(String(64), nullable=False)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    storage_key: Mapped[str | None] = mapped_column(String(500))
+    dataset_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    chunk_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    created_at: Mapped[datetime] = created_at_column()
+    updated_at: Mapped[datetime] = updated_at_column()
+
+    project: Mapped[Project] = relationship()
+    chunks: Mapped[list[DocumentChunk]] = relationship(
+        back_populates="document", order_by="DocumentChunk.sequence"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("project_id", "external_id"),
+        Index("ix_documents_project_id_document_type", "project_id", "document_type"),
+        Index("ix_documents_project_id_vendor", "project_id", "vendor"),
+    )
+
+
+class DocumentChunk(Base):
+    """A chunk of a document's text, with a generated full-text search vector.
+
+    ``search_vector`` is a Postgres-generated stored column
+    (``to_tsvector('english', coalesce(heading, '') || ' ' || text)``); it is
+    never written from Python, only read via ``ts_rank_cd`` in
+    ``northforge.retrieval.postgres``.
+    """
+
+    __tablename__ = "document_chunks"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("documents.id"), nullable=False)
+    chunk_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    heading: Mapped[str | None] = mapped_column(String(300))
+    start_offset: Mapped[int] = mapped_column(Integer, nullable=False)
+    end_offset: Mapped[int] = mapped_column(Integer, nullable=False)
+    token_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    # ``metadata_json`` is defined before ``text`` below because assigning the
+    # ``text`` attribute would otherwise shadow the module-level
+    # ``sqlalchemy.text`` function for the remainder of this class body.
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    search_vector: Mapped[str] = mapped_column(
+        TSVECTOR,
+        Computed("to_tsvector('english', coalesce(heading, '') || ' ' || text)", persisted=True),
+    )
+    created_at: Mapped[datetime] = created_at_column()
+
+    document: Mapped[Document] = relationship(back_populates="chunks")
+
+    __table_args__ = (
+        UniqueConstraint("document_id", "chunk_id"),
+        Index("ix_document_chunks_content_hash", "content_hash"),
+        Index("ix_document_chunks_search_vector", "search_vector", postgresql_using="gin"),
+    )
+
+
+class PolicyRuleRow(Base):
+    """A policy rule extracted from a policy document, cited to its source chunk."""
+
+    __tablename__ = "policy_rules"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    rule_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    policy_document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("documents.id"), nullable=False
+    )
+    chunk_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    policy_area: Mapped[str] = mapped_column(String(64), nullable=False)
+    condition: Mapped[str] = mapped_column(Text, nullable=False)
+    requirement: Mapped[str] = mapped_column(Text, nullable=False)
+    severity: Mapped[str] = mapped_column(String(16), nullable=False)
+    created_at: Mapped[datetime] = created_at_column()
+
+    project: Mapped[Project] = relationship()
+    policy_document: Mapped[Document] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint("project_id", "rule_id"),
+        CheckConstraint(
+            "severity IN ('low', 'medium', 'high')",
+            name="severity_valid_values",
+        ),
+    )
+
+
 __all__ = [
     "Base",
+    "Document",
+    "DocumentChunk",
     "EvaluationCase",
     "EvaluationResult",
     "EvaluationRun",
     "EvaluationRunStatus",
     "FeedbackLabel",
     "FeedbackLabelValue",
+    "PolicyRuleRow",
+    "PolicyRuleSeverity",
     "Project",
     "RunStatus",
     "StepRun",

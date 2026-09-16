@@ -7,6 +7,7 @@ module import free of side effects so tests can build isolated apps.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -24,12 +25,16 @@ from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
 from northforge.db.engine import create_engine, create_session_factory
+from northforge.storage.base import ObjectStorage
+from northforge.storage.s3 import S3ObjectStorage
 from northforge.tools.registry import get_tool_registry
 
 logger = logging.getLogger(__name__)
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, *, storage: ObjectStorage | None = None
+) -> FastAPI:
     resolved = settings or get_settings()
     configure_logging(resolved.log_level)
 
@@ -38,12 +43,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redis = Redis.from_url(resolved.redis_url)
         engine = create_engine(resolved)
         session_factory = create_session_factory(engine)
+        resolved_storage = storage or S3ObjectStorage(resolved)
         app.state.settings = resolved
         app.state.redis = redis
         app.state.engine = engine
         app.state.session_factory = session_factory
-        app.state.readiness_probe = ReadinessProbe(resolved, redis, engine)
+        app.state.storage = resolved_storage
+        app.state.readiness_probe = ReadinessProbe(resolved, redis, engine, resolved_storage)
         app.state.tool_registry = get_tool_registry()
+        try:
+            await asyncio.wait_for(
+                resolved_storage.ensure_bucket(), timeout=resolved.s3_timeout_seconds * 2
+            )
+        except Exception as exc:  # storage outage must not crash startup
+            logger.warning(
+                "object storage bucket unavailable at startup", extra={"error": repr(exc)}
+            )
         if resolved.auth_mode == "clerk":
             assert resolved.clerk_jwks_url is not None
             assert resolved.clerk_issuer is not None

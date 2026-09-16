@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from northforge.api.main import create_app
 from northforge.core.config import Settings, load_settings
-from tests.conftest import UNIT_DATABASE_URL, UNIT_REDIS_URL
+from tests.conftest import UNIT_DATABASE_URL, UNIT_REDIS_URL, set_unit_s3_env
 
 
 async def test_dev_mode_without_header_returns_401(api_client: httpx.AsyncClient) -> None:
@@ -36,6 +36,7 @@ def _clerk_settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("AUTH_MODE", "clerk")
     monkeypatch.setenv("CLERK_JWKS_URL", "https://example-clerk.invalid/.well-known/jwks.json")
     monkeypatch.setenv("CLERK_ISSUER", "https://example-clerk.invalid")
+    set_unit_s3_env(monkeypatch)
     return load_settings(env_file=None)
 
 

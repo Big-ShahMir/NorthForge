@@ -208,6 +208,36 @@ This file records material choices, alternatives, assumptions, and reversibility
 **Consequences:** Phase 3 replaces the search implementation with real retrieval over the generated corpus while keeping the same contracts and tests. Failure triggers (`__timeout__`, `__error__`, `doc_malformed`, restricted chunks) stay available for runtime and evaluation tests.  
 **Revisit when:** A draft-only tool (for example creating a review summary artifact) is added, or tools need per-project configuration.
 
+## ADR-023: Committed, deterministically generated synthetic dataset
+
+**Date:** 2026-09-16  
+**Status:** Accepted  
+**Decision:** A seeded generator under `northforge.data.synthetic` produces the contract, policy, and vendor corpus, its ground truth, policy rules, and retrieval evaluation cases as JSON. The generated output under `backend/data/synthetic/` is committed, and CI regenerates it and fails on any drift.  
+**Context:** Reviewers and evaluation reports need to read the exact documents a run used. Committing the output makes citations reproducible across machines while the generator remains the source of truth. All content is fictional; the generator carries a denylist of real company names that tests enforce.  
+**Alternatives:** Generate at test time only; hand-write documents; use public contract datasets (licensing and realism risks).  
+**Consequences:** Changing a template changes hashes and therefore the dataset version. Edge cases (missing clauses, conflicting policies, ambiguous terms, long and malformed documents, restricted access groups, near duplicates, prompt-injection fixtures) are part of the corpus rather than separate test doubles.  
+**Revisit when:** The corpus needs a second vertical or externally sourced documents.
+
+## ADR-024: Full-text retrieval first, embeddings deferred, explicit abstention outcomes
+
+**Date:** 2026-09-16  
+**Status:** Accepted  
+**Decision:** Retrieval ranks chunks with PostgreSQL full-text search (`websearch_to_tsquery` and `ts_rank_cd`) behind a `Retriever` interface. Access groups, project, document type, and vendor are filtered in SQL before ranking, and every returned chunk is re-checked in Python. A retrieval returns an outcome of `ok`, `insufficient_evidence` (no results or a top score below the threshold), or `conflicting_evidence` (two policy documents for the same policy area with different effective dates and no supersession link). An `Embedder` protocol exists but is not used until Phase 4 selects a hosted or local embedding model.  
+**Context:** Lexical search is deterministic, dependency-free, and testable with exact recall thresholds. Adding a local embedding model would add a multi-gigabyte dependency to a memory-constrained development machine before the model provider layer exists.  
+**Alternatives:** pgvector with local sentence-transformers now; hosted embeddings now; hybrid search now.  
+**Consequences:** Semantic recall is limited to term overlap in Phase 3, which the evaluation fixtures are written to respect. Phase 4 can add a hybrid ranker without changing tool contracts.  
+**Revisit when:** Phase 4 chooses an embedding model, or retrieval evaluation shows recall failures that lexical search cannot fix.
+
+## ADR-025: S3-compatible object storage for raw documents, chunks in PostgreSQL
+
+**Date:** 2026-09-16  
+**Status:** Accepted (supersedes the deferral in ADR-015)  
+**Decision:** Ingestion writes each raw document to S3-compatible object storage (MinIO locally, a managed bucket in deployment) and stores chunks with offsets, headings, and a generated `tsvector` in PostgreSQL. Storage is a readiness dependency.  
+**Context:** The technology stack requires documents and artifacts outside the database, while search needs the text in PostgreSQL. Keeping both keeps citations reconstructible from storage and search fast.  
+**Alternatives:** Text only in PostgreSQL; only in object storage with an external index.  
+**Consequences:** One more local container and four required environment variables. Tests use an in-memory storage double; the S3 client is exercised by integration tests only.  
+**Revisit when:** Document volume or file types (PDFs, scans) require a separate processing pipeline.
+
 ## Decision template
 
 ### ADR-XXX: Title

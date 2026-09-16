@@ -15,6 +15,7 @@ dependencies = [
   "sqlalchemy[asyncio]>=2.0",
   "alembic>=1.13",
   "pyjwt[crypto]>=2.9",
+  "aiobotocore>=2.15",
 ]
 
 [dependency-groups]
@@ -24,6 +25,7 @@ dev = [
   "ruff>=0.6",
   "mypy>=1.11",
   "httpx2>=2.13.0",
+  "types-aiobotocore[s3]>=3.9.1",
 ]
 
 [build-system]

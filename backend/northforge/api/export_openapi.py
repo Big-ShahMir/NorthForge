@@ -17,6 +17,8 @@ import json
 import sys
 from pathlib import Path
 
+from pydantic import SecretStr
+
 from northforge.api.main import create_app
 from northforge.core.config import Settings
 
@@ -37,6 +39,10 @@ def _export_settings() -> Settings:
         auth_mode="dev",
         database_url="postgresql://export:export@localhost/export_only",
         redis_url="redis://localhost/0",
+        s3_endpoint="http://localhost:9000",
+        s3_bucket="export-only",
+        s3_access_key=SecretStr("export-only"),
+        s3_secret_key=SecretStr("export-only"),
     )
 
 

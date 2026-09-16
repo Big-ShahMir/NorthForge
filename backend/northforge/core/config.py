@@ -66,11 +66,14 @@ class Settings(BaseSettings):
     nvidia_model_drafter: str | None = None
     nvidia_model_evaluator: str | None = None
 
-    # Object storage (S3-compatible) - required from Phase 3 onward
-    s3_endpoint: str | None = None
-    s3_bucket: str | None = None
-    s3_access_key: SecretStr | None = None
-    s3_secret_key: SecretStr | None = None
+    # Object storage (S3-compatible; MinIO locally)
+    s3_endpoint: str = Field(description="S3-compatible endpoint URL")
+    s3_bucket: str = Field(description="S3 bucket name")
+    s3_access_key: SecretStr = Field(description="S3 access key")
+    s3_secret_key: SecretStr = Field(description="S3 secret key")
+    s3_region: str = "us-east-1"
+    s3_use_ssl: bool = False
+    s3_timeout_seconds: float = Field(default=5.0, gt=0, le=60)
 
     @property
     def is_production(self) -> bool:

@@ -4,11 +4,13 @@ import pytest
 
 from northforge.core.config import Settings, load_settings
 from northforge.core.errors import ConfigurationError
+from tests.conftest import set_unit_s3_env
 
 
 def test_missing_required_variables_are_all_reported(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.delenv("REDIS_URL", raising=False)
+    set_unit_s3_env(monkeypatch)
 
     with pytest.raises(ConfigurationError) as excinfo:
         load_settings(env_file=None)
@@ -19,10 +21,29 @@ def test_missing_required_variables_are_all_reported(monkeypatch: pytest.MonkeyP
     assert excinfo.value.code == "CONFIGURATION_ERROR"
 
 
+def test_missing_s3_variables_are_reported(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.delenv("S3_ENDPOINT", raising=False)
+    monkeypatch.delenv("S3_BUCKET", raising=False)
+    monkeypatch.delenv("S3_ACCESS_KEY", raising=False)
+    monkeypatch.delenv("S3_SECRET_KEY", raising=False)
+
+    with pytest.raises(ConfigurationError) as excinfo:
+        load_settings(env_file=None)
+
+    problems = excinfo.value.problems
+    assert any(p.startswith("S3_ENDPOINT:") for p in problems)
+    assert any(p.startswith("S3_BUCKET:") for p in problems)
+    assert any(p.startswith("S3_ACCESS_KEY:") for p in problems)
+    assert any(p.startswith("S3_SECRET_KEY:") for p in problems)
+
+
 def test_invalid_enum_value_is_reported(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
     monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
     monkeypatch.setenv("APP_ENV", "staging")
+    set_unit_s3_env(monkeypatch)
 
     with pytest.raises(ConfigurationError) as excinfo:
         load_settings(env_file=None)
@@ -40,6 +61,11 @@ def test_secrets_are_redacted_in_repr(settings: Settings, monkeypatch: pytest.Mo
     assert "nvapi-super-secret" not in loaded.model_dump_json()
 
 
+def test_s3_secrets_are_redacted_in_repr(settings: Settings) -> None:
+    assert settings.s3_secret_key.get_secret_value() not in repr(settings)
+    assert settings.s3_secret_key.get_secret_value() not in settings.model_dump_json()
+
+
 def test_defaults(settings: Settings) -> None:
     assert settings.app_env == "test"
     assert settings.api_port == 8000
@@ -52,6 +78,7 @@ def test_clerk_mode_without_jwks_or_issuer_fails(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setenv("AUTH_MODE", "clerk")
     monkeypatch.delenv("CLERK_JWKS_URL", raising=False)
     monkeypatch.delenv("CLERK_ISSUER", raising=False)
+    set_unit_s3_env(monkeypatch)
 
     with pytest.raises(ConfigurationError) as excinfo:
         load_settings(env_file=None)
@@ -67,6 +94,7 @@ def test_dev_mode_in_production_fails(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
 
     with pytest.raises(ConfigurationError) as excinfo:
         load_settings(env_file=None)
@@ -79,6 +107,7 @@ def test_dev_mode_in_development_passes(monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
     monkeypatch.setenv("APP_ENV", "development")
     monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
 
     loaded = load_settings(env_file=None)
 
@@ -90,6 +119,7 @@ def test_authorized_parties_accepts_empty_csv_and_json(monkeypatch: pytest.Monke
     monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
     monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
     monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
 
     monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "")
     assert load_settings(env_file=None).clerk_authorized_parties == []

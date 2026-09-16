@@ -10,7 +10,7 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
@@ -20,6 +20,9 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from northforge.core.config import Settings
 from northforge.core.queue import WORKER_HEALTH_KEY
+
+if TYPE_CHECKING:
+    from northforge.storage.base import ObjectStorage
 
 logger = logging.getLogger(__name__)
 
@@ -90,13 +93,37 @@ async def check_worker(redis: Redis, timeout_seconds: float) -> CheckResult:
     return CheckResult("worker", "ok", _elapsed_ms(started), detail)
 
 
+async def check_storage(storage: ObjectStorage, timeout_seconds: float) -> CheckResult:
+    """Check that the configured object storage bucket is reachable.
+
+    Storage down is treated as ``not_ready`` (not merely ``degraded``)
+    because ingestion and citation retrieval both depend on it.
+    """
+    started = time.perf_counter()
+    try:
+        healthy = await asyncio.wait_for(storage.health(), timeout=timeout_seconds)
+    except (OSError, TimeoutError) as exc:
+        logger.warning("storage readiness check failed", extra={"error": repr(exc)})
+        return CheckResult("storage", "error", _elapsed_ms(started), "connection failed")
+    if not healthy:
+        return CheckResult("storage", "error", _elapsed_ms(started), "bucket unreachable")
+    return CheckResult("storage", "ok", _elapsed_ms(started))
+
+
 class ReadinessProbe:
     """Runs all dependency checks concurrently and aggregates a readiness status."""
 
-    def __init__(self, settings: Settings, redis: Redis, engine: AsyncEngine) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        redis: Redis,
+        engine: AsyncEngine,
+        storage: ObjectStorage,
+    ) -> None:
         self._settings = settings
         self._redis = redis
         self._engine = engine
+        self._storage = storage
 
     async def run(self) -> ReadinessReport:
         timeout_seconds = self._settings.readiness_timeout_seconds
@@ -104,10 +131,15 @@ class ReadinessProbe:
             check_postgres(self._engine, timeout_seconds),
             check_redis(self._redis, timeout_seconds),
             check_worker(self._redis, timeout_seconds),
+            check_storage(self._storage, timeout_seconds),
         )
         checks = list(results)
         by_name = {check.name: check for check in checks}
-        if by_name["postgres"].status != "ok" or by_name["redis"].status != "ok":
+        if (
+            by_name["postgres"].status != "ok"
+            or by_name["redis"].status != "ok"
+            or by_name["storage"].status != "ok"
+        ):
             status: ReadinessStatus = "not_ready"
         elif by_name["worker"].status != "ok":
             status = "degraded"

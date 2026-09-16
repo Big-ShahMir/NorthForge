@@ -21,10 +21,28 @@ from northforge.core.config import Settings, load_settings
 from northforge.core.health import CheckResult, ReadinessProbe, ReadinessReport
 from northforge.db.engine import sqlalchemy_url
 from northforge.db.models import User
+from northforge.storage.memory import MemoryObjectStorage
 
 # Unroutable addresses: nothing in unit tests must reach a real service.
 UNIT_DATABASE_URL = "postgresql://northforge:secret@127.0.0.1:1/northforge"
 UNIT_REDIS_URL = "redis://127.0.0.1:1/0"
+
+# Dummy S3 settings: unit tests never contact a real object store. Individual
+# tests that need a reachable store use the MinIO instance via
+# NORTHFORGE_INTEGRATION=1 instead of these values.
+UNIT_S3_ENDPOINT = "http://127.0.0.1:1"
+UNIT_S3_BUCKET = "northforge-test"
+UNIT_S3_ACCESS_KEY = "unit-test-access-key"
+UNIT_S3_SECRET_KEY = "unit-test-secret-key"  # noqa: S105 - dummy value, never a real secret
+
+
+def set_unit_s3_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Set dummy S3 env vars so ``load_settings`` validation passes in tests."""
+
+    monkeypatch.setenv("S3_ENDPOINT", UNIT_S3_ENDPOINT)
+    monkeypatch.setenv("S3_BUCKET", UNIT_S3_BUCKET)
+    monkeypatch.setenv("S3_ACCESS_KEY", UNIT_S3_ACCESS_KEY)
+    monkeypatch.setenv("S3_SECRET_KEY", UNIT_S3_SECRET_KEY)
 
 
 @pytest.fixture
@@ -34,6 +52,7 @@ def settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("REDIS_URL", UNIT_REDIS_URL)
     monkeypatch.setenv("READINESS_TIMEOUT_SECONDS", "0.5")
     monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
     return load_settings(env_file=None)
 
 
@@ -47,13 +66,16 @@ class FakeReadinessProbe(ReadinessProbe):
         return self.report
 
 
-def make_report(postgres: str = "ok", redis: str = "ok", worker: str = "ok") -> ReadinessReport:
+def make_report(
+    postgres: str = "ok", redis: str = "ok", worker: str = "ok", storage: str = "ok"
+) -> ReadinessReport:
     checks = [
         CheckResult("postgres", postgres, 1.0),  # type: ignore[arg-type]
         CheckResult("redis", redis, 1.0),  # type: ignore[arg-type]
         CheckResult("worker", worker, 1.0),  # type: ignore[arg-type]
+        CheckResult("storage", storage, 1.0),  # type: ignore[arg-type]
     ]
-    if postgres != "ok" or redis != "ok":
+    if postgres != "ok" or redis != "ok" or storage != "ok":
         status = "not_ready"
     elif worker != "ok":
         status = "degraded"
@@ -64,7 +86,7 @@ def make_report(postgres: str = "ok", redis: str = "ok", worker: str = "ok") -> 
 
 @pytest.fixture
 def app(settings: Settings) -> FastAPI:
-    return create_app(settings)
+    return create_app(settings, storage=MemoryObjectStorage())
 
 
 @pytest.fixture
