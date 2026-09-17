@@ -171,7 +171,16 @@ CI's `contracts` job regenerates both files and fails the build if `git diff --e
 
 ## Configuration
 
-All settings are read from environment variables (or `.env` at the repository root). Missing or invalid required variables stop startup with a message that names every problem. Secrets are `SecretStr` values and never appear in logs, error responses, or the frontend bundle. See `.env.example` for the full list; later-phase variables (Clerk, NVIDIA, S3) are optional until their phase.
+All settings are read from environment variables (or `.env` at the repository root). Missing or invalid required variables stop startup with a message that names every problem. Secrets are `SecretStr` values and never appear in logs, error responses, or the frontend bundle. See `.env.example` for the full list; Clerk variables stay optional until the frontend login work.
+
+### Model provider
+
+Model calls go through `northforge.providers` (see `docs/MODEL_ROUTING.md` and ADR-026): a provider-agnostic interface, an NVIDIA adapter over the hosted OpenAI-compatible endpoint, a scripted mock provider, a capability registry (`backend/northforge/providers/model_catalog.json`), and a router that resolves six roles (planner, extractor, drafter, evaluator, embedding, reranker) to a primary model with fallbacks, retries, per-model circuit breakers, and a Redis cache for deterministic requests.
+
+- Set `NVIDIA_API_KEY` in `.env`. Without it the API and worker still start; model calls return `PROVIDER_NOT_CONFIGURED` and `GET /api/provider-status` (authenticated) reports `configured: false`.
+- Role defaults come from the catalog; override with `NVIDIA_MODEL_PLANNER`, `NVIDIA_MODEL_EXTRACTION`, `NVIDIA_MODEL_DRAFTER`, `NVIDIA_MODEL_EVALUATOR` (plus `*_FALLBACKS`), `EMBEDDING_MODEL`, `RERANKER_MODEL`. A model missing from the catalog, or lacking what its role needs, stops startup with every problem listed.
+- `MODEL_PROVIDER=mock` (and `EMBEDDING_PROVIDER` / `RERANKER_PROVIDER` `mock` or `none`) runs without credentials; mock is rejected when `APP_ENV=production`.
+- Verify live connectivity and record what each model supports: `cd backend && uv run python -m northforge.providers.smoke` (one small call per role; the hosted free tier allows 40 requests per minute per key).
 
 ## Resetting local data
 
@@ -180,6 +189,7 @@ All settings are read from environment variables (or `.env` at the repository ro
 ## Known limitations
 
 - Projects and workflows have a backend API (see `docs/API_SPEC.md`) but no frontend UI yet; there is no run or evaluation support yet either. Sidebar entries for those areas render a clearly labelled "not yet implemented" page.
+- The model provider layer exists but nothing calls it yet: the planner (Phase 5) and runner (Phase 6) are the first consumers. Embedding and reranking adapters exist; retrieval still ranks with PostgreSQL full-text search only (ADR-027).
 - The readiness endpoint opens a fresh PostgreSQL connection per probe; a pooled engine arrives with the Phase 1 data layer.
 - Windows: the worker cannot install POSIX signal handlers, so stop it with Ctrl+C in its terminal; in-flight jobs are not gracefully drained.
 - Docker Desktop must be running before `docker compose up`.

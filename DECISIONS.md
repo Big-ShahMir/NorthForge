@@ -238,6 +238,26 @@ This file records material choices, alternatives, assumptions, and reversibility
 **Consequences:** One more local container and four required environment variables. Tests use an in-memory storage double; the S3 client is exercised by integration tests only.  
 **Revisit when:** Document volume or file types (PDFs, scans) require a separate processing pipeline.
 
+## ADR-026: Provider-agnostic model layer with capability-checked routing, retries, circuit breaking, and fallback
+
+**Date:** 2026-09-16  
+**Status:** Accepted  
+**Decision:** All model calls go through `northforge.providers`: a `ModelProvider` protocol (`generate`, `generate_structured`, `tool_call`, `embed`, `rerank`, `count_tokens`) with normalised request/response types, an `NvidiaProvider` over the hosted OpenAI-compatible endpoint (plain `httpx2`, no vendor SDK), a scripted `MockProvider`, and a `ModelRouter` that resolves each of six roles (planner, extractor, drafter, evaluator, embedding, reranker) to a primary model and fallbacks. Model ids and capabilities live in `model_catalog.json` (overridable by `MODEL_CAPABILITIES_FILE`), routes are overridable by environment variables, and startup fails with every routing problem listed when a model is missing from the catalog or lacks the capabilities its role needs. The router applies per-model and per-provider concurrency limits, exponential backoff that honours `Retry-After`, a per-model circuit breaker, and falls back to the next model only for rate limits, outages, timeouts, and open circuits; malformed output (after one repair request) and rejected requests fail immediately. Every failure is a `ProviderError` subclass with a stable `PROVIDER_*` code and a user-safe message. Deterministic requests (temperature 0, or explicitly flagged) are cached in Redis outside production. Without `NVIDIA_API_KEY` the application still starts; calls fail with `PROVIDER_NOT_CONFIGURED`, and `GET /api/provider-status` reports in-memory router state without touching the provider. Every routed call can emit a `ModelInvocationRecord` (provider, model, outcome, latency, attempts, cache hit, fallback, usage; never prompt text or keys) for trace persistence in Phase 6, and `ModelRouter.snapshot()` gives the JSON stored as run and version model metadata.  
+**Context:** The hosted NVIDIA free tier is 40 requests per minute per key across all models and returns 429 under load; the planner, runner, and evaluator must degrade predictably and stay testable offline. `docs/MODEL_ROUTING.md` requires configuration-driven model choice and a mock provider.  
+**Alternatives:** OpenAI SDK or LangChain NVIDIA integration (extra dependency, less control over error mapping and secrets); one model for all roles; retries without circuit breaking.  
+**Consequences:** One new runtime dependency (`httpx2`), a JSON catalog to keep accurate, and per-role structured-output modes (`json_schema`, `nvext_guided_json`, `prompt_only`) that a live smoke command verifies and records. Readiness is deliberately independent of provider health.  
+**Revisit when:** A second generation provider is added, or evaluation shows a role needs a different fallback policy.
+
+## ADR-027: Model assignment per role; embedding and reranking adapters now, hybrid ranking deferred on evidence
+
+**Date:** 2026-09-16  
+**Status:** Accepted  
+**Decision:** Default routes: planner `nvidia/nemotron-3-super-120b-a12b` (fallback `nvidia/nemotron-3.5-lightning-30b-a3b`), extractor `nvidia/nemotron-3.5-lightning-30b-a3b` (fallback the Super model), drafter `moonshotai/kimi-k3` (fallback the Super model), evaluator `deepseek-ai/deepseek-v4-flash-0731` (fallback the Lightning model), embedding `nvidia/nemotron-3-embed-1b` (2048 dimensions), reranker `nvidia/llama-nemotron-rerank-vl-1b-v2`. The evaluator is deliberately a different model family from the planner and extractor. Phase 4 ships the embedding and reranking adapters (`ProviderEmbedder`, `ProviderReranker`) behind the existing `Embedder` protocol and a new `Reranker` protocol, with mock implementations, but does not add a pgvector column, embed chunks at ingestion, or change `PostgresRetriever`'s ranking.  
+**Context:** The retrieval quality gate (`tests/retrieval/test_retrieval_quality.py`) passes with lexical ranking on the synthetic corpus, and ADR-024 committed to adding semantic ranking only on evidence. The user chose "adapters only" for this phase.  
+**Alternatives:** Hybrid lexical plus vector ranking now; reranking the top candidates now.  
+**Consequences:** Hybrid ranking becomes a small, contained change later. The trigger for doing it: a retrieval evaluation case that lexical search cannot satisfy (a `normal` case failing hit@8 after honest query phrasing, or a paraphrase-heavy category added in Phase 8), measured before and after with the same gate.  
+**Revisit when:** That trigger fires, or the drafter needs passages beyond what lexical search returns for citation.
+
 ## Decision template
 
 ### ADR-XXX: Title

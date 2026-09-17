@@ -26,6 +26,7 @@ from typing import cast
 from pydantic import BaseModel
 
 from northforge.core.config import Settings, get_settings
+from northforge.core.logging import configure_logging
 from northforge.providers.capabilities import CapabilityRegistry
 from northforge.providers.errors import ProviderCapabilityError, ProviderError
 from northforge.providers.nvidia import NvidiaProvider
@@ -316,12 +317,19 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--roles", type=str, default=None, help="Comma-separated roles to test (default: all)."
     )
     parser.add_argument("--json", action="store_true", help="Print JSON instead of tables.")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Also print the per-request JSON log lines (status codes, latency, request ids).",
+    )
     return parser.parse_args(argv)
 
 
 async def _main_async(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     settings = get_settings()
+    # Request logs go to stdout as JSON only on demand; the tables are the default output.
+    configure_logging("INFO" if args.verbose else "WARNING")
     registry = CapabilityRegistry.load(settings.model_capabilities_file)
     roles: list[ModelRole]
     if args.roles:

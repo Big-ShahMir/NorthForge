@@ -191,9 +191,13 @@ class NvidiaProvider:
         timeout_seconds: float | None,
         expected_key: str,
     ) -> tuple[dict[str, Any], str | None, float]:
+        if timeout_seconds is None:
+            capabilities = self._registry.get(model)
+            model_timeout = capabilities.timeout_seconds if capabilities is not None else None
+            timeout_seconds = model_timeout if model_timeout is not None else self._default_timeout
         timeout = httpx.Timeout(
             connect=5.0,
-            read=timeout_seconds if timeout_seconds is not None else self._default_timeout,
+            read=timeout_seconds,
             write=10.0,
             pool=5.0,
         )
@@ -321,10 +325,13 @@ class NvidiaProvider:
         capabilities: ModelCapabilities | None,
         warnings: list[str],
     ) -> None:
-        if request.reasoning is None:
+        reasoning = request.reasoning
+        if reasoning is None and capabilities is not None:
+            reasoning = capabilities.default_reasoning
+        if reasoning is None:
             return
         if capabilities is not None and capabilities.supports_reasoning_toggle:
-            body["chat_template_kwargs"] = {"enable_thinking": request.reasoning}
+            body["chat_template_kwargs"] = {"enable_thinking": reasoning}
         else:
             warnings.append(
                 f"model {model!r} does not support the reasoning toggle; request ignored"

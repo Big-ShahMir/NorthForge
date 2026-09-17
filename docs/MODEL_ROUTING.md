@@ -47,6 +47,49 @@ Record provider, model, operation, request ID if available, latency, input/outpu
 
 Unit tests use a fake provider. Integration tests use a small controlled NVIDIA smoke test when credentials are available. Evaluation reports must record the exact model configuration. If a provider is unavailable, local mocks must still run all deterministic tests.
 
+## Implementation (Phase 4)
+
+`northforge.providers` implements this document. See ADR-026 and ADR-027 in `DECISIONS.md`.
+
+| Piece | Where | Notes |
+|---|---|---|
+| Provider protocol and types | `providers/base.py`, `providers/types.py` | `generate`, `generate_structured`, `tool_call`, `embed`, `rerank`, `count_tokens`. Responses carry model, provider, latency, usage, request id, warnings, cache hit, attempts, fallback flag. |
+| Error taxonomy | `providers/errors.py` | `PROVIDER_RATE_LIMITED` (429), `PROVIDER_UNAVAILABLE` (503), `PROVIDER_NOT_CONFIGURED` (503), `PROVIDER_REQUEST_REJECTED` (502), `PROVIDER_MALFORMED_OUTPUT` (502), `PROVIDER_CAPABILITY_MISMATCH` (500). Only rate limits, outages, and timeouts are retried or fall back. |
+| Capability registry | `providers/capabilities.py`, `providers/model_catalog.json` | Per-model modality, structured-output mode, tool support, reasoning toggle, context window, embedding dimensions, plus `default_routes`. Override the file with `MODEL_CAPABILITIES_FILE`. |
+| NVIDIA adapter | `providers/nvidia.py` | Chat and embeddings on `NVIDIA_BASE_URL`; reranking on `NVIDIA_RERANK_BASE_URL` (`/retrieval/<model>/reranking`). Credentials only from `NVIDIA_API_KEY`; never logged. |
+| Structured output | `providers/structured.py` | Parse against the Pydantic schema; one repair request on failure; then `PROVIDER_MALFORMED_OUTPUT`. |
+| Router | `providers/router.py` | Role to primary plus fallbacks, capability check per call, per-provider and per-model concurrency, retries with backoff and `Retry-After`, circuit breaker per model. `snapshot()` is the JSON recorded as run and version model metadata. |
+| Cache | `providers/cache.py` | Redis, deterministic requests only (temperature 0 or `deterministic=True`), on outside production, bypassed on Redis errors. |
+| Mock provider | `providers/mock.py` | Scripted responses and failure injection (timeout, 429, 5xx, auth, malformed JSON, bad request). `MODEL_PROVIDER=mock`, rejected in production. |
+| Status | `GET /api/provider-status` | In-memory state only; never spends quota. |
+| Live verification | `python -m northforge.providers.smoke` | One minimal call per role; records which structured-output mode each model accepts. |
+
+### Configured roles
+
+| Role | Default model | Fallback | Structured output | Tools |
+|---|---|---|---|---|
+| Planner | `nvidia/nemotron-3-super-120b-a12b` | `nvidia/nemotron-3.5-lightning-30b-a3b` | required | required |
+| Extractor | `nvidia/nemotron-3.5-lightning-30b-a3b` | `nvidia/nemotron-3-super-120b-a12b` | required | optional |
+| Drafter | `moonshotai/kimi-k3` | `nvidia/nemotron-3-super-120b-a12b` | optional | optional |
+| Evaluator | `deepseek-ai/deepseek-v4-flash-0731` | `nvidia/nemotron-3.5-lightning-30b-a3b` | required | optional |
+| Embedding | `nvidia/nemotron-3-embed-1b` (2048 dimensions) | none | n/a | n/a |
+| Reranker | `nvidia/llama-nemotron-rerank-vl-1b-v2` | none | n/a | n/a |
+
+Environment overrides: `NVIDIA_MODEL_PLANNER`, `NVIDIA_MODEL_EXTRACTION`, `NVIDIA_MODEL_DRAFTER`, `NVIDIA_MODEL_EVALUATOR` and the matching `*_FALLBACKS` (comma-separated); `EMBEDDING_PROVIDER`/`EMBEDDING_MODEL`; `RERANKER_PROVIDER`/`RERANKER_MODEL` (`none` disables a role). Startup fails, naming every problem, when a configured model is not in the catalog or lacks what its role needs.
+
+### Hosted endpoint limits (verified 2026-09-16)
+
+- Free tier: 40 requests per minute per API key across all models; 429 with an optional `Retry-After`. There is no self-service increase. Keep `MODEL_PROVIDER_CONCURRENCY` low and rely on the cache for repeated evaluation runs.
+- Embeddings: `input_type` must be `query` or `passage`; the model returns only 2048 dimensions; inputs are validated up to 4096 tokens.
+- Reranking: a different host (`ai.api.nvidia.com`), query plus passage up to 10,240 tokens.
+- Some models (DeepSeek V4 Flash was reported) need access enabled per account; the smoke command surfaces this as `PROVIDER_REQUEST_REJECTED`.
+
+### Verified models
+
+Run `cd backend && uv run python -m northforge.providers.smoke` with `NVIDIA_API_KEY` set and paste the table it prints here.
+
+_Pending: the smoke command has not been run against the live endpoint yet._
+
 ## Initial policy
 
 Use one primary planning model, one efficient extraction model, and an independent evaluator model only when evaluation quality requires it. Use local embeddings initially if hosted embedding quotas or availability are uncertain. Keep the model assignment configurable so later experiments do not change workflow code.

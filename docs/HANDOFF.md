@@ -1,6 +1,6 @@
-# NorthForge handoff (state as of 2026-09-16, end of Phase 3)
+# NorthForge handoff (state as of 2026-09-16, end of Phase 4)
 
-Read this first in a new session, then `docs/IMPLEMENTATION_PLAN.md` (phase list), `DECISIONS.md` (ADR-001 to ADR-025), and `LOCAL_RUN.md` (git-ignored local commands). Repo: `C:\Users\shahm\Desktop\Per. Proj\NorthForge\NorthForge`, GitHub `Big-ShahMir/NorthForge`, branch `main`, HEAD `dbfa689`, tree clean, in sync with origin.
+Read this first in a new session, then `docs/IMPLEMENTATION_PLAN.md` (phase list), `DECISIONS.md` (ADR-001 to ADR-027), and `LOCAL_RUN.md` (git-ignored local commands). Repo: `C:\Users\shahm\Desktop\Per. Proj\NorthForge\NorthForge`, GitHub `Big-ShahMir/NorthForge`, branch `main`, HEAD `__HEAD__`, tree clean, in sync with origin.
 
 ## 1. Mission and status
 
@@ -12,8 +12,9 @@ NorthForge is a supervised AI workflow product (portfolio MVP, synthetic data on
 | 1 | Data model, migrations, Clerk/dev auth, project and workflow CRUD | Done 2026-09-15 |
 | 2 | Typed step language, semantic validation, tool registry, catalogs, frontend type generation | Done 2026-09-15 |
 | 3 | Synthetic corpus, storage, chunking, full-text retrieval, ingestion, documents/search API | Done 2026-09-16 |
-| 4 | NVIDIA provider adapter, capability registry, routing, mock provider, caching, fallback | **Next** |
-| 5 to 11 | Planner graph, runner graph, UI, evaluation loop, hardening, deployment, polish | Not started |
+| 4 | NVIDIA provider adapter, capability registry, routing, mock provider, caching, fallback, provider status | Done 2026-09-16 |
+| 5 | Planner graph (natural language to validated workflow proposal) | **Next** |
+| 6 to 11 | Runner graph, UI, evaluation loop, hardening, deployment, polish | Not started |
 
 ## 2. How we work (user-approved process)
 
@@ -25,12 +26,12 @@ NorthForge is a supervised AI workflow product (portfolio MVP, synthetic data on
 
 ## 3. Stack and repository layout
 
-- **Backend** `backend/` (uv project, Python 3.12 pinned, `uv.lock` committed): FastAPI + Pydantic v2 + pydantic-settings, SQLAlchemy 2 async + asyncpg, Alembic (migrations `0001`, `0002`), arq on Redis, PyJWT (Clerk RS256), aiobotocore (S3/MinIO). One package `northforge` shared by API (`python -m northforge.api`) and worker (`python -m northforge.worker`). Modules: `core/` (config, errors, logging, health, queue), `db/` (models, engine, repositories), `schemas/` (workflow language, refs, steps, outputs, evidence, validation, catalog, API models), `auth/`, `api/` (routes: system, projects, workflows, catalog, documents), `tools/` (spec, context, registry, invoke, builtin tools, fixture corpus), `retrieval/` (chunking, retriever protocol, postgres, fixture, rules, embedder stub), `storage/` (protocol, s3, memory), `ingestion/` (pipeline, seed CLI), `data/synthetic/` (generator), `worker/`.
+- **Backend** `backend/` (uv project, Python 3.12 pinned, `uv.lock` committed): FastAPI + Pydantic v2 + pydantic-settings, SQLAlchemy 2 async + asyncpg, Alembic (migrations `0001`, `0002`), arq on Redis, PyJWT (Clerk RS256), aiobotocore (S3/MinIO). One package `northforge` shared by API (`python -m northforge.api`) and worker (`python -m northforge.worker`). Modules: `core/` (config, errors, logging, health, queue), `db/` (models, engine, repositories), `schemas/` (workflow language, refs, steps, outputs, evidence, validation, catalog, API models), `auth/`, `api/` (routes: system, projects, workflows, catalog, documents, provider_status), `providers/` (types, errors, base, capabilities + model_catalog.json, nvidia, structured, mock, resilience, cache, router, status, factory, smoke), `tools/` (spec, context, registry, invoke, builtin tools, fixture corpus), `retrieval/` (chunking, retriever protocol, postgres, fixture, rules, embedder + reranker adapters), `storage/` (protocol, s3, memory), `ingestion/` (pipeline, seed CLI), `data/synthetic/` (generator), `worker/`.
 - **Frontend** `frontend/`: Vite 7, React 19, TypeScript strict, Tailwind v4, shadcn-style primitives, React Router 7, Vitest. Only the Settings/status page is functional. Types generated from `frontend/openapi.json` into `src/lib/api-schema.d.ts` via `npm run generate:api` (CI fails on drift).
 - **Data:** `backend/data/synthetic/` committed (48 docs, manifest with sha256, vendors, 11 policy rules, ground truth, 36 retrieval eval cases). Regenerate: `uv run python -m northforge.data.synthetic --out data/synthetic --seed 20260916 --version v1`.
 - **Infra:** `docker-compose.yml` runs Postgres 16 + pgvector (host port **5433**), Redis 7 (6379), MinIO (9000, console 9001). `.env.example` is the template; `.env` (untracked) mirrors it with `AUTH_MODE=dev`.
 - **CI** `.github/workflows/ci.yml`: backend job (ruff, mypy, alembic upgrade, pytest with Postgres/Redis/MinIO services, `NORTHFORGE_INTEGRATION=1`, dataset drift check), frontend job, contracts job (OpenAPI export + type generation drift).
-- **Tests:** 401 backend (`NORTHFORGE_INTEGRATION=1 uv run pytest -q`, ~75 s, needs the three containers; without the flag DB tests skip when unreachable), 7 frontend. Test DB `northforge_test` is migrated once per session; each test runs in a rolled-back savepoint.
+- **Tests:** 580 backend (`NORTHFORGE_INTEGRATION=1 uv run pytest -q`, ~85 s, needs the three containers; without the flag DB tests skip when unreachable), 7 frontend. Test DB `northforge_test` is migrated once per session; each test runs in a rolled-back savepoint.
 
 ## 4. Key technical decisions (see ADRs for rationale)
 
@@ -42,6 +43,8 @@ NorthForge is a supervised AI workflow product (portfolio MVP, synthetic data on
 - ADR-023: committed deterministic synthetic dataset; generator refuses denylisted real brands.
 - ADR-024: retrieval is Postgres full-text (`websearch_to_tsquery`, `ts_rank_cd`), access-group filter in SQL **before** ranking plus Python re-check; outcomes `ok | insufficient_evidence | conflicting_evidence`; AND-match first, OR-fallback at score floor 0.5. `Embedder` protocol exists but unused.
 - ADR-025: raw docs in S3/MinIO, chunks in Postgres; storage is a readiness dependency.
+- ADR-026: all model calls go through `northforge/providers/` (`ModelProvider` protocol, `NvidiaProvider` over plain `httpx2`, `MockProvider`, `ModelRouter` with capability checks, retries honouring `Retry-After`, per-model circuit breaker, per-provider and per-model semaphores, fallback only on rate limit/outage/timeout, Redis cache for deterministic requests outside production). Missing `NVIDIA_API_KEY` does not stop startup; calls fail `PROVIDER_NOT_CONFIGURED`. `GET /api/provider-status` is authenticated and reads in-memory state only. `ModelRouter.snapshot()` is the JSON for run/version model metadata; `ModelInvocationRecord` is the trace-safe per-call record (Phase 6 persists it).
+- ADR-027: role defaults in `providers/model_catalog.json` (planner Nemotron 3 Super, extractor Nemotron 3.5 Lightning, drafter Kimi K3, evaluator DeepSeek V4 Flash, embedding Nemotron 3 Embed 1B at 2048 dims, reranker Llama Nemotron Rerank VL 1B v2). `ProviderEmbedder`/`ProviderReranker` exist but retrieval is still lexical-only; hybrid ranking waits for a failing retrieval eval case.
 - Readiness semantics: Postgres/Redis/storage down → 503 `not_ready`; worker heartbeat missing → 200 `degraded`.
 
 ## 5. Environment quirks (this machine)
@@ -52,16 +55,18 @@ NorthForge is a supervised AI workflow product (portfolio MVP, synthetic data on
 - Git Bash: kill processes with `ps -W` + `taskkill //F //PID <winpid>`; the Bash tool truncates very large heredocs (keep file writes under ~150 lines per command).
 - Two pytest sessions on the shared test DB deadlock (`migrated_database` downgrades/upgrades). Never run the suite while a subagent runs it.
 - Git config email `shahmir.ahmad2302@gmail.com` differs from the initial commit's noreply address; user should ensure both are linked to the GitHub account.
+- Files in the working copy are CRLF; git normalises to LF on commit (harmless warnings on `git add`).
+- Python `pathlib.read_text()` defaults to cp1252 on this machine: always pass `encoding="utf-8"` in scripts that touch the docs (they contain em dashes).
 
 ## 6. Deferred items and follow-ups (tracked)
 
 | # | Item | Why deferred | When to address |
 |---|---|---|---|
-| D1 | CI status on GitHub not verified since Phase 1 (private repo, no `gh` CLI, no token). New moving parts: MinIO service image `bitnamilegacy/minio`, migration step, dataset drift job, contracts job. | Could not read Actions logs unauthenticated | **Start of Phase 4:** ask the user to paste the latest run result, or install `gh` and authenticate. Fix any red job before new work. |
+| D1 | CI status on GitHub. | Resolved: user confirmed the run for `220d6ba` green on 2026-09-16; `gh` still not installed, so later runs are checked by the user. | Ask at the start of each phase. |
 | D2 | Clerk not exercised against a live Clerk instance; only local RSA keys in tests. `CLERK_JWKS_URL`, `CLERK_ISSUER`, `VITE_CLERK_PUBLISHABLE_KEY` empty. | User has no Clerk app yet | **Before Phase 7 UI work:** user creates a Clerk application; wire `ClerkProvider` in the frontend and switch `.env` to `AUTH_MODE=clerk` for a manual login test. |
 | D3 | Frontend has only the Settings page; sidebar areas are labelled stubs. | Plan puts screens in Phase 7 | Phase 7, or earlier if the user opts to pull forward a thin slice (project list, document browser, search page) after Phase 4. Offer this once Phase 4 is done. |
-| D4 | Embeddings/pgvector not used; `Embedder` protocol has a `NoopEmbedder`. Retrieval is lexical with an OR fallback tuned to the synthetic corpus (floor 0.5, measured margins 0.7 vs 0.4). | ADR-024 | **Phase 4:** decide the NVIDIA embedding model and dimensions; add a `vector` column migration and hybrid ranking only if retrieval eval shows lexical failures. Re-run `tests/retrieval/test_retrieval_quality.py` after any ranking change. |
-| D5 | Model role env vars: `NVIDIA_MODEL_PLANNER/EXTRACTION/DRAFTER/EVALUATOR` exist; `MODEL_ROUTING.md` also names embedding and reranker roles. | Phase 4 scope | Phase 4 config design. |
+| D4 | Embeddings/pgvector: adapters (`ProviderEmbedder`, `ProviderReranker`) exist; retrieval still lexical-only. | ADR-027: no evidence of lexical failure yet. | When a retrieval eval case fails hit@8 under honest phrasing: add a 2048-dim `vector` column migration, embed at ingestion, blend scores, re-run `tests/retrieval/test_retrieval_quality.py`. |
+| D5 | Model role env vars. | Resolved in Phase 4: six roles configurable, validated at startup, defaults in `model_catalog.json`. | Closed. |
 | D6 | Semantic validation `known_tools` is passed from the in-process registry; approve re-validates. Tool `kind` restrictions (`ALLOWED_TOOLS_BY_STEP`) are hard-coded in `schemas/workflow_validation.py`. | Sufficient for three tools | When a fourth tool or a draft-only tool is added (ADR-022 revisit). |
 | D7 | `ToolContext.trace` callback exists but nothing persists `ToolCallRecord`s to `trace_events`. Runs/step runs/trace repositories exist with no API. | Runtime is Phase 6 | Phase 6 runner graph: persist tool calls and step outputs as trace events; add run endpoints from `docs/API_SPEC.md`. |
 | D8 | Ingestion job status endpoint relies on arq job keys with default expiry; no persistent job table. Ingest endpoint is per-project synthetic-only. | MVP | Phase 6 when run jobs need durable status; consider a `jobs` table then. |

@@ -42,6 +42,14 @@ class ModelCapabilities(BaseModel):
     max_output_tokens: int | None = Field(default=None, ge=1)
     embedding_dimensions: int | None = Field(default=None, ge=1)
     expected_latency_ms: int | None = Field(default=None, ge=0)
+    # Applied when a request leaves ``reasoning`` unset and the model has the
+    # toggle: hosted Nemotron models return HTTP 500 or empty tool calls with
+    # thinking on, so their default is off.
+    default_reasoning: bool | None = None
+    # Per-model read timeout; overrides MODEL_REQUEST_TIMEOUT_SECONDS when the
+    # request itself sets none. Hosted queueing for the largest models runs to
+    # two minutes even for one-sentence replies.
+    timeout_seconds: float | None = Field(default=None, gt=0)
     verified_on: str | None = None
     notes: str = ""
 

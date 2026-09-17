@@ -75,7 +75,7 @@ Every route below is access-group filtered: a caller only ever sees documents, c
 
 - `GET /health` — liveness.
 - `GET /ready` — dependency readiness.
-- `GET /api/provider-status` — safe provider availability summary without secrets.
+- `GET /api/provider-status` — safe provider availability summary without secrets (authenticated). `data` is `{provider, configured, base_url_host, catalog_version, cache_enabled, roles: [{role, enabled, provider, model, fallbacks, supports_structured_output, structured_output_mode, supports_tools, context_window, circuit_state, last_error: {code, category, at} | null}]}`. It reads in-memory router state only and never calls the provider, so it does not spend quota; readiness (`/ready`) is unaffected by provider outages.
 
 ## Response rules
 
@@ -85,7 +85,7 @@ Every project-scoped and workflow-scoped route requires an authenticated caller 
 
 ## Error codes
 
-Use stable codes such as `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_WORKFLOW`, `VERSION_IMMUTABLE`, `VERSION_NOT_VALIDATED`, `VERSION_NOT_APPROVED`, `INVALID_RUN_TRANSITION`, `RUN_NOT_APPROVABLE`, `RUN_NOT_RETRYABLE`, `PROVIDER_RATE_LIMITED`, `PROVIDER_UNAVAILABLE`, `TOOL_BLOCKED`, and `INTERNAL_ERROR`.
+Use stable codes such as `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_WORKFLOW`, `VERSION_IMMUTABLE`, `VERSION_NOT_VALIDATED`, `VERSION_NOT_APPROVED`, `INVALID_RUN_TRANSITION`, `RUN_NOT_APPROVABLE`, `RUN_NOT_RETRYABLE`, `PROVIDER_RATE_LIMITED` (429), `PROVIDER_UNAVAILABLE` (503: outage, timeout, open circuit, or rejected credentials), `PROVIDER_NOT_CONFIGURED` (503: no model provider credentials or the role is disabled), `PROVIDER_REQUEST_REJECTED` (502: the provider refused the request, for example an unknown model id), `PROVIDER_MALFORMED_OUTPUT` (502: model output failed schema validation after one repair attempt), `PROVIDER_CAPABILITY_MISMATCH` (500: no routed model supports the requested operation), `TOOL_BLOCKED`, and `INTERNAL_ERROR`.
 
 ## Async behavior
 

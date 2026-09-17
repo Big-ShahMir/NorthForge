@@ -13,9 +13,11 @@
       "context_window": 262144,
       "max_output_tokens": 16384,
       "embedding_dimensions": null,
-      "expected_latency_ms": 8000,
-      "verified_on": null,
-      "notes": "120B MoE, 12B active. Reasoning toggled with chat_template_kwargs.enable_thinking. NVIDIA recommends temperature 1.0 / top_p 0.95 for reasoning use; NorthForge uses 0 for deterministic planning."
+      "expected_latency_ms": 2000,
+      "default_reasoning": false,
+      "timeout_seconds": null,
+      "verified_on": "2026-09-16",
+      "notes": "120B MoE, 12B active. Reasoning toggled with chat_template_kwargs.enable_thinking; off by default because the hosted endpoint answers tool calls with HTTP 500 or no tool call when thinking is on. Verified: json_schema structured output, tool calls with thinking off, ~1.5 s."
     },
     {
       "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -28,9 +30,11 @@
       "context_window": 262144,
       "max_output_tokens": 16384,
       "embedding_dimensions": null,
-      "expected_latency_ms": 3000,
-      "verified_on": null,
-      "notes": "30B MoE, 3B active; the low-latency extraction model."
+      "expected_latency_ms": 1500,
+      "default_reasoning": false,
+      "timeout_seconds": null,
+      "verified_on": "2026-09-16",
+      "notes": "30B MoE, 3B active; the low-latency extraction model. Thinking off by default (same tool-call behaviour as Super). Verified: json_schema structured output and tool calls; ~0.7 s with thinking off, ~30 s with it on."
     },
     {
       "model": "moonshotai/kimi-k3",
@@ -43,9 +47,11 @@
       "context_window": 262144,
       "max_output_tokens": 16384,
       "embedding_dimensions": null,
-      "expected_latency_ms": 12000,
+      "expected_latency_ms": 120000,
+      "default_reasoning": null,
+      "timeout_seconds": 240.0,
       "verified_on": null,
-      "notes": "2.8T MoE, 104B active. Thinking is always on; reasoning effort is a provider-side setting, not a toggle."
+      "notes": "2.8T MoE, 104B active. Thinking is always on; reasoning effort is a provider-side setting, not a toggle. Hosted free tier queues about two minutes per request even for one-sentence replies (measured 121 s), hence the per-model timeout."
     },
     {
       "model": "deepseek-ai/deepseek-v4-flash-0731",
@@ -58,9 +64,11 @@
       "context_window": 262144,
       "max_output_tokens": 16384,
       "embedding_dimensions": null,
-      "expected_latency_ms": 8000,
+      "expected_latency_ms": 120000,
+      "default_reasoning": null,
+      "timeout_seconds": 240.0,
       "verified_on": null,
-      "notes": "304B MoE. Independent evaluator, deliberately a different family from the planner. Some accounts need access enabled on build.nvidia.com; the smoke test reports this as a request rejection."
+      "notes": "304B MoE. Independent evaluator, deliberately a different family from the planner. Hosted free tier queues about two minutes per request (measured 123 s), hence the per-model timeout. Some accounts need access enabled on build.nvidia.com; the smoke command surfaces that as PROVIDER_REQUEST_REJECTED."
     },
     {
       "model": "nvidia/nemotron-3-embed-1b",
@@ -73,8 +81,10 @@
       "context_window": 4096,
       "max_output_tokens": null,
       "embedding_dimensions": 2048,
-      "expected_latency_ms": 500,
-      "verified_on": null,
+      "expected_latency_ms": 400,
+      "default_reasoning": null,
+      "timeout_seconds": null,
+      "verified_on": "2026-09-16",
       "notes": "Fixed 2048-dimensional output; input_type must be 'query' or 'passage'; inputs validated up to 4096 tokens."
     },
     {
@@ -88,27 +98,37 @@
       "context_window": 10240,
       "max_output_tokens": null,
       "embedding_dimensions": null,
-      "expected_latency_ms": 800,
-      "verified_on": null,
+      "expected_latency_ms": 400,
+      "default_reasoning": null,
+      "timeout_seconds": null,
+      "verified_on": "2026-09-16",
       "notes": "Served from ai.api.nvidia.com under /v1/retrieval/nvidia/<model>/reranking, not the OpenAI-compatible host. Query plus passage up to 10,240 tokens."
     }
   ],
   "default_routes": {
     "planner": {
       "primary": "nvidia/nemotron-3-super-120b-a12b",
-      "fallbacks": ["nvidia/nemotron-3.5-lightning-30b-a3b"]
+      "fallbacks": [
+        "nvidia/nemotron-3.5-lightning-30b-a3b"
+      ]
     },
     "extractor": {
       "primary": "nvidia/nemotron-3.5-lightning-30b-a3b",
-      "fallbacks": ["nvidia/nemotron-3-super-120b-a12b"]
+      "fallbacks": [
+        "nvidia/nemotron-3-super-120b-a12b"
+      ]
     },
     "drafter": {
       "primary": "moonshotai/kimi-k3",
-      "fallbacks": ["nvidia/nemotron-3-super-120b-a12b"]
+      "fallbacks": [
+        "nvidia/nemotron-3-super-120b-a12b"
+      ]
     },
     "evaluator": {
       "primary": "deepseek-ai/deepseek-v4-flash-0731",
-      "fallbacks": ["nvidia/nemotron-3.5-lightning-30b-a3b"]
+      "fallbacks": [
+        "nvidia/nemotron-3.5-lightning-30b-a3b"
+      ]
     },
     "embedding": {
       "primary": "nvidia/nemotron-3-embed-1b",

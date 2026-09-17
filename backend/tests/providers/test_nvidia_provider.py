@@ -20,7 +20,7 @@ from pydantic import BaseModel
 from northforge.core.config import Settings, load_settings
 from northforge.core.errors import ConfigurationError
 from northforge.providers.base import ModelProvider
-from northforge.providers.capabilities import CapabilityRegistry
+from northforge.providers.capabilities import CapabilityRegistry, ModelCatalog
 from northforge.providers.errors import (
     ProviderAuthError,
     ProviderCapabilityError,
@@ -376,18 +376,66 @@ async def test_reasoning_toggle_warns_when_model_does_not_support_it(
 
 
 @pytest.mark.asyncio
-async def test_reasoning_toggle_not_sent_when_not_requested(
+async def test_reasoning_defaults_to_catalog_value_when_not_requested(
     nvidia_settings: Settings, registry: CapabilityRegistry
 ) -> None:
+    """Hosted Nemotron models default to thinking off (catalog ``default_reasoning``)."""
+    captured_body: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured_body.clear()
+        captured_body.update(json.loads(request.content))
+        return chat_response()
+
+    provider = make_provider(nvidia_settings, registry, handler)
+    await provider.generate(_simple_request(), PLANNER_MODEL)
+    assert captured_body["chat_template_kwargs"] == {"enable_thinking": False}
+
+    await provider.generate(_simple_request(reasoning=True), PLANNER_MODEL)
+    assert captured_body["chat_template_kwargs"] == {"enable_thinking": True}
+
+    await provider.generate(_simple_request(), NON_REASONING_MODEL)
+    assert "chat_template_kwargs" not in captured_body
+
+
+async def test_reasoning_not_sent_without_catalog_default(nvidia_settings: Settings) -> None:
+    catalog = CapabilityRegistry.load()
+    entry = catalog.get(PLANNER_MODEL)
+    assert entry is not None
+    custom = CapabilityRegistry(
+        ModelCatalog(
+            version="test",
+            models=[entry.model_copy(update={"default_reasoning": None})],
+            default_routes=catalog.default_routes,
+        )
+    )
     captured_body: dict[str, Any] = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         captured_body.update(json.loads(request.content))
         return chat_response()
 
-    provider = make_provider(nvidia_settings, registry, handler)
+    provider = make_provider(nvidia_settings, custom, handler)
     await provider.generate(_simple_request(), PLANNER_MODEL)
     assert "chat_template_kwargs" not in captured_body
+
+
+async def test_per_model_timeout_from_catalog_applies_when_request_sets_none(
+    nvidia_settings: Settings, registry: CapabilityRegistry
+) -> None:
+    captured: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["timeout"] = request.extensions["timeout"]
+        return chat_response()
+
+    provider = make_provider(nvidia_settings, registry, handler)
+    await provider.generate(_simple_request(), NON_REASONING_MODEL)  # kimi-k3: 240 s in catalog
+    assert captured["timeout"]["read"] == 240.0
+    await provider.generate(_simple_request(), PLANNER_MODEL)  # no catalog override
+    assert captured["timeout"]["read"] == nvidia_settings.model_request_timeout_seconds
+    await provider.generate(_simple_request(timeout_seconds=3.0), NON_REASONING_MODEL)
+    assert captured["timeout"]["read"] == 3.0
 
 
 # -- tools ----------------------------------------------------------------------------
