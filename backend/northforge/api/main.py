@@ -21,13 +21,21 @@ from redis.asyncio import Redis
 from northforge import __version__
 from northforge.api.errors import register_error_handlers
 from northforge.api.middleware import RequestContextMiddleware
-from northforge.api.routes import catalog, documents, projects, system, workflows
+from northforge.api.routes import (
+    catalog,
+    documents,
+    projects,
+    provider_status,
+    system,
+    workflows,
+)
 from northforge.auth.tokens import ClerkTokenVerifier
 from northforge.core.config import Settings, get_settings
 from northforge.core.health import ReadinessProbe
 from northforge.core.logging import configure_logging
 from northforge.core.queue import QUEUE_NAME
 from northforge.db.engine import create_engine, create_session_factory
+from northforge.providers.factory import build_model_router, close_model_router
 from northforge.storage.base import ObjectStorage
 from northforge.storage.s3 import S3ObjectStorage
 from northforge.tools.registry import get_tool_registry
@@ -54,6 +62,9 @@ def create_app(
         app.state.storage = resolved_storage
         app.state.readiness_probe = ReadinessProbe(resolved, redis, engine, resolved_storage)
         app.state.tool_registry = get_tool_registry()
+        # Routing problems are configuration errors and stop startup; missing
+        # credentials do not (see providers/factory.py).
+        app.state.model_router = build_model_router(resolved, redis)
         try:
             await asyncio.wait_for(
                 resolved_storage.ensure_bucket(), timeout=resolved.s3_timeout_seconds * 2
@@ -86,6 +97,7 @@ def create_app(
         try:
             yield
         finally:
+            await close_model_router(app.state.model_router)
             if app.state.arq_pool is not None:
                 await app.state.arq_pool.aclose()
             await redis.aclose()
@@ -109,6 +121,7 @@ def create_app(
     app.include_router(workflows.router)
     app.include_router(catalog.router)
     app.include_router(documents.router)
+    app.include_router(provider_status.router)
     return app
 
 

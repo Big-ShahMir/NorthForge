@@ -687,6 +687,39 @@
         "title": "Envelope[ProjectOut]",
         "type": "object"
       },
+      "Envelope_ProviderStatus_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[ProviderStatus]",
+        "type": "object"
+      },
       "Envelope_ReadinessData_": {
         "properties": {
           "data": {
@@ -1115,6 +1148,29 @@
         "title": "JobStatusOut",
         "type": "object"
       },
+      "LastError": {
+        "properties": {
+          "at": {
+            "title": "At",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "category",
+          "at"
+        ],
+        "title": "LastError",
+        "type": "object"
+      },
       "MeOut": {
         "properties": {
           "access_groups": {
@@ -1311,6 +1367,54 @@
         "title": "ProjectUpdate",
         "type": "object"
       },
+      "ProviderStatus": {
+        "properties": {
+          "base_url_host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url Host"
+          },
+          "cache_enabled": {
+            "title": "Cache Enabled",
+            "type": "boolean"
+          },
+          "catalog_version": {
+            "title": "Catalog Version",
+            "type": "string"
+          },
+          "configured": {
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleStatus"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "provider",
+          "configured",
+          "base_url_host",
+          "catalog_version",
+          "cache_enabled",
+          "roles"
+        ],
+        "title": "ProviderStatus",
+        "type": "object"
+      },
       "ReadinessData": {
         "properties": {
           "checks": {
@@ -1335,6 +1439,140 @@
           "checks"
         ],
         "title": "ReadinessData",
+        "type": "object"
+      },
+      "RoleStatus": {
+        "properties": {
+          "circuit_state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "closed",
+                  "open",
+                  "half_open"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Circuit State"
+          },
+          "context_window": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Window"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "fallbacks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fallbacks",
+            "type": "array"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LastError"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "role": {
+            "enum": [
+              "planner",
+              "extractor",
+              "drafter",
+              "evaluator",
+              "embedding",
+              "reranker"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "structured_output_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Structured Output Mode"
+          },
+          "supports_structured_output": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supports Structured Output"
+          },
+          "supports_tools": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supports Tools"
+          }
+        },
+        "required": [
+          "role",
+          "enabled",
+          "provider",
+          "model",
+          "fallbacks",
+          "supports_structured_output",
+          "structured_output_mode",
+          "supports_tools",
+          "context_window",
+          "circuit_state",
+          "last_error"
+        ],
+        "title": "RoleStatus",
         "type": "object"
       },
       "SearchRequest": {
@@ -2623,6 +2861,27 @@
         "summary": "Create Workflow",
         "tags": [
           "workflows"
+        ]
+      }
+    },
+    "/api/provider-status": {
+      "get": {
+        "operationId": "provider_status_api_provider_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_ProviderStatus_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Provider Status",
+        "tags": [
+          "system"
         ]
       }
     },

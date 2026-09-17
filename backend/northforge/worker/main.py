@@ -29,6 +29,7 @@ from northforge.core.logging import configure_logging
 from northforge.core.queue import QUEUE_NAME, WORKER_HEALTH_KEY
 from northforge.db.engine import create_engine, create_session_factory
 from northforge.ingestion.pipeline import ingest_dataset
+from northforge.providers.factory import build_model_router, close_model_router
 from northforge.storage.s3 import S3ObjectStorage
 
 logger = logging.getLogger(__name__)
@@ -90,10 +91,16 @@ async def on_startup(ctx: dict[str, Any]) -> None:
             "object storage bucket unavailable at worker startup", extra={"error": repr(exc)}
         )
     ctx["storage"] = storage
+    # The worker owns its own router (separate process); the arq redis pool
+    # backs the deterministic-request cache.
+    ctx["model_router"] = build_model_router(settings, ctx.get("redis"))
 
 
 async def on_shutdown(ctx: dict[str, Any]) -> None:
     logger.info("worker stopping", extra={"queue": QUEUE_NAME})
+    model_router = ctx.get("model_router")
+    if model_router is not None:
+        await close_model_router(model_router)
     engine = ctx.get("engine")
     if engine is not None:
         await engine.dispose()

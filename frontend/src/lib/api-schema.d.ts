@@ -177,6 +177,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/provider-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Provider Status */
+        get: operations["provider_status_api_provider_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tools": {
         parameters: {
             query?: never;
@@ -569,6 +586,13 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /** Envelope[ProviderStatus] */
+        Envelope_ProviderStatus_: {
+            data?: components["schemas"]["ProviderStatus"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
         /** Envelope[ReadinessData] */
         Envelope_ReadinessData_: {
             data?: components["schemas"]["ReadinessData"] | null;
@@ -692,6 +716,15 @@ export interface components {
              */
             status: "queued" | "deferred" | "in_progress" | "complete" | "failed" | "not_found";
         };
+        /** LastError */
+        LastError: {
+            /** At */
+            at: string;
+            /** Category */
+            category: string;
+            /** Code */
+            code: string;
+        };
         /** MeOut */
         MeOut: {
             /** Access Groups */
@@ -772,6 +805,21 @@ export interface components {
             /** Name */
             name?: string | null;
         };
+        /** ProviderStatus */
+        ProviderStatus: {
+            /** Base Url Host */
+            base_url_host: string | null;
+            /** Cache Enabled */
+            cache_enabled: boolean;
+            /** Catalog Version */
+            catalog_version: string;
+            /** Configured */
+            configured: boolean;
+            /** Provider */
+            provider: string;
+            /** Roles */
+            roles: components["schemas"]["RoleStatus"][];
+        };
         /** ReadinessData */
         ReadinessData: {
             /** Checks */
@@ -781,6 +829,33 @@ export interface components {
              * @enum {string}
              */
             status: "ready" | "degraded" | "not_ready";
+        };
+        /** RoleStatus */
+        RoleStatus: {
+            /** Circuit State */
+            circuit_state: ("closed" | "open" | "half_open") | null;
+            /** Context Window */
+            context_window: number | null;
+            /** Enabled */
+            enabled: boolean;
+            /** Fallbacks */
+            fallbacks: string[];
+            last_error: components["schemas"]["LastError"] | null;
+            /** Model */
+            model: string | null;
+            /** Provider */
+            provider: string | null;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "planner" | "extractor" | "drafter" | "evaluator" | "embedding" | "reranker";
+            /** Structured Output Mode */
+            structured_output_mode: string | null;
+            /** Supports Structured Output */
+            supports_structured_output: boolean | null;
+            /** Supports Tools */
+            supports_tools: boolean | null;
         };
         /** SearchRequest */
         SearchRequest: {
@@ -1472,6 +1547,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    provider_status_api_provider_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ProviderStatus_"];
                 };
             };
         };
