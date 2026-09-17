@@ -132,3 +132,62 @@ def test_authorized_parties_accepts_empty_csv_and_json(monkeypatch: pytest.Monke
 
     monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", '["http://c.test"]')
     assert load_settings(env_file=None).clerk_authorized_parties == ["http://c.test"]
+
+
+def test_empty_env_values_mean_unset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
+    monkeypatch.setenv("NVIDIA_MODEL_PLANNER", "")
+    monkeypatch.setenv("NVIDIA_API_KEY", "")
+    monkeypatch.setenv("MODEL_CACHE_ENABLED", "")
+
+    loaded = load_settings(env_file=None)
+
+    assert loaded.nvidia_model_planner is None
+    assert loaded.nvidia_api_key is None
+    assert loaded.model_cache_enabled is None
+    assert loaded.model_cache_active is True  # development default
+
+
+def test_model_fallbacks_accept_csv_and_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("AUTH_MODE", "dev")
+    set_unit_s3_env(monkeypatch)
+
+    monkeypatch.setenv("NVIDIA_MODEL_PLANNER_FALLBACKS", "a/b, c/d")
+    monkeypatch.setenv("NVIDIA_MODEL_DRAFTER_FALLBACKS", '["e/f"]')
+    monkeypatch.setenv("NVIDIA_MODEL_EVALUATOR_FALLBACKS", "")
+    loaded = load_settings(env_file=None)
+
+    assert loaded.nvidia_model_planner_fallbacks == ["a/b", "c/d"]
+    assert loaded.nvidia_model_drafter_fallbacks == ["e/f"]
+    assert loaded.nvidia_model_evaluator_fallbacks is None  # empty means unset
+    assert loaded.nvidia_model_extraction_fallbacks is None
+
+
+def test_mock_provider_rejected_in_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x:y@localhost/db")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost/0")
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("AUTH_MODE", "clerk")
+    monkeypatch.setenv("CLERK_JWKS_URL", "https://clerk.test/jwks")
+    monkeypatch.setenv("CLERK_ISSUER", "https://clerk.test")
+    monkeypatch.setenv("MODEL_PROVIDER", "mock")
+    set_unit_s3_env(monkeypatch)
+
+    with pytest.raises(ConfigurationError) as excinfo:
+        load_settings(env_file=None)
+
+    assert any(p.startswith("MODEL_PROVIDER:") for p in excinfo.value.problems)
+
+
+def test_model_provider_defaults(settings: Settings) -> None:
+    assert settings.model_provider == "nvidia"
+    assert settings.embedding_provider == "nvidia"
+    assert settings.reranker_provider == "nvidia"
+    assert settings.nvidia_rerank_base_url.startswith("https://ai.api.nvidia.com")
+    assert settings.model_max_attempts == 3
+    assert settings.model_cache_active is True

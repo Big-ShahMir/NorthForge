@@ -1,0 +1,122 @@
+{
+  "version": "2026-09-16",
+  "notes": "Model ids and capabilities for the hosted NVIDIA endpoint. Environment variables override default_routes; MODEL_CAPABILITIES_FILE overrides this file. Capability flags marked unverified are corrected by `python -m northforge.providers.smoke` against a live key. The hosted free tier allows 40 requests per minute per API key across all models.",
+  "models": [
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "provider": "nvidia",
+      "modality": "generation",
+      "supports_structured_output": true,
+      "structured_output_mode": "json_schema",
+      "supports_tools": true,
+      "supports_reasoning_toggle": true,
+      "context_window": 262144,
+      "max_output_tokens": 16384,
+      "embedding_dimensions": null,
+      "expected_latency_ms": 8000,
+      "verified_on": null,
+      "notes": "120B MoE, 12B active. Reasoning toggled with chat_template_kwargs.enable_thinking. NVIDIA recommends temperature 1.0 / top_p 0.95 for reasoning use; NorthForge uses 0 for deterministic planning."
+    },
+    {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "provider": "nvidia",
+      "modality": "generation",
+      "supports_structured_output": true,
+      "structured_output_mode": "json_schema",
+      "supports_tools": true,
+      "supports_reasoning_toggle": true,
+      "context_window": 262144,
+      "max_output_tokens": 16384,
+      "embedding_dimensions": null,
+      "expected_latency_ms": 3000,
+      "verified_on": null,
+      "notes": "30B MoE, 3B active; the low-latency extraction model."
+    },
+    {
+      "model": "moonshotai/kimi-k3",
+      "provider": "nvidia",
+      "modality": "generation",
+      "supports_structured_output": true,
+      "structured_output_mode": "json_schema",
+      "supports_tools": true,
+      "supports_reasoning_toggle": false,
+      "context_window": 262144,
+      "max_output_tokens": 16384,
+      "embedding_dimensions": null,
+      "expected_latency_ms": 12000,
+      "verified_on": null,
+      "notes": "2.8T MoE, 104B active. Thinking is always on; reasoning effort is a provider-side setting, not a toggle."
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4-flash-0731",
+      "provider": "nvidia",
+      "modality": "generation",
+      "supports_structured_output": true,
+      "structured_output_mode": "json_schema",
+      "supports_tools": true,
+      "supports_reasoning_toggle": false,
+      "context_window": 262144,
+      "max_output_tokens": 16384,
+      "embedding_dimensions": null,
+      "expected_latency_ms": 8000,
+      "verified_on": null,
+      "notes": "304B MoE. Independent evaluator, deliberately a different family from the planner. Some accounts need access enabled on build.nvidia.com; the smoke test reports this as a request rejection."
+    },
+    {
+      "model": "nvidia/nemotron-3-embed-1b",
+      "provider": "nvidia",
+      "modality": "embedding",
+      "supports_structured_output": false,
+      "structured_output_mode": null,
+      "supports_tools": false,
+      "supports_reasoning_toggle": false,
+      "context_window": 4096,
+      "max_output_tokens": null,
+      "embedding_dimensions": 2048,
+      "expected_latency_ms": 500,
+      "verified_on": null,
+      "notes": "Fixed 2048-dimensional output; input_type must be 'query' or 'passage'; inputs validated up to 4096 tokens."
+    },
+    {
+      "model": "nvidia/llama-nemotron-rerank-vl-1b-v2",
+      "provider": "nvidia",
+      "modality": "rerank",
+      "supports_structured_output": false,
+      "structured_output_mode": null,
+      "supports_tools": false,
+      "supports_reasoning_toggle": false,
+      "context_window": 10240,
+      "max_output_tokens": null,
+      "embedding_dimensions": null,
+      "expected_latency_ms": 800,
+      "verified_on": null,
+      "notes": "Served from ai.api.nvidia.com under /v1/retrieval/nvidia/<model>/reranking, not the OpenAI-compatible host. Query plus passage up to 10,240 tokens."
+    }
+  ],
+  "default_routes": {
+    "planner": {
+      "primary": "nvidia/nemotron-3-super-120b-a12b",
+      "fallbacks": ["nvidia/nemotron-3.5-lightning-30b-a3b"]
+    },
+    "extractor": {
+      "primary": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "fallbacks": ["nvidia/nemotron-3-super-120b-a12b"]
+    },
+    "drafter": {
+      "primary": "moonshotai/kimi-k3",
+      "fallbacks": ["nvidia/nemotron-3-super-120b-a12b"]
+    },
+    "evaluator": {
+      "primary": "deepseek-ai/deepseek-v4-flash-0731",
+      "fallbacks": ["nvidia/nemotron-3.5-lightning-30b-a3b"]
+    },
+    "embedding": {
+      "primary": "nvidia/nemotron-3-embed-1b",
+      "fallbacks": []
+    },
+    "reranker": {
+      "primary": "nvidia/llama-nemotron-rerank-vl-1b-v2",
+      "fallbacks": []
+    }
+  }
+}

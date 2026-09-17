@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=DEFAULT_ENV_FILE,
         env_file_encoding="utf-8",
+        # An empty value in .env (``NVIDIA_MODEL_PLANNER=``) means "unset",
+        # so optional variables fall back to their defaults instead of "".
+        env_ignore_empty=True,
         extra="ignore",
         case_sensitive=False,
     )
@@ -58,13 +61,38 @@ class Settings(BaseSettings):
     database_pool_size: int = 5
     database_echo: bool = False
 
-    # Model provider (NVIDIA) - required from Phase 4 onward
+    # Model provider (Phase 4). ``nvidia`` needs NVIDIA_API_KEY; without it the
+    # application still starts and every model call fails with
+    # PROVIDER_NOT_CONFIGURED. ``mock`` is for tests and offline demos only.
+    model_provider: Literal["nvidia", "mock"] = "nvidia"
     nvidia_api_key: SecretStr | None = None
     nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
+    # Reranking NIMs are served from a different host than the OpenAI-compatible API.
+    nvidia_rerank_base_url: str = "https://ai.api.nvidia.com/v1"
+    # Role -> model overrides. ``None`` means "use default_routes in the model
+    # catalog" (northforge/providers/model_catalog.json or MODEL_CAPABILITIES_FILE).
     nvidia_model_planner: str | None = None
     nvidia_model_extraction: str | None = None
     nvidia_model_drafter: str | None = None
     nvidia_model_evaluator: str | None = None
+    nvidia_model_planner_fallbacks: Annotated[list[str] | None, NoDecode] = None
+    nvidia_model_extraction_fallbacks: Annotated[list[str] | None, NoDecode] = None
+    nvidia_model_drafter_fallbacks: Annotated[list[str] | None, NoDecode] = None
+    nvidia_model_evaluator_fallbacks: Annotated[list[str] | None, NoDecode] = None
+    # Embedding and reranking are independent of the generation provider.
+    embedding_provider: Literal["nvidia", "mock", "none"] = "nvidia"
+    embedding_model: str | None = None
+    reranker_provider: Literal["nvidia", "mock", "none"] = "nvidia"
+    reranker_model: str | None = None
+    model_capabilities_file: Path | None = None
+    # Resilience and caching
+    model_request_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+    model_max_attempts: int = Field(default=3, ge=1, le=10)
+    model_provider_concurrency: int = Field(default=4, ge=1, le=64)
+    model_per_model_concurrency: int = Field(default=2, ge=1, le=64)
+    # ``None`` resolves to "enabled unless production" (see ``model_cache_active``).
+    model_cache_enabled: bool | None = None
+    model_cache_ttl_seconds: int = Field(default=86400, ge=1, le=2_592_000)
 
     # Object storage (S3-compatible; MinIO locally)
     s3_endpoint: str = Field(description="S3-compatible endpoint URL")
@@ -79,9 +107,22 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.app_env == "production"
 
-    @field_validator("clerk_authorized_parties", mode="before")
+    @property
+    def model_cache_active(self) -> bool:
+        if self.model_cache_enabled is not None:
+            return self.model_cache_enabled
+        return not self.is_production
+
+    @field_validator(
+        "clerk_authorized_parties",
+        "nvidia_model_planner_fallbacks",
+        "nvidia_model_extraction_fallbacks",
+        "nvidia_model_drafter_fallbacks",
+        "nvidia_model_evaluator_fallbacks",
+        mode="before",
+    )
     @classmethod
-    def _split_authorized_parties(cls, value: object) -> object:
+    def _split_list(cls, value: object) -> object:
         """Accept a comma-separated string (env files) or a JSON list."""
         if isinstance(value, str):
             text = value.strip()
@@ -91,6 +132,20 @@ class Settings(BaseSettings):
                 return json.loads(text)
             return [part.strip() for part in text.split(",") if part.strip()]
         return value
+
+    @model_validator(mode="after")
+    def _validate_model_providers(self) -> Self:
+        if self.is_production:
+            for name, value in (
+                ("MODEL_PROVIDER", self.model_provider),
+                ("EMBEDDING_PROVIDER", self.embedding_provider),
+                ("RERANKER_PROVIDER", self.reranker_provider),
+            ):
+                if value == "mock":
+                    raise ValueError(
+                        f"{name}: mock provider is not allowed when APP_ENV=production"
+                    )
+        return self
 
     @model_validator(mode="after")
     def _validate_auth_mode(self) -> Self:
