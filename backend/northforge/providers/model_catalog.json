@@ -17,7 +17,7 @@
       "default_reasoning": false,
       "timeout_seconds": null,
       "verified_on": "2026-09-16",
-      "notes": "120B MoE, 12B active. Reasoning toggled with chat_template_kwargs.enable_thinking; off by default because the hosted endpoint answers tool calls with HTTP 500 or no tool call when thinking is on. Verified: json_schema structured output, tool calls with thinking off, ~1.5 s."
+      "notes": "120B MoE, 12B active. Thinking off by default (chat_template_kwargs.enable_thinking). Verified 2026-09-16 over three probes: json_schema structured output succeeded twice in ~1.5 s and timed out once at 60 s; tool calls returned HTTP 500 twice and succeeded once (with thinking off). The router falls back to Lightning on both failures. nvext.guided_json is rejected by the hosted endpoint (HTTP 400, unknown field)."
     },
     {
       "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
@@ -50,8 +50,8 @@
       "expected_latency_ms": 120000,
       "default_reasoning": null,
       "timeout_seconds": 240.0,
-      "verified_on": null,
-      "notes": "2.8T MoE, 104B active. Thinking is always on; reasoning effort is a provider-side setting, not a toggle. Hosted free tier queues about two minutes per request even for one-sentence replies (measured 121 s), hence the per-model timeout."
+      "verified_on": "2026-09-16",
+      "notes": "2.8T MoE, 104B active. Thinking always on. Verified 2026-09-16: json_schema structured output, tool calls, plain generation; every request took 114 to 128 s on the hosted free tier (queueing, not output length), hence the per-model timeout."
     },
     {
       "model": "deepseek-ai/deepseek-v4-flash-0731",
@@ -67,8 +67,8 @@
       "expected_latency_ms": 120000,
       "default_reasoning": null,
       "timeout_seconds": 240.0,
-      "verified_on": null,
-      "notes": "304B MoE. Independent evaluator, deliberately a different family from the planner. Hosted free tier queues about two minutes per request (measured 123 s), hence the per-model timeout. Some accounts need access enabled on build.nvidia.com; the smoke command surfaces that as PROVIDER_REQUEST_REJECTED."
+      "verified_on": "2026-09-16",
+      "notes": "304B MoE. Independent evaluator, deliberately a different family from the planner. Verified 2026-09-16: json_schema structured output and tool calls; 115 to 119 s per request on the hosted free tier (queueing), hence the per-model timeout. Some accounts need access enabled on build.nvidia.com; the smoke command surfaces that as PROVIDER_REQUEST_REJECTED."
     },
     {
       "model": "nvidia/nemotron-3-embed-1b",

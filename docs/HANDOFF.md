@@ -1,6 +1,6 @@
 # NorthForge handoff (state as of 2026-09-16, end of Phase 4)
 
-Read this first in a new session, then `docs/IMPLEMENTATION_PLAN.md` (phase list), `DECISIONS.md` (ADR-001 to ADR-027), and `LOCAL_RUN.md` (git-ignored local commands). Repo: `C:\Users\shahm\Desktop\Per. Proj\NorthForge\NorthForge`, GitHub `Big-ShahMir/NorthForge`, branch `main`, HEAD `__HEAD__`, tree clean, in sync with origin.
+Read this first in a new session, then `docs/IMPLEMENTATION_PLAN.md` (phase list), `DECISIONS.md` (ADR-001 to ADR-027), and `LOCAL_RUN.md` (git-ignored local commands). Repo: `C:\Users\shahm\Desktop\Per. Proj\NorthForge\NorthForge`, GitHub `Big-ShahMir/NorthForge`, branch `main`, HEAD is the `docs: record Phase 4 verification` commit on top of `8b4d884`, tree clean, in sync with origin.
 
 ## 1. Mission and status
 
@@ -76,22 +76,28 @@ NorthForge is a supervised AI workflow product (portfolio MVP, synthetic data on
 | D12 | Windows worker cannot install POSIX signal handlers; in-flight jobs are not drained on stop. | Platform | Phase 10 deployment (Linux) makes this moot; note in ops docs. |
 | D13 | `docs/ARCHITECTURE.md` and `docs/TECH_STACK.md` not yet updated for MinIO-in-Phase-3 or lexical-first retrieval beyond the ADRs. | Minor | Phase 11 doc sweep, or when touching those files. |
 | D14 | `npm audit` shows 2 moderate advisories in transitive frontend deps. | Not blocking | Phase 9 hardening. |
+| D16 | Planner primary `nvidia/nemotron-3-super-120b-a12b` is intermittent on the hosted endpoint (tool calls HTTP 500 in 2 of 3 probes, one 60 s timeout); the router falls back to Lightning. | User's model choice; fallback covers it | Phase 5: count fallbacks in planner fixtures; if high, set `NVIDIA_MODEL_PLANNER=nvidia/nemotron-3.5-lightning-30b-a3b`. |
+| D17 | Kimi K3 (drafter) and DeepSeek V4 Flash (evaluator) take ~2 min per request on the free tier (queueing). | Hosted quota | Phase 8 evaluation: keep runs small, rely on the cache, or move those roles to Nemotron models via env vars. |
+| D18 | The commit `8b4d884` mixes the Phase 4 doc updates with the thinking-off fix (docs were staged before the fix landed). | History is not rewritten | None; noted for reviewers. |
 | D15 | Frontend `Envelope<T>` is hand-written (openapi-typescript emits concrete `Envelope_X_` types). | Cosmetic | Leave unless it drifts. |
 
-## 7. Phase 4 plan seed (next steps, exact)
+## 7. Phase 5 plan seed (next steps, exact)
 
-Goal per `docs/IMPLEMENTATION_PLAN.md` Phase 4 and `docs/MODEL_ROUTING.md`: backend-only NVIDIA adapter behind a `ModelProvider` interface; structured output, tool calls where supported, timeouts, retries, error normalisation; capability registry (structured output, tool use, context length, latency); routing by role (planner, extractor, drafter, evaluator; embedding/reranker optional); per-model request logging without secrets; caching for deterministic dev/eval requests; **mock provider** for tests; graceful fallback on unavailable/rate-limited models; active model recorded in run metadata. Acceptance: mocked flow completes offline; credentials only from env; provider errors become actionable app errors; rate-limit and timeout behaviour tested; real NVIDIA connectivity verified separately and documented.
+Goal per `docs/IMPLEMENTATION_PLAN.md` Phase 5: a LangGraph planner graph that turns a natural-language automation request into an editable, validated workflow proposal. Store the original request, planner model snapshot, proposed workflow, and validation warnings; reject unsupported tools and unsafe or ambiguous actions; ask for clarification or fall back safely when underspecified; fixtures for common, ambiguous, and malicious requests.
 
-Recommended design points to settle in plan mode:
-1. `northforge/providers/`: `ModelProvider` protocol (`generate`, `generate_structured`, `tool_call`, `embed`, `rerank`, `count_tokens` where supported) returning normalised `ModelResponse{content|parsed, usage, model, provider, latency_ms, request_id, warnings, cache_hit}`; `NvidiaProvider` over the OpenAI-compatible endpoint (`httpx`, no OpenAI SDK unless justified); `MockProvider` with scripted responses and failure injection (timeout, 429, 5xx, malformed JSON); `CachingProvider` decorator keyed by (model, messages, schema) stored in Redis with TTL for dev/eval only.
-2. `ModelRouter` with role → primary model + fallbacks from settings/config file, capability checks before selecting, per-model concurrency limits (semaphores), exponential backoff, circuit breaker per model.
-3. Structured output: parse against Pydantic; on malformed output one repair retry then fail safely (`PROVIDER_*` error codes from `docs/API_SPEC.md`: `PROVIDER_RATE_LIMITED`, `PROVIDER_UNAVAILABLE`).
-4. `GET /api/provider-status` (safe summary, no secrets) and readiness unaffected by provider outage.
-5. Tests: fake provider everywhere; a small live NVIDIA smoke test gated on `NVIDIA_API_KEY` presence and `NORTHFORGE_LIVE_MODELS=1`.
-6. User inputs needed at plan time: which NVIDIA models to route per role (verify availability and structured-output support on `integrate.api.nvidia.com`), and whether embeddings are added now (D4).
-7. Delegation: Sonnet for provider adapter + router + mock; Sonnet for caching, provider-status route, tests, docs; Fable reviews secret handling, retry/backoff logic, error mapping.
+What Phase 4 hands the planner:
+- `ModelRouter` on `app.state.model_router` (dependency `get_model_router`) and `ctx["model_router"]` in the worker. Use `router.generate_structured("planner", request, schema)` with `temperature=0` (cached in dev) and `router.tool_call("planner", ...)` for tool selection; `tool_definition_from_spec` turns registry `ToolSpec`s into tool definitions.
+- `router.snapshot()` is the JSON to store in `workflow_versions.model_config_json`; pass a `trace` callback collecting `ModelInvocationRecord`s for later persistence.
+- Planner prompts must follow the prompt-boundary rules in `docs/MODEL_ROUTING.md` (system policy, user request, retrieved text labelled untrusted). The verified planner model (`nvidia/nemotron-3-super-120b-a12b`) accepts `json_schema` structured output and tool calls with thinking off (the catalog default); `nvext_guided_json` is not needed.
 
-Before starting Phase 4: `docker compose up -d --wait`, confirm `git status` clean, address D1.
+Design points to settle in plan mode:
+1. Add `langgraph` (check the lock for a compatible version with pydantic 2.x) or a hand-rolled state machine; the plan requires LangGraph for planner and runner.
+2. Output schema for the proposal: reuse `schemas/workflow.py` definitions plus `assumptions`, `clarifying_questions`, `rejected_actions`; run `validate_workflow` on the proposal and feed problems back for one repair turn.
+3. API: `POST /api/projects/{id}/workflows/plan` (202 + job id via arq) per `docs/API_SPEC.md`; persist the draft version with `source_request` and `model_config_json`.
+4. Fixtures: planner tests use `MODEL_PROVIDER=mock` with scripted proposals (valid, invalid-then-repaired, unsupported tool, prompt-injection request); one live test gated on `NORTHFORGE_LIVE_MODELS=1`.
+5. Delegation: Sonnet for graph + schema + fixtures, Sonnet for API route + job + tests; Fable reviews prompt boundaries and the rejection logic.
+
+Before starting Phase 5: `docker compose up -d --wait`, confirm `git status` clean, ask the user for the CI result of the Phase 4 push (D1).
 
 ## 8. Quick commands
 
@@ -103,6 +109,8 @@ NORTHFORGE_INTEGRATION=1 uv run pytest -q         # 401 tests
 uv run python -m northforge.api                   # or the uvicorn --factory form when memory is tight
 uv run python -m northforge.worker                # --check for liveness; python -m northforge.worker.ping for a round trip
 uv run python -m northforge.ingestion.seed --project-id <uuid> [--grant-user "dev|alice" legal_restricted]
+uv run python -m northforge.providers.smoke [--verbose] [--json]   # live per-role verification, ~6 min (Kimi/DeepSeek queue ~2 min each)
+curl -s http://127.0.0.1:8000/api/provider-status -H "X-Dev-User: alice"
 uv run python -m northforge.api.export_openapi && cd ../frontend && npm run generate:api
 cd frontend && npm install && npm run dev         # http://localhost:5173/settings
 ```

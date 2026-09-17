@@ -88,7 +88,23 @@ Environment overrides: `NVIDIA_MODEL_PLANNER`, `NVIDIA_MODEL_EXTRACTION`, `NVIDI
 
 Run `cd backend && uv run python -m northforge.providers.smoke` with `NVIDIA_API_KEY` set and paste the table it prints here.
 
-_Pending: the smoke command has not been run against the live endpoint yet._
+Verified on 2026-09-16 (three full runs plus a direct diagnostic; latencies are single-request wall times on the free tier):
+
+| Role | Model | Verified | Structured mode | Tool calls | Latency (ms) |
+|---|---|---|---|---|---|
+| planner | nvidia/nemotron-3-super-120b-a12b | yes, intermittent | json_schema (2 of 3), prompt_only otherwise | 1 of 3 (HTTP 500 otherwise) | 550 to 1700 |
+| extractor | nvidia/nemotron-3.5-lightning-30b-a3b | yes | json_schema | yes | 506 (thinking off) |
+| drafter | moonshotai/kimi-k3 | yes | json_schema | yes | 127663 |
+| evaluator | deepseek-ai/deepseek-v4-flash-0731 | yes | json_schema | yes | 119387 |
+| embedding | nvidia/nemotron-3-embed-1b | yes (2048 dims) | - | - | 372 |
+| reranker | nvidia/llama-nemotron-rerank-vl-1b-v2 | yes | - | - | 263 |
+
+Findings that shaped the catalog:
+
+- Hosted Nemotron models return HTTP 500 or an empty tool call when thinking is on; the catalog sets `default_reasoning: false` for both and the adapter sends `enable_thinking: false` unless a request asks otherwise. Lightning's structured call dropped from about 30 s to 0.5 s with thinking off.
+- Nemotron 3 Super is intermittent on the hosted endpoint: one structured call in three timed out at 60 s, and two tool calls in three failed with HTTP 500 regardless of the thinking setting. Both failures are fallback-eligible, so planner calls land on Lightning when Super misbehaves; if Phase 5 fixtures show a high fallback rate, swap the planner primary to Lightning (one environment variable).
+- `nvext.guided_json` is rejected by the hosted endpoint with HTTP 400 (unknown field); `json_schema` is the working structured mode for every generation model.
+- Kimi K3 and DeepSeek V4 Flash queue for about two minutes per request on the free tier even for one-sentence replies (`completion_tokens` under 100). The catalog gives them a 240 s timeout. Evaluation runs that use them will be slow; the deterministic-request cache makes repeated runs cheap.
 
 ## Initial policy
 
