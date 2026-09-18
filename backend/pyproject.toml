@@ -17,6 +17,7 @@ dependencies = [
   "pyjwt[crypto]>=2.9",
   "aiobotocore>=2.15",
   "httpx2>=2.13.0",
+  "langgraph>=1.2.11",
 ]
 
 [dependency-groups]

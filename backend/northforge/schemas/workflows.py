@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class WorkflowCreate(BaseModel):
@@ -28,6 +28,36 @@ class VersionCreate(BaseModel):
 
 class VersionUpdate(BaseModel):
     definition: dict[str, Any]
+
+
+class PlanRequest(BaseModel):
+    """Body of the planning endpoints (Phase 5).
+
+    ``request`` is required when planning a new workflow. On a re-plan
+    (``POST /api/workflows/{id}/plan``) it may be omitted to reuse the base
+    version's request, in which case ``answers`` must be non-empty. ``answers``
+    are free-text replies to the previous version's clarifying questions.
+    """
+
+    request: str | None = Field(default=None, min_length=1, max_length=4000)
+    answers: list[str] = Field(default_factory=list, max_length=10)
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+
+    @field_validator("answers")
+    @classmethod
+    def _answers_non_empty(cls, value: list[str]) -> list[str]:
+        cleaned = [answer.strip() for answer in value]
+        if any(not answer for answer in cleaned):
+            raise ValueError("answers must not be empty strings")
+        if any(len(answer) > 1000 for answer in cleaned):
+            raise ValueError("each answer must be at most 1000 characters")
+        return cleaned
+
+
+class PlanAccepted(BaseModel):
+    """202 body: poll ``GET /api/jobs/{job_id}``; its ``result`` is a ``PlanJobResult``."""
+
+    job_id: str
 
 
 class VersionSummary(BaseModel):
