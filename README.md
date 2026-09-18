@@ -6,7 +6,7 @@ This is a portfolio MVP built on synthetic data. It is not a security-certified,
 
 ## Status
 
-Phase 0 (repository bootstrap) is complete. The API, worker, database, queue, and frontend shell start from documented commands and each component's health is independently verifiable. Product behaviour (projects, workflows, runs, evaluations) begins in Phase 1. See `docs/IMPLEMENTATION_PLAN.md`.
+Phases 0 to 5 are complete: bootstrap and health, the data model and authentication, the typed workflow language with two-layer validation and read-only tools, the synthetic corpus with full-text retrieval, the NVIDIA model provider layer with routing and fallback, and the natural-language planner that turns a request into an editable, validated draft workflow. Runs (Phase 6), the builder and supervision UI (Phase 7), and evaluation (Phase 8) are next. See `docs/IMPLEMENTATION_PLAN.md` and `docs/HANDOFF.md`.
 
 ## Architecture in one paragraph
 
@@ -133,6 +133,32 @@ It prints an `IngestionReport` as JSON (documents created/updated/skipped, chunk
 
 The same ingestion also runs asynchronously through the API: `POST /api/projects/{project_id}/documents/ingest` enqueues the `ingest_synthetic_dataset` worker job and returns `202 {job_id}` immediately; poll `GET /api/jobs/{job_id}` for its status (`queued`, `in_progress`, `complete`, or `failed`). This needs the worker running (`python -m northforge.worker`) to actually process the job -- see `docs/API_SPEC.md`.
 
+## Planning a workflow from natural language
+
+The planner (`backend/northforge/planner/`, ADR-028) turns a plain-language request into a draft workflow version. It is a LangGraph graph run by the worker: a deterministic screen records side-effect requests and prompt-injection markers, the model may probe the project with the read-only tools (at most four calls), it proposes a workflow as structured output, and code compiles the proposal into the typed workflow language under fixed rules (registered tools only, a human review before finish, recomputed approval points) and runs the same semantic validation as the validate endpoint, sending problems back to the model once. The draft stores the request, the model routing snapshot, and a `planner_output` with assumptions, clarifying questions, rejected actions, remaining validation problems, and per-call model records.
+
+With the API and worker running (mock provider works offline: `MODEL_PROVIDER=mock`):
+
+```bash
+# 1. plan a new workflow in a project (202 + job id)
+curl -s -X POST http://127.0.0.1:8000/api/projects/<project_id>/workflows/plan \
+  -H "Content-Type: application/json" -H "X-Dev-User: alice" \
+  -d '{"request": "Review each vendor MSA for renewal notice periods shorter than our policy and draft a summary for legal."}'
+
+# 2. poll until complete; result has outcome, workflow_id, version_id
+curl -s http://127.0.0.1:8000/api/jobs/<job_id> -H "X-Dev-User: alice"
+
+# 3. read the draft: definition, validation_warnings, planner_output, model_snapshot
+curl -s http://127.0.0.1:8000/api/workflow-versions/<version_id> -H "X-Dev-User: alice"
+
+# 4. answer clarifying questions by re-planning as a new draft version
+curl -s -X POST http://127.0.0.1:8000/api/workflows/<workflow_id>/plan \
+  -H "Content-Type: application/json" -H "X-Dev-User: alice" \
+  -d '{"answers": ["Only Acme Cloud Services", "Renewal notice must be at least 60 days"]}'
+```
+
+A request that only asks for side effects (send, pay, sign, delete, and similar) or contains nothing the steps can express yields `outcome: rejected` with the reasons in the job result and creates nothing. The draft is never executable until `validate` and `approve` succeed.
+
 ## Quality checks
 
 Backend (from `backend/`):
@@ -189,7 +215,8 @@ Model calls go through `northforge.providers` (see `docs/MODEL_ROUTING.md` and A
 ## Known limitations
 
 - Projects and workflows have a backend API (see `docs/API_SPEC.md`) but no frontend UI yet; there is no run or evaluation support yet either. Sidebar entries for those areas render a clearly labelled "not yet implemented" page.
-- The model provider layer exists but nothing calls it yet: the planner (Phase 5) and runner (Phase 6) are the first consumers. Embedding and reranking adapters exist; retrieval still ranks with PostgreSQL full-text search only (ADR-027).
+- The planner is the only consumer of the model provider layer so far; the runner (Phase 6) and evaluator (Phase 8) follow. Embedding and reranking adapters exist; retrieval still ranks with PostgreSQL full-text search only (ADR-027).
+- `planner_output` describes a draft as the planner generated it and is not updated when the draft is edited by hand.
 - The readiness endpoint opens a fresh PostgreSQL connection per probe; a pooled engine arrives with the Phase 1 data layer.
 - Windows: the worker cannot install POSIX signal handlers, so stop it with Ctrl+C in its terminal; in-flight jobs are not gracefully drained.
 - Docker Desktop must be running before `docker compose up`.

@@ -106,6 +106,18 @@ Findings that shaped the catalog:
 - `nvext.guided_json` is rejected by the hosted endpoint with HTTP 400 (unknown field); `json_schema` is the working structured mode for every generation model.
 - Kimi K3 and DeepSeek V4 Flash queue for about two minutes per request on the free tier even for one-sentence replies (`completion_tokens` under 100). The catalog gives them a 240 s timeout. Evaluation runs that use them will be slow; the deterministic-request cache makes repeated runs cheap.
 
+### Planner prompts and budget (Phase 5)
+
+The planner (`northforge/planner/`, ADR-028) is the first consumer of the `planner` role and follows the prompt boundaries above literally:
+
+| Layer | Content | Trust |
+|---|---|---|
+| System | Generated from `STEP_MODELS` and the live tool registry: the step table (config fields, output fields, allowed tools), the tool list with side-effect class, the ten planning rules, one example proposal, and the statement that block contents are data. | NorthForge policy |
+| User | `<grounding>` (document types, vendors, policy areas visible to the caller, with counts), `<excluded_actions>` (what the deterministic screen already rejected), `<previous_request>` / `<previous_questions>` / `<answers>` on a re-plan, `<tool_result name=... trust="untrusted">` blocks, then `<user_request>`. Every block's text has `</` broken so it cannot close its delimiter. | Requester and tools, untrusted |
+| Repair | The validator's problem list (code, path, message) and a request for the complete corrected proposal. Policy is not restated. | NorthForge |
+
+Requests per plan: up to two `tool_call` probe rounds (at most four tool invocations, all read-only, through `invoke_tool` with the caller's access groups), one `generate_structured` propose call, and at most one repair call: two to five requests, all at temperature 0 so the development cache makes repeats free. Probe failures (provider or tool errors) are recorded as warnings and never block proposing. Every call produces a `ModelInvocationRecord` stored in the version's `planner_output_json`; the `fallback_count` there is the D16 measurement for whether Nemotron 3 Super should stay the planner primary. `tests/planner/test_live_planner.py` (gated on `NORTHFORGE_LIVE_MODELS=1`) prints the models and fallback count for one full pass.
+
 ## Initial policy
 
 Use one primary planning model, one efficient extraction model, and an independent evaluator model only when evaluation quality requires it. Use local embeddings initially if hosted embedding quotas or availability are uncertain. Keep the model assignment configurable so later experiments do not change workflow code.
