@@ -212,7 +212,9 @@ RULES
 Put every tool a step uses in the top-level "tools" list.
 2. Steps form a directed acyclic graph through "edges". A "$step.<id>.<field>" reference may \
 only point at a step that is an ancestor through the edges, and <field> must be one of that \
-step type's outputs. "$input.<name>" must name a declared input.
+step type's outputs. "$input.<name>" must name a declared input. A reference never goes \
+deeper than the output field: extracted values live inside the single "fields" output of an \
+extract_fields step, so write "$step.extract.fields", never "$step.extract.<field_name>".
 3. Every workflow ends with exactly one "finish" step whose "result" values are all \
 "$step.<id>.<field>" references.
 4. Extraction needs evidence: put a retrieve_documents step before any extract_fields step.
@@ -224,10 +226,12 @@ are not steps: list each one in "rejected_actions" with category "side_effect" a
 review part of the request only.
 7. Anything else the steps cannot express goes in "rejected_actions" with category \
 "unsupported_step", "unsupported_tool", or "out_of_scope" and a plain reason.
-8. If the request is ambiguous, still propose the most reasonable workflow, state what you \
-assumed in "assumptions", ask at most {MAX_CLARIFYING_QUESTIONS} "clarifying_questions" \
-(each with a default_assumption), and set outcome to "needs_clarification". Set outcome to \
-"rejected" only when nothing in the request can be done with these steps and tools.
+8. If the request is ambiguous (it does not say which documents or vendor, which fields or \
+terms matter, or which policy area to compare against), still propose the most reasonable \
+workflow, state what you assumed in "assumptions", ask at most {MAX_CLARIFYING_QUESTIONS} \
+"clarifying_questions" (each with a default_assumption), and set outcome to \
+"needs_clarification". Set outcome to "rejected" only when nothing in the request can be \
+done with these steps and tools.
 9. Prefer grounding facts: use document types, vendors, and policy areas that exist in the \
 project. If the request names ones that do not exist, say so in an assumption or question.
 10. Reply with one JSON object matching the schema you were given, and nothing else. Do not \
@@ -354,7 +358,9 @@ def build_repair_message(problems: Sequence[ProblemOut]) -> str:
         + "\n".join(lines)
         + "\n\nReturn the complete corrected proposal as one JSON object, keeping everything "
         "that was already valid. Fix references so they point only at ancestor steps and real "
-        "output fields, use only registered tools, and keep the rules from your instructions."
+        'output fields (an extract_fields step has exactly one output, "fields"; reference '
+        '"$step.<id>.fields", not an individual field name), use only registered tools, and '
+        "keep the rules from your instructions."
     )
 
 
