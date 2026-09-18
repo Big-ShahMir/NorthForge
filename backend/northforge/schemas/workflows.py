@@ -79,6 +79,8 @@ class VersionOut(BaseModel):
     status: str
     definition: dict[str, Any] = Field(validation_alias="definition_json")
     validation_warnings: list[str] = Field(validation_alias="validation_warnings_json")
+    planner_output: dict[str, Any] = Field(validation_alias="planner_output_json")
+    model_snapshot: dict[str, Any] = Field(validation_alias="model_config_json")
     source_request: str | None = None
     created_at: datetime
     approved_at: datetime | None = None

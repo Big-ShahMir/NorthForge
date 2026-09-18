@@ -22,7 +22,7 @@ PostgreSQL is the source of truth for product metadata, workflow definitions, ru
 
 ### `workflow_versions`
 
-`id`, `workflow_id`, `version_number`, `definition_json`, `status`, `source_request`, `validation_warnings_json`, `model_config_json`, `created_by`, `created_at`, `approved_at`.
+`id`, `workflow_id`, `version_number`, `definition_json`, `status`, `source_request`, `validation_warnings_json`, `model_config_json`, `planner_output_json` (planner assumptions, questions, rejected actions, remaining validation problems, and trace-safe model/tool records for versions created by the Phase 5 planner; `{}` otherwise), `created_by`, `created_at`, `approved_at`.
 
 Statuses: `draft`, `validated`, `approved`, `archived`.
 

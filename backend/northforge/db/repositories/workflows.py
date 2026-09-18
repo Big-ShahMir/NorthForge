@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import asdict
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +31,11 @@ class WorkflowsRepository:
         description: str,
         definition: WorkflowDefinition,
         created_by: uuid.UUID,
+        *,
+        source_request: str | None = None,
+        model_config_json: dict[str, Any] | None = None,
+        planner_output_json: dict[str, Any] | None = None,
+        validation_warnings: list[str] | None = None,
     ) -> Workflow:
         workflow = Workflow(
             project_id=project.id, name=name, description=description, created_by=created_by
@@ -37,12 +43,23 @@ class WorkflowsRepository:
         self._session.add(workflow)
         await self._session.flush()
 
+        version_kwargs: dict[str, Any] = {}
+        if source_request is not None:
+            version_kwargs["source_request"] = source_request
+        if model_config_json is not None:
+            version_kwargs["model_config_json"] = model_config_json
+        if planner_output_json is not None:
+            version_kwargs["planner_output_json"] = planner_output_json
+        if validation_warnings is not None:
+            version_kwargs["validation_warnings_json"] = validation_warnings
+
         version = WorkflowVersion(
             workflow_id=workflow.id,
             version_number=1,
             definition_json=definition.model_dump(mode="json"),
             status=WorkflowVersionStatus.DRAFT.value,
             created_by=created_by,
+            **version_kwargs,
         )
         self._session.add(version)
         await self._session.flush()
@@ -104,9 +121,21 @@ class WorkflowsRepository:
         definition: WorkflowDefinition,
         created_by: uuid.UUID,
         source_request: str | None = None,
+        *,
+        model_config_json: dict[str, Any] | None = None,
+        planner_output_json: dict[str, Any] | None = None,
+        validation_warnings: list[str] | None = None,
     ) -> WorkflowVersion:
         """A new draft version. ``workflow.current_version_id`` is left unchanged."""
         next_number = await self._next_version_number(workflow.id)
+        version_kwargs: dict[str, Any] = {}
+        if model_config_json is not None:
+            version_kwargs["model_config_json"] = model_config_json
+        if planner_output_json is not None:
+            version_kwargs["planner_output_json"] = planner_output_json
+        if validation_warnings is not None:
+            version_kwargs["validation_warnings_json"] = validation_warnings
+
         version = WorkflowVersion(
             workflow_id=workflow.id,
             version_number=next_number,
@@ -114,10 +143,21 @@ class WorkflowsRepository:
             status=WorkflowVersionStatus.DRAFT.value,
             source_request=source_request,
             created_by=created_by,
+            **version_kwargs,
         )
         self._session.add(version)
         await self._session.flush()
         return version
+
+    async def latest_version(self, workflow_id: uuid.UUID) -> WorkflowVersion | None:
+        """The version with the highest ``version_number`` for ``workflow_id``, if any."""
+        stmt = (
+            select(WorkflowVersion)
+            .where(WorkflowVersion.workflow_id == workflow_id)
+            .order_by(WorkflowVersion.version_number.desc())
+            .limit(1)
+        )
+        return (await self._session.execute(stmt)).scalar_one_or_none()
 
     async def update_definition(
         self, version: WorkflowVersion, definition: WorkflowDefinition

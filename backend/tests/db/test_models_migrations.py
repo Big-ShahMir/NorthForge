@@ -230,6 +230,15 @@ async def test_deferred_fk_current_version_id_works(
 
 
 @pytest.mark.asyncio
+async def test_planner_output_json_defaults_to_empty_object(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    _user, _project, _workflow, version = await _seed_version(db_session, make_user)
+
+    assert version.planner_output_json == {}
+
+
+@pytest.mark.asyncio
 async def test_jsonb_round_trips_nested_dict(db_session: AsyncSession, make_user: MakeUser) -> None:
     nested_definition = {
         "schema_version": 1,

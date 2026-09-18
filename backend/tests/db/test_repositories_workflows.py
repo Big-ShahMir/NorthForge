@@ -302,6 +302,125 @@ async def test_approve_sets_status_approved_at_and_current_version(
     assert workflow.current_version_id == v2.id
 
 
+async def test_create_persists_planner_kwargs(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+
+    workflow = await repo.create(
+        project,
+        "Review",
+        "",
+        _definition(),
+        owner.id,
+        source_request="draft a contract review workflow",
+        model_config_json={"planner": {"model": "nvidia/mock"}},
+        planner_output_json={"outcome": "proposed"},
+        validation_warnings=["w1: something"],
+    )
+
+    version = workflow.versions[0]
+    assert version.source_request == "draft a contract review workflow"
+    assert version.model_config_json == {"planner": {"model": "nvidia/mock"}}
+    assert version.planner_output_json == {"outcome": "proposed"}
+    assert version.validation_warnings_json == ["w1: something"]
+
+
+async def test_create_leaves_server_defaults_when_kwargs_omitted(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+
+    version = workflow.versions[0]
+    assert version.source_request is None
+    assert version.model_config_json == {}
+    assert version.planner_output_json == {}
+    assert version.validation_warnings_json == []
+
+
+async def test_create_version_persists_planner_kwargs(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+
+    v2 = await repo.create_version(
+        workflow,
+        _definition("Review v2"),
+        owner.id,
+        "please update",
+        model_config_json={"planner": {"model": "nvidia/mock"}},
+        planner_output_json={"outcome": "proposed"},
+        validation_warnings=["w1: something"],
+    )
+
+    assert v2.model_config_json == {"planner": {"model": "nvidia/mock"}}
+    assert v2.planner_output_json == {"outcome": "proposed"}
+    assert v2.validation_warnings_json == ["w1: something"]
+
+
+async def test_create_version_leaves_server_defaults_when_kwargs_omitted(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+
+    v2 = await repo.create_version(workflow, _definition("Review v2"), owner.id)
+
+    assert v2.model_config_json == {}
+    assert v2.planner_output_json == {}
+    assert v2.validation_warnings_json == []
+
+
+async def test_update_definition_does_not_clear_planner_output(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(
+        project,
+        "Review",
+        "",
+        _complete_definition(),
+        owner.id,
+        planner_output_json={"outcome": "proposed"},
+    )
+    version = workflow.versions[0]
+
+    updated = await repo.update_definition(version, _complete_definition("Review updated"))
+
+    assert updated.planner_output_json == {"outcome": "proposed"}
+
+
+async def test_latest_version_returns_highest_version_number(
+    db_session: AsyncSession, make_user: MakeUser
+) -> None:
+    owner, project = await _project(db_session, make_user)
+    repo = WorkflowsRepository(db_session)
+    workflow = await repo.create(project, "Review", "", _definition(), owner.id)
+    v2 = await repo.create_version(workflow, _definition("Review v2"), owner.id)
+
+    latest = await repo.latest_version(workflow.id)
+
+    assert latest is not None
+    assert latest.id == v2.id
+    assert latest.version_number == 2
+
+
+async def test_latest_version_returns_none_for_unknown_workflow(
+    db_session: AsyncSession,
+) -> None:
+    latest = await WorkflowsRepository(db_session).latest_version(uuid.uuid4())
+
+    assert latest is None
+
+
 async def test_restore_creates_new_draft_copying_definition(
     db_session: AsyncSession, make_user: MakeUser
 ) -> None:

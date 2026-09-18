@@ -167,6 +167,9 @@ class WorkflowVersion(Base):
     model_config_json: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
+    planner_output_json: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = created_at_column()
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
