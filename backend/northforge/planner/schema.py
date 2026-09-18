@@ -211,8 +211,15 @@ class PlanResult(BaseModel):
 
     @property
     def persistable(self) -> bool:
-        """A draft is stored unless the request was rejected outright or nothing parsed."""
-        return self.output.outcome != "rejected" and self.definition is not None
+        """Whether a draft should be stored.
+
+        Not when the request was rejected, nothing parsed, or there is no
+        ``finish`` step: a definition without one is not a workflow at all
+        (the model produced no usable steps), so it is reported, not saved.
+        """
+        if self.output.outcome == "rejected" or self.definition is None:
+            return False
+        return any(step.type == "finish" for step in self.definition.steps)
 
 
 class PlanJobResult(BaseModel):

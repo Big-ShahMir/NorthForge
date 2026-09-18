@@ -99,7 +99,7 @@ _EXAMPLE_PROPOSAL = {
             "id": "retrieve",
             "type": "retrieve_documents",
             "label": "Retrieve contracts",
-            "config": {"query": "$input.vendor", "document_types": ["contract"], "limit": 8},
+            "config": {"query": "$input.vendor", "document_types": ["msa"], "limit": 8},
         },
         {
             "id": "extract",
@@ -270,8 +270,10 @@ def _excluded_block(excluded: Sequence[RejectedAction]) -> str:
         for item in excluded
     ]
     return (
-        "<excluded_actions>\nNorthForge already excluded these parts of the request; do not "
-        "plan them, and keep them in rejected_actions:\n"
+        "<excluded_actions>\nNorthForge flagged these parts of the request as actions it will "
+        "not perform. Do not plan performing them and keep them in rejected_actions. If the "
+        "request only asks to review whether such an action is permitted or required by a "
+        "contract or policy, that review is still in scope: plan it.\n"
         + "\n".join(lines)
         + "\n</excluded_actions>"
     )
