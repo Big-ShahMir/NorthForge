@@ -28,9 +28,16 @@ from northforge.core.config import Settings, get_settings
 from northforge.core.logging import configure_logging
 from northforge.core.queue import QUEUE_NAME, WORKER_HEALTH_KEY
 from northforge.db.engine import create_engine, create_session_factory
+from northforge.db.models import User, Workflow
+from northforge.db.repositories.projects import ProjectsRepository
+from northforge.db.repositories.workflows import WorkflowsRepository
 from northforge.ingestion.pipeline import ingest_dataset
+from northforge.planner.schema import PlanJobResult
+from northforge.planner.service import plan_workflow as run_planner_service
+from northforge.providers.errors import ProviderError
 from northforge.providers.factory import build_model_router, close_model_router
 from northforge.storage.s3 import S3ObjectStorage
+from northforge.tools.registry import get_tool_registry
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +84,88 @@ async def ingest_synthetic_dataset(
     return dataclasses.asdict(report)
 
 
+async def plan_workflow(
+    ctx: dict[str, Any],
+    project_id: str,
+    user_id: str,
+    request: str | None,
+    answers: list[str],
+    name: str | None,
+    workflow_id: str | None,
+) -> dict[str, Any]:
+    """Run the planner for ``project_id`` and persist a draft version (see ``planner.service``).
+
+    Re-checks ownership of the project (and, on a re-plan, the workflow)
+    independently of the API route that enqueued this job, since a project
+    or workflow may have been deleted between enqueue and execution.
+    ``ProviderError`` is caught here and mapped to a ``failed``
+    ``PlanJobResult``; any other exception propagates so arq marks the job
+    failed.
+    """
+    started = time.perf_counter()
+    session_factory = ctx["session_factory"]
+
+    async with session_factory() as session:
+        user = await session.get(User, uuid.UUID(user_id))
+        if user is None:
+            return PlanJobResult(
+                outcome="failed", error_code="NOT_FOUND", message="User not found."
+            ).model_dump(mode="json")
+
+        project = await ProjectsRepository(session).get_for_owner(uuid.UUID(project_id), user.id)
+        if project is None:
+            return PlanJobResult(
+                outcome="failed", error_code="NOT_FOUND", message="Project not found."
+            ).model_dump(mode="json")
+
+        workflow: Workflow | None = None
+        if workflow_id is not None:
+            workflow = await WorkflowsRepository(session).get_for_owner(
+                uuid.UUID(workflow_id), user.id
+            )
+            if workflow is None:
+                return PlanJobResult(
+                    outcome="failed", error_code="NOT_FOUND", message="Workflow not found."
+                ).model_dump(mode="json")
+
+        try:
+            result = await run_planner_service(
+                session,
+                model_router=ctx["model_router"],
+                tool_registry=get_tool_registry(),
+                project=project,
+                user=user,
+                request=request,
+                answers=answers,
+                name=name,
+                workflow=workflow,
+            )
+        except ProviderError as exc:
+            await session.rollback()
+            logger.warning(
+                "plan_workflow job failed",
+                extra={"job_id": ctx.get("job_id"), "error_code": exc.code},
+            )
+            return PlanJobResult(
+                outcome="failed", error_code=exc.code, message=exc.message
+            ).model_dump(mode="json")
+
+        await session.commit()
+
+    duration_ms = round((time.perf_counter() - started) * 1000, 1)
+    logger.info(
+        "plan_workflow job completed",
+        extra={
+            "job_id": ctx.get("job_id"),
+            "outcome": result.outcome,
+            "workflow_id": str(result.workflow_id) if result.workflow_id else None,
+            "version_id": str(result.version_id) if result.version_id else None,
+            "duration_ms": duration_ms,
+        },
+    )
+    return result.model_dump(mode="json")
+
+
 async def on_startup(ctx: dict[str, Any]) -> None:
     logger.info("worker started", extra={"queue": QUEUE_NAME, "host": socket.gethostname()})
     settings = get_settings()
@@ -112,7 +201,7 @@ def redis_settings_from(settings: Settings) -> RedisSettings:
 
 def build_worker(settings: Settings) -> Worker:
     return Worker(
-        functions=[ping, ingest_synthetic_dataset],
+        functions=[ping, ingest_synthetic_dataset, plan_workflow],
         redis_settings=redis_settings_from(settings),
         queue_name=QUEUE_NAME,
         health_check_key=WORKER_HEALTH_KEY,

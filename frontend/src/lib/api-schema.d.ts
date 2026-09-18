@@ -177,6 +177,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{project_id}/workflows/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Plan New Workflow */
+        post: operations["plan_new_workflow_api_projects__project_id__workflows_plan_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/provider-status": {
         parameters: {
             query?: never;
@@ -308,6 +325,23 @@ export interface paths {
         get: operations["get_workflow_api_workflows__workflow_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workflows/{workflow_id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Replan Workflow */
+        post: operations["replan_workflow_api_workflows__workflow_id__plan_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -572,6 +606,13 @@ export interface components {
             /** Request Id */
             request_id: string;
         };
+        /** Envelope[PlanAccepted] */
+        Envelope_PlanAccepted_: {
+            data?: components["schemas"]["PlanAccepted"] | null;
+            error?: components["schemas"]["ErrorBody"] | null;
+            /** Request Id */
+            request_id: string;
+        };
         /** Envelope[ProjectList] */
         Envelope_ProjectList_: {
             data?: components["schemas"]["ProjectList"] | null;
@@ -740,6 +781,31 @@ export interface components {
             id: string;
             /** Subject */
             subject: string;
+        };
+        /**
+         * PlanAccepted
+         * @description 202 body: poll ``GET /api/jobs/{job_id}``; its ``result`` is a ``PlanJobResult``.
+         */
+        PlanAccepted: {
+            /** Job Id */
+            job_id: string;
+        };
+        /**
+         * PlanRequest
+         * @description Body of the planning endpoints (Phase 5).
+         *
+         *     ``request`` is required when planning a new workflow. On a re-plan
+         *     (``POST /api/workflows/{id}/plan``) it may be omitted to reuse the base
+         *     version's request, in which case ``answers`` must be non-empty. ``answers``
+         *     are free-text replies to the previous version's clarifying questions.
+         */
+        PlanRequest: {
+            /** Answers */
+            answers?: string[];
+            /** Name */
+            name?: string | null;
+            /** Request */
+            request?: string | null;
         };
         /** ProjectCreate */
         ProjectCreate: {
@@ -995,6 +1061,14 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Model Snapshot */
+            model_snapshot: {
+                [key: string]: unknown;
+            };
+            /** Planner Output */
+            planner_output: {
+                [key: string]: unknown;
+            };
             /** Source Request */
             source_request?: string | null;
             /** Status */
@@ -1551,6 +1625,41 @@ export interface operations {
             };
         };
     };
+    plan_new_workflow_api_projects__project_id__workflows_plan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PlanAccepted_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     provider_status_api_provider_status_get: {
         parameters: {
             query?: never;
@@ -1788,6 +1897,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_WorkflowDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replan_workflow_api_workflows__workflow_id__plan_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workflow_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PlanAccepted_"];
                 };
             };
             /** @description Validation Error */

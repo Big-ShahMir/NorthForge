@@ -14,6 +14,9 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel
 
 from northforge.core.config import Settings
+from northforge.providers.base import NotConfiguredProvider
+from northforge.providers.cache import CachingProvider
+from northforge.providers.errors import ProviderNotConfiguredError
 from northforge.providers.resilience import CircuitState
 from northforge.providers.router import ModelRouter
 from northforge.providers.types import MODEL_ROLES, ModelRole
@@ -111,4 +114,25 @@ def build_provider_status(router: ModelRouter, settings: Settings) -> ProviderSt
     )
 
 
-__all__ = ["LastError", "ProviderStatus", "RoleStatus", "build_provider_status"]
+def planner_configured(router: ModelRouter) -> bool:
+    """Whether the ``planner`` role currently resolves to a usable provider.
+
+    ``False`` when the role is disabled or unrouted, or when it resolves to
+    ``NotConfiguredProvider`` (no credentials), even behind a ``CachingProvider``.
+    """
+    try:
+        route = router.route("planner")
+        provider = router.provider_for(route)
+    except ProviderNotConfiguredError:
+        return False
+    inner = provider.inner if isinstance(provider, CachingProvider) else provider
+    return not isinstance(inner, NotConfiguredProvider)
+
+
+__all__ = [
+    "LastError",
+    "ProviderStatus",
+    "RoleStatus",
+    "build_provider_status",
+    "planner_configured",
+]

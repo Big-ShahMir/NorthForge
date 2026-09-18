@@ -8,15 +8,20 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from northforge.api.deps import get_session
+from northforge.api.deps import get_model_router, get_session
 from northforge.api.envelope import Envelope, request_id_of
 from northforge.auth.dependencies import get_current_user
-from northforge.core.errors import NotFoundError
+from northforge.core.errors import AppError, NotFoundError
 from northforge.db.models import User, Workflow, WorkflowVersion
 from northforge.db.repositories.projects import ProjectsRepository
 from northforge.db.repositories.workflows import WorkflowsRepository
+from northforge.providers.errors import ProviderNotConfiguredError
+from northforge.providers.router import ModelRouter
+from northforge.providers.status import planner_configured
 from northforge.schemas.workflow import validate_definition
 from northforge.schemas.workflows import (
+    PlanAccepted,
+    PlanRequest,
     VersionCreate,
     VersionOut,
     VersionSummary,
@@ -31,6 +36,7 @@ router = APIRouter(prefix="/api", tags=["workflows"])
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 Session = Annotated[AsyncSession, Depends(get_session)]
+Router = Annotated[ModelRouter, Depends(get_model_router)]
 
 
 def _version_out(version: WorkflowVersion) -> VersionOut:
@@ -110,6 +116,48 @@ async def create_workflow(
     )
 
 
+@router.post(
+    "/projects/{project_id}/workflows/plan",
+    response_model=Envelope[PlanAccepted],
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def plan_new_workflow(
+    request: Request,
+    project_id: uuid.UUID,
+    body: PlanRequest,
+    user: CurrentUser,
+    session: Session,
+    model_router: Router,
+) -> Envelope[PlanAccepted]:
+    project = await ProjectsRepository(session).get_for_owner(project_id, user.id)
+    if project is None:
+        raise NotFoundError("Project not found.")
+    if body.request is None:
+        raise AppError(
+            "A request is required to plan a new workflow.",
+            code="VALIDATION_ERROR",
+            status_code=422,
+        )
+    if not planner_configured(model_router):
+        raise ProviderNotConfiguredError("The planner model is not configured.")
+    pool = request.app.state.arq_pool
+    if pool is None:
+        raise AppError("Job queue is unavailable.", code="QUEUE_UNAVAILABLE", status_code=503)
+    job = await pool.enqueue_job(
+        "plan_workflow",
+        str(project_id),
+        str(user.id),
+        body.request,
+        body.answers,
+        body.name,
+        None,
+    )
+    job_id = job.job_id if job is not None else ""
+    return Envelope[PlanAccepted](
+        data=PlanAccepted(job_id=job_id), request_id=request_id_of(request)
+    )
+
+
 @router.get("/workflows/{workflow_id}", response_model=Envelope[WorkflowDetail])
 async def get_workflow(
     request: Request, workflow_id: uuid.UUID, user: CurrentUser, session: Session
@@ -119,6 +167,48 @@ async def get_workflow(
         raise NotFoundError("Workflow not found.")
     return Envelope[WorkflowDetail](
         data=_workflow_detail(workflow), request_id=request_id_of(request)
+    )
+
+
+@router.post(
+    "/workflows/{workflow_id}/plan",
+    response_model=Envelope[PlanAccepted],
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def replan_workflow(
+    request: Request,
+    workflow_id: uuid.UUID,
+    body: PlanRequest,
+    user: CurrentUser,
+    session: Session,
+    model_router: Router,
+) -> Envelope[PlanAccepted]:
+    workflow = await WorkflowsRepository(session).get_for_owner(workflow_id, user.id)
+    if workflow is None:
+        raise NotFoundError("Workflow not found.")
+    if body.request is None and not body.answers:
+        raise AppError(
+            "Provide a request or answers to re-plan.",
+            code="VALIDATION_ERROR",
+            status_code=422,
+        )
+    if not planner_configured(model_router):
+        raise ProviderNotConfiguredError("The planner model is not configured.")
+    pool = request.app.state.arq_pool
+    if pool is None:
+        raise AppError("Job queue is unavailable.", code="QUEUE_UNAVAILABLE", status_code=503)
+    job = await pool.enqueue_job(
+        "plan_workflow",
+        str(workflow.project_id),
+        str(user.id),
+        body.request,
+        body.answers,
+        body.name,
+        str(workflow.id),
+    )
+    job_id = job.job_id if job is not None else ""
+    return Envelope[PlanAccepted](
+        data=PlanAccepted(job_id=job_id), request_id=request_id_of(request)
     )
 
 

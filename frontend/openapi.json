@@ -621,6 +621,39 @@
         "title": "Envelope[MeOut]",
         "type": "object"
       },
+      "Envelope_PlanAccepted_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlanAccepted"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "Envelope[PlanAccepted]",
+        "type": "object"
+      },
       "Envelope_ProjectList_": {
         "properties": {
           "data": {
@@ -1220,6 +1253,61 @@
           "access_groups"
         ],
         "title": "MeOut",
+        "type": "object"
+      },
+      "PlanAccepted": {
+        "description": "202 body: poll ``GET /api/jobs/{job_id}``; its ``result`` is a ``PlanJobResult``.",
+        "properties": {
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id"
+        ],
+        "title": "PlanAccepted",
+        "type": "object"
+      },
+      "PlanRequest": {
+        "description": "Body of the planning endpoints (Phase 5).\n\n``request`` is required when planning a new workflow. On a re-plan\n(``POST /api/workflows/{id}/plan``) it may be omitted to reuse the base\nversion's request, in which case ``answers`` must be non-empty. ``answers``\nare free-text replies to the previous version's clarifying questions.",
+        "properties": {
+          "answers": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Answers",
+            "type": "array"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "request": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request"
+          }
+        },
+        "title": "PlanRequest",
         "type": "object"
       },
       "ProjectCreate": {
@@ -1905,6 +1993,16 @@
             "title": "Id",
             "type": "string"
           },
+          "model_snapshot": {
+            "additionalProperties": true,
+            "title": "Model Snapshot",
+            "type": "object"
+          },
+          "planner_output": {
+            "additionalProperties": true,
+            "title": "Planner Output",
+            "type": "object"
+          },
           "source_request": {
             "anyOf": [
               {
@@ -1944,6 +2042,8 @@
           "status",
           "definition",
           "validation_warnings",
+          "planner_output",
+          "model_snapshot",
           "created_at"
         ],
         "title": "VersionOut",
@@ -2864,6 +2964,59 @@
         ]
       }
     },
+    "/api/projects/{project_id}/workflows/plan": {
+      "post": {
+        "operationId": "plan_new_workflow_api_projects__project_id__workflows_plan_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PlanAccepted_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Plan New Workflow",
+        "tags": [
+          "workflows"
+        ]
+      }
+    },
     "/api/provider-status": {
       "get": {
         "operationId": "provider_status_api_provider_status_get",
@@ -3188,6 +3341,59 @@
           }
         },
         "summary": "Get Workflow",
+        "tags": [
+          "workflows"
+        ]
+      }
+    },
+    "/api/workflows/{workflow_id}/plan": {
+      "post": {
+        "operationId": "replan_workflow_api_workflows__workflow_id__plan_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workflow_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Workflow Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PlanAccepted_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replan Workflow",
         "tags": [
           "workflows"
         ]
