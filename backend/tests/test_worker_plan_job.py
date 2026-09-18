@@ -9,6 +9,8 @@ be executed at the time this file was written; see the handback report.
 
 from __future__ import annotations
 
+import subprocess
+import sys
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
 
@@ -108,7 +110,19 @@ async def test_plan_workflow_job_returns_failed_for_missing_project(
     assert result["error_code"] == "NOT_FOUND"
 
 
-@pytest.mark.usefixtures("db_session")
-async def test_module_imports_are_valid() -> None:
-    """Sanity check that the job function signature matches the arq registration."""
-    assert callable(plan_workflow)
+@pytest.mark.parametrize("module", ["northforge.worker.main", "northforge.api.main"])
+def test_entry_point_imports_cleanly_in_a_fresh_interpreter(module: str) -> None:
+    """Each process entry point must import from scratch, in its own import order.
+
+    Inside pytest every module is already loaded, so an in-process import
+    cannot detect a circular import; only a fresh interpreter can. The worker
+    hit exactly that when it started importing repositories before ``auth``.
+    """
+    result = subprocess.run(  # noqa: S603 - fixed argv, no untrusted input
+        [sys.executable, "-c", f"import {module}"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr[-2000:]

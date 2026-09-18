@@ -2,12 +2,19 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from northforge.auth.principal import Principal
 from northforge.db.models import User
+
+if TYPE_CHECKING:
+    # Type-only: importing ``northforge.auth`` at runtime here creates a cycle
+    # (auth.dependencies imports this module), which the worker entry point
+    # hits because it imports repositories before anything from ``auth``.
+    from northforge.auth.principal import Principal
 
 
 class UsersRepository:
